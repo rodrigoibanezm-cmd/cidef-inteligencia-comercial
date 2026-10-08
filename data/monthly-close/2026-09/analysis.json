@@ -1,0 +1,408 @@
+{
+  "schema_version": "1.0",
+  "period": "2026-09",
+  "insights": [
+    {
+      "id": "sales_dealer_growth",
+      "domain": "SALES",
+      "type": "STRENGTH",
+      "title": "El crecimiento de ventas está impulsado por dealers",
+      "summary": "CIDEF vendió 1.045 VIN en septiembre, 13,1% más que en septiembre de 2025. El canal dealer creció 43,8% YoY mientras tiendas propias cayó 17,8%.",
+      "evidence_refs": [
+        "sales.metrics.vin_sales",
+        "sales.scopes.own_stores.metrics.vin_sales",
+        "sales.scopes.dealers.metrics.vin_sales"
+      ]
+    },
+    {
+      "id": "rvm_monthly_share_loss",
+      "domain": "RVM",
+      "type": "RISK",
+      "title": "Septiembre pierde participación de mercado",
+      "summary": "Foton + DFM cayó 21,7% YoY en septiembre frente a una contracción de 2,8% del mercado, reduciendo su participación desde 4,15% a 3,35%.",
+      "evidence_refs": [
+        "rvm.metrics.market_units",
+        "rvm.metrics.portfolio_units",
+        "rvm.metrics.portfolio_share"
+      ]
+    },
+    {
+      "id": "rvm_dfm_pressure",
+      "domain": "RVM",
+      "type": "RISK",
+      "title": "DFM concentra la presión mensual",
+      "summary": "DFM cayó 47,1% YoY en septiembre. Las mayores caídas absolutas se concentraron en AEOLUS Y3, AEOLUS GS, MAGE y DF6.",
+      "evidence_refs": [
+        "rvm.breakdowns.brand",
+        "rvm.breakdowns.monthly_model_change_dfm"
+      ]
+    },
+    {
+      "id": "rvm_ytd_share_gain",
+      "domain": "RVM",
+      "type": "STRENGTH",
+      "title": "El acumulado anual sigue ganando participación",
+      "summary": "Entre enero y septiembre, Foton + DFM creció 10,1% YoY frente a un mercado que creció 2,3%, elevando su participación acumulada desde 2,85% a 3,07%.",
+      "evidence_refs": [
+        "rvm.scopes.ytd.metrics.market_units",
+        "rvm.scopes.ytd.metrics.portfolio_units",
+        "rvm.scopes.ytd.metrics.portfolio_share"
+      ]
+    },
+    {
+      "id": "rvm_foton_ytd_driver",
+      "domain": "RVM",
+      "type": "STRENGTH",
+      "title": "Foton explica el crecimiento acumulado",
+      "summary": "Foton crece 15,2% YoY en el acumulado enero-septiembre, mientras DFM permanece prácticamente plano (-1,8%).",
+      "evidence_refs": [
+        "rvm.scopes.ytd.metrics.foton_units",
+        "rvm.scopes.ytd.metrics.dfm_units"
+      ]
+    },
+    {
+      "id": "forum_own_store_opportunity_framework",
+      "domain": "FORUM",
+      "type": "OPPORTUNITY",
+      "title": "La cartera aprobada sin Curse se analizará contra capacidad real de venta",
+      "summary": "Para tiendas propias, el indicador operativo principal será aprobados sin Curse / VIN vendidos. No se interpreta como penetración ni conversión: sirve como índice de oportunidad atrapada y se combina con trayectoria de ventas y antigüedad del backlog.",
+      "evidence_refs": [
+        "forum.scopes.own_stores.breakdowns.september_store_approved_without_curse",
+        "forum.scopes.own_stores.breakdowns.september_store_sales"
+      ],
+      "methodology": {
+        "index": "approved_without_curse / sales_vin",
+        "interpretation_bands": [
+          {
+            "range": "<1x",
+            "meaning": "pocos aprobados pendientes en relación con ventas"
+          },
+          {
+            "range": "1-2x",
+            "meaning": "razonable; revisar antigüedad"
+          },
+          {
+            "range": "2-3x",
+            "meaning": "atención"
+          },
+          {
+            "range": ">3x",
+            "meaning": "recuperación comercial prioritaria"
+          },
+          {
+            "range": ">5x",
+            "meaning": "revisar proceso, datos o ejecución inmediatamente"
+          }
+        ],
+        "dimensions": [
+          "STORE",
+          "BRAND",
+          "MODEL"
+        ],
+        "drilldown_order": [
+          "NETWORK",
+          "STORE",
+          "BRAND",
+          "MODEL",
+          "OPERATION"
+        ],
+        "complementary_signals": [
+          "Q1-Q2-Q3-septiembre sales trajectory",
+          "age of approved-without-Curse backlog"
+        ]
+      }
+    },
+    {
+      "id": "forum_store_brand_dispersion",
+      "domain": "FORUM",
+      "type": "OPPORTUNITY",
+      "title": "La lectura por marca puede cambiar completamente el diagnóstico de una tienda",
+      "summary": "En septiembre la cartera aprobada pendiente presenta dispersiones importantes por marca. Costanera muestra 45 aprobadas Foton sobre 19 ventas Foton, pero 37 aprobadas Dongfeng sobre 4 ventas Dongfeng. Pajaritos muestra 23/25 en Foton y 23/8 en Dongfeng. Bellavista, en cambio, muestra 25/42 en Foton y 10/10 en Dongfeng. El análisis completo debe clasificar tienda y marca antes de bajar a modelo.",
+      "evidence_refs": [
+        "forum.scopes.own_stores.breakdowns.september_brand_store_approved_without_curse",
+        "forum.scopes.own_stores.breakdowns.september_brand_store_sales"
+      ],
+      "authority": "EDITORIAL_DERIVED_FROM_P1_FACTS"
+    },
+    {
+      "id": "forum_store_identity_ready",
+      "domain": "FORUM",
+      "type": "STRENGTH",
+      "title": "Septiembre ya tiene identidad de tienda Forum reconciliada con SALES",
+      "summary": "El análisis de septiembre puede cruzar SALES y FORUM por store_id canónico. En UFIs, cotizaciones y aprobadas sin Curse de septiembre, la identidad STORE quedó sin valores unresolved.",
+      "evidence_refs": [
+        "forum.scopes.own_stores.breakdowns.september_store_ufis",
+        "forum.scopes.own_stores.breakdowns.september_store_approved_without_curse"
+      ]
+    },
+    {
+      "id": "forum_own_store_priority_matrix",
+      "domain": "FORUM",
+      "type": "OPPORTUNITY",
+      "title": "Matriz de oportunidad atrapada por tienda propia",
+      "summary": "La prioridad combina trayectoria de ventas, aprobados sin Curse de septiembre, antigüedad del backlog y apertura Foton/Dongfeng. Las prioridades altas son Paseo Quilín, Plaza Egaña y Costanera; Plaza Sur, Concepción y Alameda requieren seguimiento por presión relevante pero con trayectorias comerciales más favorables.",
+      "evidence_refs": [
+        "forum.scopes.own_stores.breakdowns.store_sales_trajectory",
+        "forum.scopes.own_stores.breakdowns.approved_without_curse_by_cohort",
+        "forum.scopes.own_stores.breakdowns.september_brand_store_approved_without_curse",
+        "forum.scopes.own_stores.breakdowns.september_brand_store_sales"
+      ],
+      "authority": "EDITORIAL_DERIVED_FROM_P1_FACTS",
+      "matrix": [
+        {
+          "store_id": "21",
+          "store": "CIDEF Mall Paseo Quilin",
+          "priority": "PRIORIDAD_ALTA",
+          "sales_q1": 0,
+          "sales_q2": 0,
+          "sales_q3": 29,
+          "sales_sep": 5,
+          "approved_sep": 55,
+          "index_sep": 11,
+          "old_backlog_jul_aug": 98,
+          "foton_index": 15.5,
+          "dongfeng_index": 8,
+          "reading": "Escala aún baja y presión extrema en ambas marcas; backlog antiguo muy alto para su capacidad de venta."
+        },
+        {
+          "store_id": "11",
+          "store": "CIDEF Mall Plaza Egaña",
+          "priority": "PRIORIDAD_ALTA",
+          "sales_q1": 75,
+          "sales_q2": 91,
+          "sales_q3": 86,
+          "sales_sep": 19,
+          "approved_sep": 73,
+          "index_sep": 3.84,
+          "old_backlog_jul_aug": 205,
+          "foton_index": 3.42,
+          "dongfeng_index": 4.57,
+          "reading": "Tienda madura con caída Q3 vs Q2 y presión alta en ambas marcas; combina deterioro de venta con cartera aprobada persistente."
+        },
+        {
+          "store_id": "22",
+          "store": "CIDEF Mall Cenco Costanera",
+          "priority": "PRIORIDAD_ALTA",
+          "sales_q1": 0,
+          "sales_q2": 0,
+          "sales_q3": 54,
+          "sales_sep": 23,
+          "approved_sep": 82,
+          "index_sep": 3.57,
+          "old_backlog_jul_aug": 178,
+          "foton_index": 2.37,
+          "dongfeng_index": 9.25,
+          "reading": "El problema está fuertemente concentrado en Dongfeng; la marca tiene 37 aprobadas sin Curse frente a 4 ventas en septiembre."
+        },
+        {
+          "store_id": "18",
+          "store": "CIDEF Concepcion",
+          "priority": "VIGILAR",
+          "sales_q1": 92,
+          "sales_q2": 85,
+          "sales_q3": 90,
+          "sales_sep": 28,
+          "approved_sep": 80,
+          "index_sep": 2.86,
+          "old_backlog_jul_aug": 153,
+          "foton_index": 2.82,
+          "dongfeng_index": 3,
+          "reading": "Trayectoria estable pero presión cercana a 3x en ambas marcas; oportunidad operativa clara."
+        },
+        {
+          "store_id": "9",
+          "store": "CIDEF Mall Plaza Sur",
+          "priority": "VIGILAR_OPORTUNIDAD",
+          "sales_q1": 77,
+          "sales_q2": 101,
+          "sales_q3": 149,
+          "sales_sep": 30,
+          "approved_sep": 80,
+          "index_sep": 2.67,
+          "old_backlog_jul_aug": 211,
+          "foton_index": 2.11,
+          "dongfeng_index": 3.64,
+          "reading": "Q3 crece con fuerza; la presión es más una oportunidad de captura que un deterioro comercial, especialmente en Dongfeng."
+        },
+        {
+          "store_id": "19",
+          "store": "CIDEF Mall Alameda",
+          "priority": "VIGILAR_OPORTUNIDAD",
+          "sales_q1": 39,
+          "sales_q2": 46,
+          "sales_q3": 71,
+          "sales_sep": 25,
+          "approved_sep": 60,
+          "index_sep": 2.4,
+          "old_backlog_jul_aug": 174,
+          "foton_index": 2.5,
+          "dongfeng_index": 2.27,
+          "reading": "Fuerte crecimiento comercial y cartera aprobada relevante; conviene trabajar recuperación sin tratarla como tienda deteriorada."
+        },
+        {
+          "store_id": "5",
+          "store": "CIDEF Antofagasta",
+          "priority": "VIGILAR",
+          "sales_q1": 80,
+          "sales_q2": 91,
+          "sales_q3": 121,
+          "sales_sep": 33,
+          "approved_sep": 65,
+          "index_sep": 1.97,
+          "old_backlog_jul_aug": 177,
+          "foton_index": 1.52,
+          "dongfeng_index": 2.75,
+          "reading": "Crecimiento fuerte; Dongfeng concentra la principal presión relativa."
+        },
+        {
+          "store_id": "7",
+          "store": "CIDEF Mall Plaza Vespucio",
+          "priority": "VIGILAR",
+          "sales_q1": 109,
+          "sales_q2": 140,
+          "sales_q3": 135,
+          "sales_sep": 32,
+          "approved_sep": 54,
+          "index_sep": 1.69,
+          "old_backlog_jul_aug": 202,
+          "foton_index": 1.42,
+          "dongfeng_index": 2.08,
+          "reading": "Volumen alto y trayectoria estable; backlog antiguo amerita gestión, con mayor presión en Dongfeng."
+        },
+        {
+          "store_id": "4",
+          "store": "CIDEF Pajaritos",
+          "priority": "VIGILAR_MARCA",
+          "sales_q1": 101,
+          "sales_q2": 101,
+          "sales_q3": 111,
+          "sales_sep": 33,
+          "approved_sep": 46,
+          "index_sep": 1.39,
+          "old_backlog_jul_aug": 167,
+          "foton_index": 0.92,
+          "dongfeng_index": 2.88,
+          "reading": "El agregado luce sano, pero Dongfeng muestra una señal específica que se pierde al mirar sólo la tienda total."
+        },
+        {
+          "store_id": "20",
+          "store": "CIDEF Vicuña Mackenna",
+          "priority": "VIGILAR",
+          "sales_q1": 65,
+          "sales_q2": 83,
+          "sales_q3": 116,
+          "sales_sep": 30,
+          "approved_sep": 50,
+          "index_sep": 1.67,
+          "old_backlog_jul_aug": 110,
+          "foton_index": 1.5,
+          "dongfeng_index": 2,
+          "reading": "Trayectoria comercial fuerte y presión moderada; no es prioridad de intervención inmediata."
+        },
+        {
+          "store_id": "8",
+          "store": "CIDEF Mall Plaza Norte",
+          "priority": "SANA_BENCHMARK",
+          "sales_q1": 73,
+          "sales_q2": 105,
+          "sales_q3": 127,
+          "sales_sep": 29,
+          "approved_sep": 43,
+          "index_sep": 1.48,
+          "old_backlog_jul_aug": 181,
+          "foton_index": 1.46,
+          "dongfeng_index": 1.5,
+          "reading": "Crecimiento sostenido y presión equilibrada por marca; buen benchmark operativo."
+        },
+        {
+          "store_id": "10",
+          "store": "CIDEF Mall Plaza Oeste",
+          "priority": "SANA",
+          "sales_q1": 92,
+          "sales_q2": 110,
+          "sales_q3": 123,
+          "sales_sep": 37,
+          "approved_sep": 51,
+          "index_sep": 1.38,
+          "old_backlog_jul_aug": 122,
+          "foton_index": 1.21,
+          "dongfeng_index": 1.89,
+          "reading": "Trayectoria creciente y presión septiembre contenida."
+        },
+        {
+          "store_id": "3",
+          "store": "CIDEF Bellavista",
+          "priority": "SANA_CON_MATIZ",
+          "sales_q1": 92,
+          "sales_q2": 129,
+          "sales_q3": 126,
+          "sales_sep": 52,
+          "approved_sep": 35,
+          "index_sep": 0.67,
+          "old_backlog_jul_aug": 125,
+          "foton_index": 0.6,
+          "dongfeng_index": 1,
+          "reading": "La presión de aprobados de septiembre es baja pese al mayor volumen de ventas; su baja penetración UFI observada antes apunta a adopción/entrada a Forum más que a Curse pendiente."
+        }
+      ],
+      "model_drilldown_notes": [
+        {
+          "store": "CIDEF Mall Cenco Costanera",
+          "findings": [
+            "MAGE 14 aprobadas sin Curse / 4 ventas",
+            "V9 12/5",
+            "G9 8/7",
+            "TM5 3/1"
+          ],
+          "note": "La presión más fuerte de tienda proviene de Dongfeng; MAGE vuelve a aparecer como señal concreta."
+        },
+        {
+          "store": "CIDEF Mall Paseo Quilin",
+          "findings": [
+            "MAGE 9/2",
+            "MIDI 6/1",
+            "V9 3/1",
+            "HUGE 1/1"
+          ],
+          "note": "La tienda tiene presión alta en múltiples modelos y muy baja escala de ventas."
+        },
+        {
+          "store": "CIDEF Mall Plaza Sur",
+          "findings": [
+            "MAGE 10/4",
+            "MIDI 13/7",
+            "SX6 11/4",
+            "G7 10/4"
+          ],
+          "note": "Backlog relevante pero acompañado de fuerte crecimiento Q3; priorizar recuperación sin confundirlo con deterioro."
+        },
+        {
+          "store": "CIDEF Concepcion",
+          "findings": [
+            "G7 13/4",
+            "TM3 10/3",
+            "TM5 9/5",
+            "MAGE 7/1",
+            "V7 7/4"
+          ],
+          "note": "La presión se reparte entre varios modelos, no depende de un único producto."
+        },
+        {
+          "store": "CIDEF Pajaritos",
+          "findings": [
+            "MAGE 4/3",
+            "MIDI 5/9",
+            "TM3 7/4",
+            "TM5 2/4"
+          ],
+          "note": "El agregado por modelo es menos alarmante; la principal señal aparece al separar Dongfeng."
+        }
+      ],
+      "limitations": [
+        "El índice aprobados sin Curse / ventas es editorial y no es penetración ni conversión certificada.",
+        "COHORT_APPROVED refleja el estado actual de cohortes de cotización; julio y agosto representan backlog antiguo aún sin Curse al último snapshot disponible.",
+        "En Egaña el drill-down MODEL por filtro raw de Forum no fue utilizable de forma segura tras la canonicalización; su clasificación se sostiene en tienda y marca, donde la identidad sí está certificada."
+      ]
+    }
+  ]
+}
