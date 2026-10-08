@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1",
+  "period": "2026-09",
+  "source": "captura_front_ventas_aportada_por_usuario",
+  "status": "OBSERVED_NOT_CERTIFIED",
+  "scope": "OWN_STORES",
+  "sales_denominator": 375,
+  "with_financing": 198,
+  "without_financing": 177,
+  "entities": [
+    {
+      "entity": "FORUM",
+      "vins": 159
+    },
+    {
+      "entity": "TANNER",
+      "vins": 20
+    },
+    {
+      "entity": "GLOBAL SOLUCIONES",
+      "vins": 15
+    },
+    {
+      "entity": "AUTOFIN",
+      "vins": 4
+    }
+  ],
+  "note": "Imagen del módulo /ventas, no representa UFIs Forum. El denominador 375 difiere del cierre SALES histórico 377; mantener separada su medición hasta conciliar VIN y período."
+}
