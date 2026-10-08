@@ -1,0 +1,212 @@
+{
+  "schema_version": "1.0",
+  "period": "2026-09",
+  "status": "CLOSED",
+  "title": "CIDEF Septiembre 2026 — Cierre mensual ejecutivo",
+  "architecture": {
+    "company_level": [
+      "SALES",
+      "RVM",
+      "FORUM",
+      "CRM"
+    ],
+    "store_level": [
+      "SALES",
+      "FORUM",
+      "CRM"
+    ],
+    "note": "RVM es una capa externa de inscripciones de mercado y no se asigna a sucursales individuales."
+  },
+  "company": {
+    "period": "2026-09",
+    "sales": {
+      "total_vin": 1044,
+      "yoy_pct": 13,
+      "own_stores_vin": 377,
+      "own_stores_yoy_pct": -18,
+      "dealers_vin": 667,
+      "dealers_yoy_pct": 43.8
+    },
+    "forum": {
+      "own_store_sales_vin": 377,
+      "ufis": 174,
+      "ufi_penetration_pct": 46.15
+    },
+    "crm": {
+      "total_leads": 2985,
+      "total_managed": 2320,
+      "total_unmanaged": 665,
+      "total_management_rate": 0.7772194304857621,
+      "showroom": {
+        "leads": 633,
+        "managed": 490,
+        "unmanaged": 143,
+        "sold_declared": 212,
+        "management_rate": 0.7740916271721959,
+        "conversion_rate": 0.334913112164297
+      },
+      "internet": {
+        "leads": 2352,
+        "managed": 1830,
+        "unmanaged": 522,
+        "sold_declared": 47,
+        "management_rate": 0.7780612244897959,
+        "conversion_rate": 0.019982993197278913
+      }
+    },
+    "rvm": {
+      "focus_matrix": [
+        {
+          "focus": "FOTON_CAMIONETA",
+          "market_change_pct": -0.018398718024808594,
+          "brand_change_pct": 0.4982638888888889,
+          "share_prior_pct": 3.4186005104160486,
+          "share_current_pct": 5.217969647499849,
+          "share_delta_pp": 1.7993691370838003,
+          "classification": "MARKET_DOWN_SHARE_UP"
+        },
+        {
+          "focus": "FOTON_VEHICULO_COMERCIAL",
+          "market_change_pct": -0.11181044057756387,
+          "brand_change_pct": 0.0397456279809221,
+          "share_prior_pct": 15.52511415525114,
+          "share_current_pct": 18.174239266360985,
+          "share_delta_pp": 2.649125111109845,
+          "classification": "MARKET_DOWN_SHARE_UP"
+        },
+        {
+          "focus": "DFM_SUV",
+          "market_change_pct": 0.010425072517502345,
+          "brand_change_pct": -0.11755725190839694,
+          "share_prior_pct": 1.4285402717497981,
+          "share_current_pct": 1.247598696280947,
+          "share_delta_pp": -0.18094157546885112,
+          "classification": "MARKET_UP_SHARE_DOWN"
+        }
+      ],
+      "monthly_share_trajectory": {
+        "authority": "P2_DETERMINISTIC",
+        "transformation": "p2.proportion_across_periods",
+        "foton": [
+          {
+            "period": "2026-07",
+            "share_pct": 2.5766523744033654
+          },
+          {
+            "period": "2026-08",
+            "share_pct": 2.677803269285919
+          },
+          {
+            "period": "2026-09",
+            "share_pct": 2.5396108296492304
+          }
+        ],
+        "dfm": [
+          {
+            "period": "2026-07",
+            "share_pct": 0.7887711350214384
+          },
+          {
+            "period": "2026-08",
+            "share_pct": 1.0359908230570691
+          },
+          {
+            "period": "2026-09",
+            "share_pct": 0.8067378747297429
+          }
+        ],
+        "evidence": {
+          "market_series": "p1.rvm.b9ad3904e0a0ccfdb179b1fa",
+          "foton_series": "p1.rvm.f6ee7eea80d9dd4378115d29",
+          "dfm_series": "p1.rvm.001070d1a721a7972403ba09"
+        }
+      },
+      "executive_findings": [
+        {
+          "id": "FOTON_PICKUP_SHARE_GAIN",
+          "severity": "STRENGTH",
+          "statement": "Foton Camionetas gana participación en un segmento levemente contractivo: las unidades crecen 49,8% mientras el segmento cae 1,8%, llevando la participación de 3,42% a 5,22% (+1,80 pp). G7 es el principal motor interno del crecimiento (+234 VIN)."
+        },
+        {
+          "id": "FOTON_COMMERCIAL_LEADERSHIP",
+          "severity": "STRENGTH",
+          "statement": "Foton Vehículo Comercial crece 4,0% mientras el segmento cae 11,2%, elevando su participación de 15,53% a 18,17% (+2,65 pp). El resultado se apoya en TM5, TM3 y el nuevo volumen de VIEW, mientras MIDI, WONDER y Furgón FT retroceden."
+        },
+        {
+          "id": "FOTON_REGIONAL_EXPANSION",
+          "severity": "STRENGTH",
+          "statement": "Las ganancias de Foton en el tercer trimestre no se concentran sólo en la Región Metropolitana; también hay expansión relevante de participación en Valparaíso, Maule, Los Lagos y Araucanía, según segmento."
+        },
+        {
+          "id": "DFM_SUV_COMPETITIVE_LOSS",
+          "severity": "ALERT",
+          "statement": "DFM SUV pierde posición competitiva en un segmento que crece 1,0%: DFM cae 11,8% en unidades y su participación baja de 1,43% a 1,25% (-0,18 pp)."
+        },
+        {
+          "id": "DFM_PORTFOLIO_REPLACEMENT",
+          "severity": "ALERT",
+          "statement": "MAGE (+41) y HUGE (+34) compensan parcialmente las caídas de SX6, T5 EVO, AEOLUS GS y T5L. El deterioro de DFM se concentra en el mix de modelos que retroceden y no en todo el portafolio."
+        },
+        {
+          "id": "DFM_RECOVERY_NOT_SUSTAINED",
+          "severity": "ALERT",
+          "statement": "La participación mensual de DFM mejora en agosto de 2026 hasta 1,04%, pero vuelve a 0,81% en septiembre, cerca del 0,79% de julio. La trayectoria certificada no muestra una recuperación sostenida al cierre del trimestre."
+        }
+      ]
+    }
+  },
+  "executive_messages": [
+    {
+      "id": "SALES_CHANNEL_DIVERGENCE",
+      "domain": "SALES",
+      "type": "ALERT",
+      "statement": "CIDEF cierra septiembre con 1.044 VIN (+13% interanual), pero el crecimiento se concentra en dealers: 667 VIN (+43,8%) frente a 377 VIN en tiendas propias (-18%)."
+    },
+    {
+      "id": "FOTON_MARKET_STRENGTH",
+      "domain": "RVM",
+      "type": "STRENGTH",
+      "statement": "Foton gana posición competitiva en el tercer trimestre tanto en Camionetas como en Vehículo Comercial: +1,80 pp y +2,65 pp de participación respectivamente, pese a que ambos segmentos se contraen."
+    },
+    {
+      "id": "DFM_SUV_ALERT",
+      "domain": "RVM",
+      "type": "ALERT",
+      "statement": "DFM pierde posición en SUV: el segmento crece 1,0% en el tercer trimestre mientras DFM cae 11,8%, reduciendo su participación de 1,43% a 1,25%."
+    },
+    {
+      "id": "OWN_STORE_UFI",
+      "domain": "FORUM",
+      "type": "CONTEXT",
+      "statement": "Las tiendas propias registran 174 UFIs sobre 377 ventas de septiembre, equivalente a una penetración aritmética del 46,15% en el mismo período."
+    },
+    {
+      "id": "CRM_MANAGEMENT",
+      "domain": "CRM",
+      "type": "CONTEXT",
+      "statement": "CRM cierra con 2.985 leads creados en septiembre y 2.320 gestionados (77,7%). SHOWROOM e INTERNET tienen tasas agregadas de gestión similares, por lo que la brecha accionable aparece principalmente a nivel de sucursal y vendedor."
+    }
+  ],
+  "store_priority_logic": {
+    "purpose": "Bajar desde el resultado compañía hacia acciones concretas por sucursal.",
+    "dimensions": [
+      "Ventas de septiembre y trayectoria Q1/Q2/Q3",
+      "UFIs Forum y razón aritmética UFI/ventas del mismo período",
+      "Gestión CRM SHOWROOM",
+      "Gestión CRM INTERNET",
+      "Detalle por vendedor dentro de cada canal CRM"
+    ],
+    "guardrails": [
+      "No interpretar aprobaciones Forum como oportunidades calientes ni ventas en última milla.",
+      "SOLD en CRM es un resultado declarado en el estado actual del CRM, no una venta ERP certificada.",
+      "RVM es una vista de inscripciones de mercado y no se reconcilia directamente con ventas ERP por sucursal.",
+      "Las identidades de vendedor no resueltas, ambiguas o no aplicables se mantienen explícitas."
+    ]
+  },
+  "source_files": [
+    "monthly-close/2026-09/facts.json",
+    "monthly-close/2026-09/rvm-deep-close-facts.json",
+    "monthly-close/2026-09/rvm-deep-close-analysis.json",
+    "monthly-close/2026-09/crm-showroom-internet-facts.json"
+  ]
+}
