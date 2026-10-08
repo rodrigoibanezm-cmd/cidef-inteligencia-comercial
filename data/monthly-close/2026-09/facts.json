@@ -1,0 +1,1359 @@
+{
+  "schema_version": "1.0",
+  "period": "2026-09",
+  "domains": {
+    "sales": {
+      "status": "CLOSED",
+      "metrics": {
+        "vin_sales": {
+          "value": 1044,
+          "unit": "VIN",
+          "comparison": 924,
+          "comparison_period": "2025-09",
+          "comparison_type": "YOY",
+          "delta": 120,
+          "delta_pct": 13
+        }
+      },
+      "breakdowns": {
+        "network": [
+          {
+            "id": "OWN_STORES",
+            "label": "Tiendas propias",
+            "value": 377,
+            "unit": "VIN"
+          },
+          {
+            "id": "DEALERS",
+            "label": "Dealers",
+            "value": 667,
+            "unit": "VIN"
+          }
+        ],
+        "brand": [
+          {
+            "id": "FOTON",
+            "label": "Foton",
+            "value": 840,
+            "unit": "VIN"
+          },
+          {
+            "id": "DONGFENG",
+            "label": "Dongfeng",
+            "value": 205,
+            "unit": "VIN"
+          }
+        ]
+      },
+      "rankings": {
+        "stores": [
+          {
+            "id": "3",
+            "label": "CIDEF Bellavista",
+            "value": 52,
+            "unit": "VIN"
+          },
+          {
+            "id": "10",
+            "label": "CIDEF Mall Plaza Oeste",
+            "value": 37,
+            "unit": "VIN"
+          },
+          {
+            "id": "4",
+            "label": "CIDEF Pajaritos",
+            "value": 33,
+            "unit": "VIN"
+          },
+          {
+            "id": "5",
+            "label": "CIDEF Antofagasta",
+            "value": 33,
+            "unit": "VIN"
+          },
+          {
+            "id": "7",
+            "label": "CIDEF Mall Plaza Vespucio",
+            "value": 32,
+            "unit": "VIN"
+          }
+        ],
+        "models": [
+          {
+            "id": "28",
+            "label": "G7",
+            "value": 185,
+            "unit": "VIN"
+          },
+          {
+            "id": "17",
+            "label": "TM5",
+            "value": 178,
+            "unit": "VIN"
+          },
+          {
+            "id": "765",
+            "label": "TM3",
+            "value": 175,
+            "unit": "VIN"
+          },
+          {
+            "id": "176",
+            "label": "MIDI",
+            "value": 115,
+            "unit": "VIN"
+          },
+          {
+            "id": "426",
+            "label": "V9",
+            "value": 63,
+            "unit": "VIN"
+          }
+        ]
+      },
+      "series": {
+        "company_recent": {
+          "unit": "VIN",
+          "points": [
+            {
+              "period": "2026-06",
+              "value": 878
+            },
+            {
+              "period": "2026-07",
+              "value": 930
+            },
+            {
+              "period": "2026-08",
+              "value": 1201
+            },
+            {
+              "period": "2026-09",
+              "value": 1044
+            }
+          ]
+        }
+      },
+      "scopes": {
+        "own_stores": {
+          "status": "CLOSED",
+          "metrics": {
+            "vin_sales": {
+              "value": 377,
+              "unit": "VIN",
+              "comparison": 460,
+              "comparison_period": "2025-09",
+              "comparison_type": "YOY",
+              "delta": -83,
+              "delta_pct": -18
+            }
+          }
+        },
+        "dealers": {
+          "status": "CLOSED",
+          "metrics": {
+            "vin_sales": {
+              "value": 667,
+              "unit": "VIN",
+              "comparison": 464,
+              "comparison_period": "2025-09",
+              "comparison_type": "YOY",
+              "delta": 203,
+              "delta_pct": 43.8
+            }
+          },
+          "limitations": [
+            "Dealer ranking is not materialized because 355 of 667 dealer VINs do not have dealer_id resolved."
+          ]
+        },
+        "foton_pickup": {
+          "status": "CLOSED",
+          "metrics": {
+            "vin_sales": {
+              "value": 325,
+              "unit": "VIN"
+            }
+          },
+          "breakdowns": {
+            "network": [
+              {
+                "id": "DEALERS",
+                "label": "Dealers",
+                "value": 224,
+                "unit": "VIN"
+              },
+              {
+                "id": "OWN_STORES",
+                "label": "Tiendas propias",
+                "value": 101,
+                "unit": "VIN"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rvm": {
+      "status": "CLOSED",
+      "metrics": {
+        "market_units": {
+          "value": 30989,
+          "unit": "VEHICLE",
+          "comparison": 31871,
+          "comparison_period": "2025-09",
+          "comparison_type": "YOY",
+          "delta": -882,
+          "delta_pct": -2.8
+        },
+        "portfolio_units": {
+          "value": 1037,
+          "unit": "VEHICLE",
+          "comparison": 1324,
+          "comparison_period": "2025-09",
+          "comparison_type": "YOY",
+          "delta": -287,
+          "delta_pct": -21.7
+        },
+        "portfolio_share": {
+          "value": 3.3463,
+          "unit": "PERCENT",
+          "comparison": 4.1542,
+          "comparison_period": "2025-09",
+          "comparison_type": "YOY",
+          "delta_pp": -0.8079
+        }
+      },
+      "breakdowns": {
+        "brand": [
+          {
+            "id": "FOTON",
+            "label": "Foton",
+            "value": 787,
+            "unit": "VEHICLE",
+            "comparison": 851,
+            "delta": -64,
+            "delta_pct": -7.5
+          },
+          {
+            "id": "DFM",
+            "label": "DFM",
+            "value": 250,
+            "unit": "VEHICLE",
+            "comparison": 473,
+            "delta": -223,
+            "delta_pct": -47.1
+          }
+        ],
+        "monthly_model_change_foton": [
+          {
+            "id": "MIDI",
+            "label": "MIDI",
+            "value": 113,
+            "comparison": 191,
+            "delta": -78,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "TM5",
+            "label": "TM5",
+            "value": 131,
+            "comparison": 169,
+            "delta": -38,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "G7",
+            "label": "FOTON G7",
+            "value": 161,
+            "comparison": 112,
+            "delta": 49,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "VIEW",
+            "label": "VIEW",
+            "value": 35,
+            "comparison": 0,
+            "delta": 35,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "V7",
+            "label": "V7",
+            "value": 44,
+            "comparison": 25,
+            "delta": 19,
+            "unit": "VEHICLE"
+          }
+        ],
+        "monthly_model_change_dfm": [
+          {
+            "id": "AEOLUS_Y3",
+            "label": "AEOLUS Y3",
+            "value": 37,
+            "comparison": 110,
+            "delta": -73,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "AEOLUS_GS",
+            "label": "AEOLUS GS",
+            "value": 29,
+            "comparison": 77,
+            "delta": -48,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "MAGE",
+            "label": "MAGE",
+            "value": 63,
+            "comparison": 98,
+            "delta": -35,
+            "unit": "VEHICLE"
+          },
+          {
+            "id": "DF6",
+            "label": "DF6",
+            "value": 7,
+            "comparison": 39,
+            "delta": -32,
+            "unit": "VEHICLE"
+          }
+        ]
+      },
+      "series": {
+        "market_recent": {
+          "unit": "VEHICLE",
+          "points": [
+            {
+              "period": "2026-06",
+              "value": 26576
+            },
+            {
+              "period": "2026-07",
+              "value": 24722
+            },
+            {
+              "period": "2026-08",
+              "value": 27896
+            },
+            {
+              "period": "2026-09",
+              "value": 30989
+            }
+          ]
+        },
+        "foton_recent": {
+          "unit": "VEHICLE",
+          "points": [
+            {
+              "period": "2026-06",
+              "value": 728
+            },
+            {
+              "period": "2026-07",
+              "value": 637
+            },
+            {
+              "period": "2026-08",
+              "value": 747
+            },
+            {
+              "period": "2026-09",
+              "value": 787
+            }
+          ]
+        },
+        "dfm_recent": {
+          "unit": "VEHICLE",
+          "points": [
+            {
+              "period": "2026-06",
+              "value": 217
+            },
+            {
+              "period": "2026-07",
+              "value": 195
+            },
+            {
+              "period": "2026-08",
+              "value": 289
+            },
+            {
+              "period": "2026-09",
+              "value": 250
+            }
+          ]
+        }
+      },
+      "scopes": {
+        "ytd": {
+          "status": "CLOSED",
+          "metrics": {
+            "market_units": {
+              "value": 237181,
+              "unit": "VEHICLE",
+              "comparison": 231870,
+              "comparison_period": "2025-01/2025-09",
+              "comparison_type": "YOY_YTD",
+              "delta": 5311,
+              "delta_pct": 2.3
+            },
+            "portfolio_units": {
+              "value": 7271,
+              "unit": "VEHICLE",
+              "comparison": 6603,
+              "comparison_period": "2025-01/2025-09",
+              "comparison_type": "YOY_YTD",
+              "delta": 668,
+              "delta_pct": 10.1
+            },
+            "portfolio_share": {
+              "value": 3.0656,
+              "unit": "PERCENT",
+              "comparison": 2.8477,
+              "comparison_period": "2025-01/2025-09",
+              "comparison_type": "YOY_YTD",
+              "delta_pp": 0.2179
+            },
+            "foton_units": {
+              "value": 5340,
+              "unit": "VEHICLE",
+              "comparison": 4636,
+              "comparison_period": "2025-01/2025-09",
+              "comparison_type": "YOY_YTD",
+              "delta": 704,
+              "delta_pct": 15.2
+            },
+            "dfm_units": {
+              "value": 1931,
+              "unit": "VEHICLE",
+              "comparison": 1967,
+              "comparison_period": "2025-01/2025-09",
+              "comparison_type": "YOY_YTD",
+              "delta": -36,
+              "delta_pct": -1.8
+            }
+          },
+          "breakdowns": {
+            "model_change_foton": [
+              {
+                "id": "MIDI",
+                "label": "MIDI",
+                "value": 800,
+                "comparison": 887,
+                "delta": -87,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "TM5",
+                "label": "TM5",
+                "value": 987,
+                "comparison": 883,
+                "delta": 104,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "VIEW",
+                "label": "VIEW",
+                "value": 89,
+                "comparison": 0,
+                "delta": 89,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "TM3",
+                "label": "TM3",
+                "value": 951,
+                "comparison": 884,
+                "delta": 67,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "G9",
+                "label": "G9",
+                "value": 241,
+                "comparison": 174,
+                "delta": 67,
+                "unit": "VEHICLE"
+              }
+            ],
+            "model_change_dfm": [
+              {
+                "id": "DF6",
+                "label": "DF6",
+                "value": 11,
+                "comparison": 147,
+                "delta": -136,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "T5L",
+                "label": "T5L",
+                "value": 82,
+                "comparison": 190,
+                "delta": -108,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "AEOLUS_GS",
+                "label": "AEOLUS GS",
+                "value": 224,
+                "comparison": 295,
+                "delta": -71,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "SX6",
+                "label": "SX6",
+                "value": 234,
+                "comparison": 303,
+                "delta": -69,
+                "unit": "VEHICLE"
+              },
+              {
+                "id": "MAGE",
+                "label": "MAGE",
+                "value": 550,
+                "comparison": 389,
+                "delta": 161,
+                "unit": "VEHICLE"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "forum": {
+      "status": "CLOSED",
+      "scopes": {
+        "own_stores": {
+          "status": "CLOSED",
+          "metrics": {
+            "sales_vin": {
+              "value": 377,
+              "unit": "VIN"
+            },
+            "ufis": {
+              "value": 174,
+              "unit": "VEHICLE_UNIT"
+            },
+            "ufi_penetration": {
+              "value": 46.15,
+              "unit": "PERCENT",
+              "numerator": 174,
+              "denominator": 377,
+              "derivation": "UFIS / SALES VIN; arithmetic over P1-certified facts"
+            }
+          },
+          "breakdowns": {
+            "september_store_sales": [
+              {
+                "id": "3",
+                "label": "CIDEF Bellavista",
+                "value": 52,
+                "unit": "VIN"
+              },
+              {
+                "id": "10",
+                "label": "CIDEF Mall Plaza Oeste",
+                "value": 37,
+                "unit": "VIN"
+              },
+              {
+                "id": "4",
+                "label": "CIDEF Pajaritos",
+                "value": 33,
+                "unit": "VIN"
+              },
+              {
+                "id": "5",
+                "label": "CIDEF Antofagasta",
+                "value": 33,
+                "unit": "VIN"
+              },
+              {
+                "id": "7",
+                "label": "CIDEF Mall Plaza Vespucio",
+                "value": 32,
+                "unit": "VIN"
+              },
+              {
+                "id": "9",
+                "label": "CIDEF Mall Plaza Sur",
+                "value": 30,
+                "unit": "VIN"
+              },
+              {
+                "id": "20",
+                "label": "CIDEF Vicuña Mackenna",
+                "value": 30,
+                "unit": "VIN"
+              },
+              {
+                "id": "8",
+                "label": "CIDEF Mall Plaza Norte",
+                "value": 29,
+                "unit": "VIN"
+              },
+              {
+                "id": "18",
+                "label": "CIDEF Concepcion",
+                "value": 28,
+                "unit": "VIN"
+              },
+              {
+                "id": "19",
+                "label": "CIDEF Mall Alameda",
+                "value": 25,
+                "unit": "VIN"
+              },
+              {
+                "id": "22",
+                "label": "CIDEF Mall Cenco Costanera",
+                "value": 23,
+                "unit": "VIN"
+              },
+              {
+                "id": "11",
+                "label": "CIDEF Mall Plaza Egaña",
+                "value": 19,
+                "unit": "VIN"
+              },
+              {
+                "id": "21",
+                "label": "CIDEF Mall Paseo Quilin",
+                "value": 5,
+                "unit": "VIN"
+              },
+              {
+                "id": "15",
+                "label": "Amunategui",
+                "value": 1,
+                "unit": "VIN"
+              }
+            ],
+            "september_store_ufis": [
+              {
+                "id": "8",
+                "label": "CIDEF Mall Plaza Norte",
+                "value": 20,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "9",
+                "label": "CIDEF Mall Plaza Sur",
+                "value": 20,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "18",
+                "label": "CIDEF Concepcion",
+                "value": 17,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "4",
+                "label": "CIDEF Pajaritos",
+                "value": 15,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "5",
+                "label": "CIDEF Antofagasta",
+                "value": 14,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "19",
+                "label": "CIDEF Mall Alameda",
+                "value": 14,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "10",
+                "label": "CIDEF Mall Plaza Oeste",
+                "value": 14,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "3",
+                "label": "CIDEF Bellavista",
+                "value": 13,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "22",
+                "label": "CIDEF Mall Cenco Costanera",
+                "value": 12,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "20",
+                "label": "CIDEF Vicuña Mackenna",
+                "value": 12,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "7",
+                "label": "CIDEF Mall Plaza Vespucio",
+                "value": 10,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "11",
+                "label": "CIDEF Mall Plaza Egaña",
+                "value": 9,
+                "unit": "VEHICLE_UNIT"
+              },
+              {
+                "id": "21",
+                "label": "CIDEF Mall Paseo Quilin",
+                "value": 4,
+                "unit": "VEHICLE_UNIT"
+              }
+            ],
+            "september_store_approved_without_curse": [
+              {
+                "id": "22",
+                "label": "CIDEF Mall Cenco Costanera",
+                "value": 82,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "18",
+                "label": "CIDEF Concepcion",
+                "value": 80,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "9",
+                "label": "CIDEF Mall Plaza Sur",
+                "value": 80,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "11",
+                "label": "CIDEF Mall Plaza Egaña",
+                "value": 73,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "5",
+                "label": "CIDEF Antofagasta",
+                "value": 65,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "19",
+                "label": "CIDEF Mall Alameda",
+                "value": 60,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "21",
+                "label": "CIDEF Mall Paseo Quilin",
+                "value": 55,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "7",
+                "label": "CIDEF Mall Plaza Vespucio",
+                "value": 54,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "10",
+                "label": "CIDEF Mall Plaza Oeste",
+                "value": 51,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "20",
+                "label": "CIDEF Vicuña Mackenna",
+                "value": 50,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "4",
+                "label": "CIDEF Pajaritos",
+                "value": 46,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "8",
+                "label": "CIDEF Mall Plaza Norte",
+                "value": 43,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "3",
+                "label": "CIDEF Bellavista",
+                "value": 35,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "44",
+                "label": "CIDEF Mall Cenco Florida",
+                "value": 3,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "78",
+                "label": "CIDEF Las Condes",
+                "value": 2,
+                "unit": "OPERATION"
+              }
+            ],
+            "september_brand_store_approved_without_curse": [
+              {
+                "id": "FOTON:18",
+                "label": "FOTON · CIDEF Concepcion",
+                "value": 62,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:22",
+                "label": "FOTON · CIDEF Mall Cenco Costanera",
+                "value": 45,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:11",
+                "label": "FOTON · CIDEF Mall Plaza Egaña",
+                "value": 41,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:9",
+                "label": "FOTON · CIDEF Mall Plaza Sur",
+                "value": 40,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:19",
+                "label": "FOTON · CIDEF Mall Alameda",
+                "value": 35,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:10",
+                "label": "FOTON · CIDEF Mall Plaza Oeste",
+                "value": 34,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:5",
+                "label": "FOTON · CIDEF Antofagasta",
+                "value": 32,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:21",
+                "label": "FOTON · CIDEF Mall Paseo Quilin",
+                "value": 31,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:20",
+                "label": "FOTON · CIDEF Vicuña Mackenna",
+                "value": 30,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:7",
+                "label": "FOTON · CIDEF Mall Plaza Vespucio",
+                "value": 27,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:3",
+                "label": "FOTON · CIDEF Bellavista",
+                "value": 25,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:4",
+                "label": "FOTON · CIDEF Pajaritos",
+                "value": 23,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "FOTON:8",
+                "label": "FOTON · CIDEF Mall Plaza Norte",
+                "value": 19,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:9",
+                "label": "DONGFENG · CIDEF Mall Plaza Sur",
+                "value": 40,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:22",
+                "label": "DONGFENG · CIDEF Mall Cenco Costanera",
+                "value": 37,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:5",
+                "label": "DONGFENG · CIDEF Antofagasta",
+                "value": 33,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:11",
+                "label": "DONGFENG · CIDEF Mall Plaza Egaña",
+                "value": 32,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:7",
+                "label": "DONGFENG · CIDEF Mall Plaza Vespucio",
+                "value": 27,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:19",
+                "label": "DONGFENG · CIDEF Mall Alameda",
+                "value": 25,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:21",
+                "label": "DONGFENG · CIDEF Mall Paseo Quilin",
+                "value": 24,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:8",
+                "label": "DONGFENG · CIDEF Mall Plaza Norte",
+                "value": 24,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:4",
+                "label": "DONGFENG · CIDEF Pajaritos",
+                "value": 23,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:20",
+                "label": "DONGFENG · CIDEF Vicuña Mackenna",
+                "value": 20,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:18",
+                "label": "DONGFENG · CIDEF Concepcion",
+                "value": 18,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:10",
+                "label": "DONGFENG · CIDEF Mall Plaza Oeste",
+                "value": 17,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "DONGFENG:3",
+                "label": "DONGFENG · CIDEF Bellavista",
+                "value": 10,
+                "unit": "OPERATION"
+              }
+            ],
+            "september_brand_store_sales": [
+              {
+                "id": "FOTON:3",
+                "label": "FOTON · CIDEF Bellavista",
+                "value": 42,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:10",
+                "label": "FOTON · CIDEF Mall Plaza Oeste",
+                "value": 28,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:4",
+                "label": "FOTON · CIDEF Pajaritos",
+                "value": 25,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:18",
+                "label": "FOTON · CIDEF Concepcion",
+                "value": 22,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:5",
+                "label": "FOTON · CIDEF Antofagasta",
+                "value": 21,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:20",
+                "label": "FOTON · CIDEF Vicuña Mackenna",
+                "value": 20,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:7",
+                "label": "FOTON · CIDEF Mall Plaza Vespucio",
+                "value": 19,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:9",
+                "label": "FOTON · CIDEF Mall Plaza Sur",
+                "value": 19,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:22",
+                "label": "FOTON · CIDEF Mall Cenco Costanera",
+                "value": 19,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:8",
+                "label": "FOTON · CIDEF Mall Plaza Norte",
+                "value": 13,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:11",
+                "label": "FOTON · CIDEF Mall Plaza Egaña",
+                "value": 12,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:19",
+                "label": "FOTON · CIDEF Mall Alameda",
+                "value": 14,
+                "unit": "VIN"
+              },
+              {
+                "id": "FOTON:21",
+                "label": "FOTON · CIDEF Mall Paseo Quilin",
+                "value": 2,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:8",
+                "label": "DONGFENG · CIDEF Mall Plaza Norte",
+                "value": 16,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:7",
+                "label": "DONGFENG · CIDEF Mall Plaza Vespucio",
+                "value": 13,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:5",
+                "label": "DONGFENG · CIDEF Antofagasta",
+                "value": 12,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:9",
+                "label": "DONGFENG · CIDEF Mall Plaza Sur",
+                "value": 11,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:19",
+                "label": "DONGFENG · CIDEF Mall Alameda",
+                "value": 11,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:3",
+                "label": "DONGFENG · CIDEF Bellavista",
+                "value": 10,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:20",
+                "label": "DONGFENG · CIDEF Vicuña Mackenna",
+                "value": 10,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:10",
+                "label": "DONGFENG · CIDEF Mall Plaza Oeste",
+                "value": 9,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:4",
+                "label": "DONGFENG · CIDEF Pajaritos",
+                "value": 8,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:11",
+                "label": "DONGFENG · CIDEF Mall Plaza Egaña",
+                "value": 7,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:18",
+                "label": "DONGFENG · CIDEF Concepcion",
+                "value": 6,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:22",
+                "label": "DONGFENG · CIDEF Mall Cenco Costanera",
+                "value": 4,
+                "unit": "VIN"
+              },
+              {
+                "id": "DONGFENG:21",
+                "label": "DONGFENG · CIDEF Mall Paseo Quilin",
+                "value": 3,
+                "unit": "VIN"
+              }
+            ],
+            "store_sales_trajectory": [
+              {
+                "id": "3",
+                "label": "CIDEF Bellavista",
+                "q1": 92,
+                "q2": 129,
+                "q3": 126,
+                "sep": 52,
+                "unit": "VIN"
+              },
+              {
+                "id": "4",
+                "label": "CIDEF Pajaritos",
+                "q1": 101,
+                "q2": 101,
+                "q3": 111,
+                "sep": 33,
+                "unit": "VIN"
+              },
+              {
+                "id": "5",
+                "label": "CIDEF Antofagasta",
+                "q1": 80,
+                "q2": 91,
+                "q3": 121,
+                "sep": 33,
+                "unit": "VIN"
+              },
+              {
+                "id": "7",
+                "label": "CIDEF Mall Plaza Vespucio",
+                "q1": 109,
+                "q2": 140,
+                "q3": 135,
+                "sep": 32,
+                "unit": "VIN"
+              },
+              {
+                "id": "8",
+                "label": "CIDEF Mall Plaza Norte",
+                "q1": 73,
+                "q2": 105,
+                "q3": 127,
+                "sep": 29,
+                "unit": "VIN"
+              },
+              {
+                "id": "9",
+                "label": "CIDEF Mall Plaza Sur",
+                "q1": 77,
+                "q2": 101,
+                "q3": 149,
+                "sep": 30,
+                "unit": "VIN"
+              },
+              {
+                "id": "10",
+                "label": "CIDEF Mall Plaza Oeste",
+                "q1": 92,
+                "q2": 110,
+                "q3": 123,
+                "sep": 37,
+                "unit": "VIN"
+              },
+              {
+                "id": "11",
+                "label": "CIDEF Mall Plaza Egaña",
+                "q1": 75,
+                "q2": 91,
+                "q3": 86,
+                "sep": 19,
+                "unit": "VIN"
+              },
+              {
+                "id": "18",
+                "label": "CIDEF Concepcion",
+                "q1": 92,
+                "q2": 85,
+                "q3": 90,
+                "sep": 28,
+                "unit": "VIN"
+              },
+              {
+                "id": "19",
+                "label": "CIDEF Mall Alameda",
+                "q1": 39,
+                "q2": 46,
+                "q3": 71,
+                "sep": 25,
+                "unit": "VIN"
+              },
+              {
+                "id": "20",
+                "label": "CIDEF Vicuña Mackenna",
+                "q1": 65,
+                "q2": 83,
+                "q3": 116,
+                "sep": 30,
+                "unit": "VIN"
+              },
+              {
+                "id": "21",
+                "label": "CIDEF Mall Paseo Quilin",
+                "q1": 0,
+                "q2": 0,
+                "q3": 29,
+                "sep": 5,
+                "unit": "VIN"
+              },
+              {
+                "id": "22",
+                "label": "CIDEF Mall Cenco Costanera",
+                "q1": 0,
+                "q2": 0,
+                "q3": 54,
+                "sep": 23,
+                "unit": "VIN"
+              }
+            ],
+            "approved_without_curse_by_cohort": [
+              {
+                "id": "3",
+                "label": "CIDEF Bellavista",
+                "jul": 77,
+                "aug": 48,
+                "sep": 35,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "4",
+                "label": "CIDEF Pajaritos",
+                "jul": 81,
+                "aug": 86,
+                "sep": 46,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "5",
+                "label": "CIDEF Antofagasta",
+                "jul": 81,
+                "aug": 96,
+                "sep": 65,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "7",
+                "label": "CIDEF Mall Plaza Vespucio",
+                "jul": 96,
+                "aug": 106,
+                "sep": 54,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "8",
+                "label": "CIDEF Mall Plaza Norte",
+                "jul": 84,
+                "aug": 97,
+                "sep": 43,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "9",
+                "label": "CIDEF Mall Plaza Sur",
+                "jul": 109,
+                "aug": 102,
+                "sep": 80,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "10",
+                "label": "CIDEF Mall Plaza Oeste",
+                "jul": 64,
+                "aug": 58,
+                "sep": 51,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "11",
+                "label": "CIDEF Mall Plaza Egaña",
+                "jul": 107,
+                "aug": 98,
+                "sep": 73,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "18",
+                "label": "CIDEF Concepcion",
+                "jul": 71,
+                "aug": 82,
+                "sep": 80,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "19",
+                "label": "CIDEF Mall Alameda",
+                "jul": 79,
+                "aug": 95,
+                "sep": 60,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "20",
+                "label": "CIDEF Vicuña Mackenna",
+                "jul": 56,
+                "aug": 54,
+                "sep": 50,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "21",
+                "label": "CIDEF Mall Paseo Quilin",
+                "jul": 40,
+                "aug": 58,
+                "sep": 55,
+                "unit": "OPERATION"
+              },
+              {
+                "id": "22",
+                "label": "CIDEF Mall Cenco Costanera",
+                "jul": 84,
+                "aug": 94,
+                "sep": 82,
+                "unit": "OPERATION"
+              }
+            ]
+          },
+          "limitations": [
+            "COHORT_APPROVED is approval stock from the quotation cohort that remains without certified Curse; it is not the same temporal universe as monthly UFIS.",
+            "The opportunity index approved-without-Curse / sales is an editorial operational ratio, not a certified penetration or conversion rate.",
+            "Historical unresolved Forum labels remain explicit for ACTIVACION, ARAUCO EL BOSQUE, CERRILLOS and FLOTAS; September own-store facts have zero unresolved store identity."
+          ]
+        }
+      }
+    }
+  }
+}
