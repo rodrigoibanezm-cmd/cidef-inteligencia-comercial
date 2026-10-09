@@ -3,6 +3,7 @@ import facts from "../../data/monthly-close/2026-09/facts.json";
 import analysis from "../../data/monthly-close/2026-09/analysis.json";
 import executive from "../../data/monthly-close/2026-09/executive-close.json";
 import financing from "../../data/monthly-close/2026-09/financing-sales-observed.json";
+import trendData from "../../data/monthly-close/2026-09/kpi-trends.json";
 
 const f=facts.domains;
 const format=n=>new Intl.NumberFormat("es-CL",{maximumFractionDigits:1}).format(n);
@@ -11,7 +12,23 @@ const monthName={"2026-06":"Junio","2026-07":"Julio","2026-08":"Agosto","2026-09
 const four=f.sales.series.company_recent.points;
 const maximum=Math.max(...four.map(p=>p.value));
 const insight=analysis.insights.filter(x=>["SALES","RVM","FORUM"].includes(x.domain)).slice(0,7);
-function Metric({label,value,sub}){return <div className="mc-kpi"><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>}
+function Sparkline({points=[],unit="VIN"}) {
+ const fourPoints=points.filter(p=>Number.isFinite(p.value)).slice(-4);
+ if(fourPoints.length<2) return <div className="mc-spark-empty"><span>Trayectoria pendiente</span><small>Faltan cortes históricos comparables</small></div>;
+ const vals=fourPoints.map(p=>p.value),min=Math.min(...vals),max=Math.max(...vals),spread=max-min||1;
+ const xs=fourPoints.map((_,i)=>18+(i*324)/(fourPoints.length-1)),ys=vals.map(v=>65-(v-min)/spread*29);
+ const numbers=vals.map(v=>unit==="PERCENT"?format(v)+"%":format(v));
+ const avgPrior=vals.slice(0,-1).reduce((acc,v)=>acc+v,0)/(vals.length-1);
+ const diff=avgPrior?(vals[vals.length-1]/avgPrior-1)*100:null;
+ const tone=diff===null?"neutral":diff>=5?"up":diff<=-5?"down":"steady";
+ return <div className="mc-spark-wrap">
+ <div className={"mc-spark-note "+tone}>{diff===null?"Sin referencia":(diff>=0?"+":"")+format(diff)+"% vs promedio "+(vals.length-1)+" meses previos"}</div>
+ <svg viewBox="0 0 360 104" className="mc-spark" role="img" aria-label={"Trayectoria histórica: "+fourPoints.map((p,i)=>p.period+" "+numbers[i]).join("; ")}>
+ <polyline points={xs.map((x,i)=>x+","+ys[i]).join(" ")} fill="none" stroke="#244d7a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+ {xs.map((x,i)=><g key={fourPoints[i].period}><circle cx={x} cy={ys[i]} r="4" fill="#244d7a"/><text x={x} y={Math.max(13,ys[i]-12)} textAnchor="middle" fill="#21334b" fontSize="12" fontWeight="700">{numbers[i]}</text><text x={x} y="98" textAnchor="middle" fill="#748298" fontSize="11">{monthName[fourPoints[i].period]?.slice(0,3)||fourPoints[i].period}</text></g>)}
+ </svg></div>;
+}
+function Metric({label,value,sub,series,unit="VIN",sourceNote}){return <div className="mc-kpi"><span>{label}</span><strong>{value}</strong><small>{sub}</small><Sparkline points={series?.points} unit={unit}/>{sourceNote&&<small className="mc-source-note">{sourceNote}</small>}</div>}
 export const metadata={title:"Septiembre 2026 · Cierre mensual | CIDEF"};
 export default function CierreMensual(){
 const sales=f.sales.metrics.vin_sales;
@@ -28,12 +45,12 @@ return <main className="shell mc">
 <div className="mc-warning"><strong>Conciliación pendiente.</strong> Este tablero reproduce el snapshot histórico existente, sin modificarlo. SALES registra {format(sales.value)} VIN, mientras una observación posterior del motor reportó 1.043 VIN. El desglose de marcas tampoco reconcilia exactamente con el total. Estas cifras aún no deben considerarse un cierre nuevamente certificado.</div>
 <div className="mc-tabs"><span className="mc-active">Compañía</span><span>Tiendas propias</span><span>Dealers</span><span>Foton</span><span>Dongfeng</span></div>
 <section className="mc-kpis">
-<Metric label="Ventas · VIN" value={format(sales.value)} sub={"YoY "+pct(sales.delta_pct) +" · snapshot"}/>
-<Metric label="Ventas propias" value={format(network.find(x=>x.id==="OWN_STORES")?.value)} sub="Canal comercial"/>
-<Metric label="Ventas dealers" value={format(network.find(x=>x.id==="DEALERS")?.value)} sub="Canal comercial"/>
-<Metric label="RVM · Share mensual" value={format(rvm.portfolio_share.value)+"%"} sub={format(rvm.portfolio_share.delta_pp)+" pp YoY"}/>
-<Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre"/>
-<Metric label="Forum · UFIs propias" value={format(u.ufis.value)} sub="Créditos ejecutados · fecha Curse"/>
+<Metric label="Ventas · VIN" value={format(sales.value)} sub={"YoY "+pct(sales.delta_pct)+" · snapshot"} series={trendData.series.company}/>
+<Metric label="Ventas propias" value={format(network.find(x=>x.id==="OWN_STORES")?.value)} sub="VIN · canal propio" series={trendData.series.own_stores} sourceNote="Serie histórica en conciliación"/>
+<Metric label="Ventas dealers" value={format(network.find(x=>x.id==="DEALERS")?.value)} sub="VIN · canal dealer" series={trendData.series.dealers} sourceNote="Serie histórica en conciliación"/>
+<Metric label="RVM · Share mensual" value={format(rvm.portfolio_share.value)+"%"} sub={format(rvm.portfolio_share.delta_pp)+" pp YoY"} series={trendData.series.rvm_monthly} unit="PERCENT"/>
+<Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} unit="PERCENT"/>
+<Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} sourceNote="Corte de /ventas; pendiente conciliación"/>
 </section>
 <div className="mc-layout">
 <section className="mc-panel"><div className="mc-panel-head"><h2>La película de las ventas</h2><span>Últimos cuatro meses · VIN</span></div><div className="mc-bars">{four.map(p=><div className="mc-barline" key={p.period}><span>{monthName[p.period]||p.period}</span><div className="mc-bartrack"><div className="mc-barfill" style={{width:(p.value/maximum*100)+"%"}}/></div><strong>{format(p.value)}</strong></div>)}</div><p className="mc-footnote">Una caída frente a agosto no define por sí sola un deterioro: la lectura debe considerar la trayectoria y el YoY.</p></section>
