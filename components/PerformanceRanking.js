@@ -40,7 +40,7 @@ export default function PerformanceRanking(){
  const info=category==="sellers"
  ?"Vendedores: cifras de un snapshot SALES parcial (274 VIN cubiertos). No es un ranking completo del cierre ni permite calificar desempeño; se muestra solo volumen observado."
  :category==="dealers"
- ?"Dealers: volumen de septiembre del cierre histórico. La trayectoria disponible compara Q3 vs Q2; no es una comparación mensual de cuatro puntos. Se exige volumen trimestral mínimo para alertas."
+ ?"Dealers: 667 de 667 VIN asignados al grupo comercial usando RUT de dealers_master y, para un VIN facturado a Forum Distribuidora, el comentario validado de su nota de venta. Comparación Q3 vs Q2 solo para grupos con historial anterior disponible; los grupos recién resueltos no reciben variaciones inventadas."
  :category==="models"
  ?"Modelos: agrupación orientativa por nombre/modelo de los VIN. Los nombres no homologados se excluyen; revisar con maestro canónico antes de certificar el ranking."
  :"Tiendas: conteos por VIN desde ventas_raw al 30 de septiembre (375 VIN; el snapshot cerrado indica 377). Trajectory = septiembre frente al promedio junio–agosto; nuevas/sin historia quedan fuera de alertas.";
