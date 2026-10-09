@@ -5,29 +5,37 @@ import analysis from "../../data/monthly-close/2026-09/analysis.json";
 import executive from "../../data/monthly-close/2026-09/executive-close.json";
 import financing from "../../data/monthly-close/2026-09/financing-sales-observed.json";
 import trendData from "../../data/monthly-close/2026-09/kpi-trends.json";
+import brandTrends from "../../data/monthly-close/2026-09/kpi-brand-trends.json";
 
 const f=facts.domains;
 const format=n=>new Intl.NumberFormat("es-CL",{maximumFractionDigits:1}).format(n);
 const pct=n=>(n>0?"+":"")+format(n)+"%";
 const monthName={"2026-06":"Junio","2026-07":"Julio","2026-08":"Agosto","2026-09":"Septiembre"};
 const insight=analysis.insights.filter(x=>["SALES","RVM","FORUM"].includes(x.domain)).slice(0,7);
-function Sparkline({points=[],unit="VIN"}) {
- const fourPoints=points.filter(p=>Number.isFinite(p.value)).slice(-4);
- if(fourPoints.length<2) return <div className="mc-spark-empty"><span>Trayectoria pendiente</span><small>Faltan cortes históricos comparables</small></div>;
- const vals=fourPoints.map(p=>p.value),min=Math.min(...vals),max=Math.max(...vals),spread=max-min||1;
- const xs=fourPoints.map((_,i)=>18+(i*324)/(fourPoints.length-1)),ys=vals.map(v=>65-(v-min)/spread*29);
- const numbers=vals.map(v=>unit==="PERCENT"?format(v)+"%":format(v));
- const avgPrior=vals.slice(0,-1).reduce((acc,v)=>acc+v,0)/(vals.length-1);
- const diff=avgPrior?(vals[vals.length-1]/avgPrior-1)*100:null;
- const tone=diff===null?"neutral":diff>=5?"up":diff<=-5?"down":"steady";
- return <div className="mc-spark-wrap">
- <div className={"mc-spark-note "+tone}>{diff===null?"Sin referencia":(diff>=0?"+":"")+format(diff)+"% vs promedio "+(vals.length-1)+" meses previos"}</div>
- <svg viewBox="0 0 360 104" className="mc-spark" role="img" aria-label={"Trayectoria histórica: "+fourPoints.map((p,i)=>p.period+" "+numbers[i]).join("; ")}>
- <polyline points={xs.map((x,i)=>x+","+ys[i]).join(" ")} fill="none" stroke="#244d7a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
- {xs.map((x,i)=><g key={fourPoints[i].period}><circle cx={x} cy={ys[i]} r="4" fill="#244d7a"/><text x={x} y={Math.max(13,ys[i]-12)} textAnchor="middle" fill="#21334b" fontSize="12" fontWeight="700">{numbers[i]}</text><text x={x} y="98" textAnchor="middle" fill="#748298" fontSize="11">{monthName[fourPoints[i].period]?.slice(0,3)||fourPoints[i].period}</text></g>)}
- </svg></div>;
+const palettes={COMPANY:"#244d7a",FOTON:"#158267",DFM:"#cf8954"};
+function TrendComparison({total,brands,label}) {
+ const keys=["COMPANY","FOTON","DFM"];
+ const sets={COMPANY:total?.points||[],FOTON:brands?.FOTON||[],DFM:brands?.DFM||[]};
+ if(keys.some(k=>sets[k].length!==4||sets[k].some(p=>!Number.isFinite(p.value))))return <div className="mc-spark-empty">Trayectoria por marca pendiente</div>;
+ const values=keys.flatMap(k=>sets[k].map(p=>sets[k][0].value>0?100*p.value/sets[k][0].value:100));
+ const lo=Math.min(...values),hi=Math.max(...values),range=Math.max(hi-lo,1);
+ const xs=[18,126,234,342];
+ const y=v=>67-((v-lo)/range)*40;
+ return <div className="mc-spark-wrap mc-brand-spark">
+  <div className="mc-trend-legend"><span><i style={{background:palettes.COMPANY}}/>CIDEF</span><div><span><i style={{background:palettes.FOTON}}/>Foton</span><span><i style={{background:palettes.DFM}}/>Dongfeng</span></div></div>
+  <svg viewBox="0 0 360 93" className="mc-spark" role="img" aria-label={"Trayectoria de "+label+" indexada a junio igual a 100; series de Compañía, Foton y Dongfeng"}>
+   {keys.map(k=><g key={k}><polyline points={sets[k].map((p,i)=>xs[i]+","+y(sets[k][0].value>0?100*p.value/sets[k][0].value:100)).join(" ")} fill="none" stroke={palettes[k]} strokeWidth={k==="COMPANY"?"3":"2.3"} strokeLinejoin="round" strokeLinecap="round"/>{sets[k].map((p,i)=><circle key={i} cx={xs[i]} cy={y(sets[k][0].value>0?100*p.value/sets[k][0].value:100)} r="3" fill={palettes[k]}/>)}</g>)}
+   {xs.map((x,i)=><text key={i} x={x} y="87" textAnchor="middle" fill="#748298" fontSize="11">{["Jun","Jul","Ago","Sep"][i]}</text>)}
+  </svg><small className="mc-index-note">Trayectorias comparables · junio = 100</small>
+ </div>;
 }
-function Metric({label,value,sub,series,unit="VIN",sourceNote}){return <div className="mc-kpi"><span>{label}</span><strong>{value}</strong><small>{sub}</small><Sparkline points={series?.points} unit={unit}/>{sourceNote&&<small className="mc-source-note">{sourceNote}</small>}</div>}
+function Metric({label,value,sub,series,brands,unit="VIN",sourceNote}){
+ const fmt=v=>unit==="PERCENT"?format(v)+"%":format(v);
+ const fv=brands?.FOTON?.[3]?.value,dv=brands?.DFM?.[3]?.value;
+ return <div className="mc-kpi"><span>{label}</span>
+ <div className="mc-kpi-values"><strong>{value}</strong><div className="mc-kpi-brands"><div><span>Foton</span><b>{Number.isFinite(fv)?fmt(fv):"—"}</b></div><div><span>Dongfeng</span><b>{Number.isFinite(dv)?fmt(dv):"—"}</b></div></div></div>
+ <small>{sub}</small><TrendComparison total={series} brands={brands} label={label}/>{sourceNote&&<small className="mc-source-note">{sourceNote}</small>}</div>;
+}
 export const metadata={title:"Septiembre 2026 · Cierre mensual | CIDEF"};
 export default function CierreMensual(){
 const sales=f.sales.metrics.vin_sales;
@@ -44,12 +52,12 @@ return <main className="shell mc">
 <div className="mc-warning"><strong>Conciliación pendiente.</strong> Este tablero reproduce el snapshot histórico existente, sin modificarlo. SALES registra {format(sales.value)} VIN, mientras una observación posterior del motor reportó 1.043 VIN. El desglose de marcas tampoco reconcilia exactamente con el total. Estas cifras aún no deben considerarse un cierre nuevamente certificado.</div>
 <div className="mc-tabs"><span className="mc-active">Compañía</span><span>Tiendas propias</span><span>Dealers</span><span>Foton</span><span>Dongfeng</span></div>
 <section className="mc-kpis">
-<Metric label="Ventas · VIN" value={format(sales.value)} sub={"YoY "+pct(sales.delta_pct)+" · snapshot"} series={trendData.series.company}/>
-<Metric label="Ventas propias" value={format(network.find(x=>x.id==="OWN_STORES")?.value)} sub="VIN · canal propio" series={trendData.series.own_stores} sourceNote="Serie histórica en conciliación"/>
-<Metric label="Ventas dealers" value={format(network.find(x=>x.id==="DEALERS")?.value)} sub="VIN · canal dealer" series={trendData.series.dealers} sourceNote="Serie histórica en conciliación"/>
-<Metric label="RVM · Share mensual" value={format(rvm.portfolio_share.value)+"%"} sub={format(rvm.portfolio_share.delta_pp)+" pp YoY"} series={trendData.series.rvm_monthly} unit="PERCENT"/>
-<Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} unit="PERCENT"/>
-<Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} sourceNote="Corte de /ventas; pendiente conciliación"/>
+<Metric label="Ventas · VIN" value={format(sales.value)} sub={"YoY "+pct(sales.delta_pct)+" · snapshot"} series={trendData.series.company} brands={brandTrends.series.company} sourceNote="Suma por marcas del ERP: 1.041 VIN; total snapshot: 1.044"/>
+<Metric label="Ventas propias" value={format(network.find(x=>x.id==="OWN_STORES")?.value)} sub="VIN · canal propio" series={trendData.series.own_stores} brands={brandTrends.series.own_stores} sourceNote="Marcas ERP: 375 VIN; snapshot: 377"/>
+<Metric label="Ventas dealers" value={format(network.find(x=>x.id==="DEALERS")?.value)} sub="VIN · canal dealer" series={trendData.series.dealers} brands={brandTrends.series.dealers} sourceNote="Marcas ERP: 666 VIN; snapshot: 667"/>
+<Metric label="RVM · Share mensual" value={format(rvm.portfolio_share.value)+"%"} sub={format(rvm.portfolio_share.delta_pp)+" pp YoY"} series={trendData.series.rvm_monthly} brands={brandTrends.series.rvm_monthly} unit="PERCENT"/>
+<Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} brands={brandTrends.series.rvm_ytd} unit="PERCENT"/>
+<Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} brands={brandTrends.series.financed} sourceNote="Corte de /ventas; pendiente conciliación"/>
 </section>
 <PerformanceRanking/>
 <div className="mc-layout">
