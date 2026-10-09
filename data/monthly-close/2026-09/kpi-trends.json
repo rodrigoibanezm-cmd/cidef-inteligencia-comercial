@@ -5,7 +5,7 @@
     "Four-month chronological trajectories; sources and limitations attached per KPI.",
     "Historical SALES channel series June-Aug from monthly_close_metrics_v01 (certifier 0.13), Sep from frozen close facts; classification and total reconciliation pending.",
     "Financed VIN June-Sep recalculated read-only from ventas_raw by latest invoice per VIN through September, category Cliente General; Sep 198/375.",
-    "RVM monthly share derived from monthly market and FOTON/DFM counts from frozen facts; RVM YTD monthly history is not available in existing snapshot; no invented points."
+    "RVM monthly share and cumulative YTD derived from rvm_raw CONSOLIDATED quantities (Jan-Sep 2026); YTD weights registrations, never average of monthly shares. Sep cross-check: 7,271 / 237,181 = 3.0656%."
   ],
   "series": {
     "company": {
@@ -98,11 +98,31 @@
     },
     "rvm_ytd": {
       "unit": "PERCENT",
-      "authority": "ytd_close_only_no_earlier_history",
+      "authority": "rvm_raw_consolidated_ytd_weighted_sum",
       "points": [
         {
+          "period": "2026-06",
+          "value": 2.842929141651582,
+          "market_ytd": 153574,
+          "portfolio_ytd": 4366
+        },
+        {
+          "period": "2026-07",
+          "value": 2.9153766769865843,
+          "market_ytd": 178296,
+          "portfolio_ytd": 5198
+        },
+        {
+          "period": "2026-08",
+          "value": 3.0233956700550944,
+          "market_ytd": 206192,
+          "portfolio_ytd": 6234
+        },
+        {
           "period": "2026-09",
-          "value": 3.0656
+          "value": 3.0655912573098183,
+          "market_ytd": 237181,
+          "portfolio_ytd": 7271
         }
       ]
     },
