@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PerformanceRanking from "../../components/PerformanceRanking";
 import facts from "../../data/monthly-close/2026-09/facts.json";
 import analysis from "../../data/monthly-close/2026-09/analysis.json";
 import executive from "../../data/monthly-close/2026-09/executive-close.json";
@@ -50,6 +51,7 @@ return <main className="shell mc">
 <Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} unit="PERCENT"/>
 <Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} sourceNote="Corte de /ventas; pendiente conciliación"/>
 </section>
+<PerformanceRanking/>
 <div className="mc-layout">
 
 <section className="mc-panel"><div className="mc-panel-head"><h2>Ventas por marca</h2><span>Snapshot histórico · revisar conciliación</span></div>{brands.map(b=><div className="mc-row" key={b.id}><span>{b.label}</span><strong>{format(b.value)} VIN</strong></div>)}<div className="mc-panel-head mc-space"><h2>RVM · Mercado</h2></div><div className="mc-row"><span>Inscripciones del mercado</span><strong>{format(rvm.market_units.value)}</strong></div><div className="mc-row"><span>Inscripciones Foton + DFM</span><strong>{format(rvm.portfolio_units.value)}</strong></div><p className="mc-footnote">RVM mide inscripciones de mercado, no facturas. DFM conserva su identidad de fuente hasta validar el puente con SALES.</p></section>
