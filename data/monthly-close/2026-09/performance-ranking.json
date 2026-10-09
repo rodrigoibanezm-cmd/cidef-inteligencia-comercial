@@ -1,0 +1,1015 @@
+{
+  "schema_version": "1.0",
+  "period": "2026-09",
+  "generated_by": "read_only_snapshot_query_2026_10_09",
+  "method": {
+    "metric": "VIN",
+    "volume": "September recognized VIN count",
+    "trajectory": "September vs mean(June,July,August) with 3 positive-history months",
+    "alert_eligibility": "prior monthly average >= 5 VIN and 3 positive-history months (stores/dealers), >= 8 for models",
+    "source_notes": {
+      "stores": "ventas_raw latest factura per VIN through Sep 30; category Cliente General; source total 375 vs frozen 377, not reconciled",
+      "models": "ventas_raw VIN join vehiculo_canonico.modelo_raw; heuristic prefix grouping; excludes unmapped models; category Cliente General+Concesionaria",
+      "dealers": "archived September 2026 ui-detail dealer rows; volume Sep; trajectory Q3 vs Q2 (not comparable to four-month trend); no inferred same-unit 4mo",
+      "sellers": "monthly_close_metrics_v01 SALES SELLER OWN_STORES snapshot from earlier partial version; 274 VIN scope, not full certified close; no comparable seller trajectory"
+    }
+  },
+  "categories": {
+    "stores": [
+      {
+        "id": "CIDEF Antofagasta",
+        "name": "CIDEF Antofagasta",
+        "months": {
+          "2026-06": 30,
+          "2026-07": 39,
+          "2026-08": 49,
+          "2026-09": 33
+        },
+        "vin": 33,
+        "prior_avg": 39.333333333333336,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Bellavista",
+        "name": "CIDEF Bellavista",
+        "months": {
+          "2026-06": 29,
+          "2026-07": 34,
+          "2026-08": 40,
+          "2026-09": 52
+        },
+        "vin": 52,
+        "prior_avg": 34.333333333333336,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Concepcion",
+        "name": "CIDEF Concepcion",
+        "months": {
+          "2026-06": 31,
+          "2026-07": 27,
+          "2026-08": 35,
+          "2026-09": 28
+        },
+        "vin": 28,
+        "prior_avg": 31,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Mall Alameda",
+        "name": "CIDEF Mall Alameda",
+        "months": {
+          "2026-06": 17,
+          "2026-07": 23,
+          "2026-08": 23,
+          "2026-09": 24
+        },
+        "vin": 24,
+        "prior_avg": 21,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Mall Cenco Costanera",
+        "name": "CIDEF Mall Cenco Costanera",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 7,
+          "2026-08": 24,
+          "2026-09": 23
+        },
+        "vin": 23,
+        "prior_avg": 10.333333333333334,
+        "active_prior_months": 2
+      },
+      {
+        "id": "CIDEF Mall Paseo Quilin",
+        "name": "CIDEF Mall Paseo Quilin",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 10,
+          "2026-08": 14,
+          "2026-09": 5
+        },
+        "vin": 5,
+        "prior_avg": 8,
+        "active_prior_months": 2
+      },
+      {
+        "id": "CIDEF Mall Plaza Egaña",
+        "name": "CIDEF Mall Plaza Egaña",
+        "months": {
+          "2026-06": 27,
+          "2026-07": 25,
+          "2026-08": 42,
+          "2026-09": 19
+        },
+        "vin": 19,
+        "prior_avg": 31.333333333333332,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Mall Plaza Norte",
+        "name": "CIDEF Mall Plaza Norte",
+        "months": {
+          "2026-06": 33,
+          "2026-07": 42,
+          "2026-08": 56,
+          "2026-09": 28
+        },
+        "vin": 28,
+        "prior_avg": 43.666666666666664,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Mall Plaza Oeste",
+        "name": "CIDEF Mall Plaza Oeste",
+        "months": {
+          "2026-06": 38,
+          "2026-07": 38,
+          "2026-08": 48,
+          "2026-09": 37
+        },
+        "vin": 37,
+        "prior_avg": 41.333333333333336,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Mall Plaza Sur",
+        "name": "CIDEF Mall Plaza Sur",
+        "months": {
+          "2026-06": 36,
+          "2026-07": 44,
+          "2026-08": 75,
+          "2026-09": 30
+        },
+        "vin": 30,
+        "prior_avg": 51.666666666666664,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Mall Plaza Vespucio",
+        "name": "CIDEF Mall Plaza Vespucio",
+        "months": {
+          "2026-06": 47,
+          "2026-07": 44,
+          "2026-08": 59,
+          "2026-09": 32
+        },
+        "vin": 32,
+        "prior_avg": 50,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Pajaritos",
+        "name": "CIDEF Pajaritos",
+        "months": {
+          "2026-06": 43,
+          "2026-07": 32,
+          "2026-08": 46,
+          "2026-09": 33
+        },
+        "vin": 33,
+        "prior_avg": 40.333333333333336,
+        "active_prior_months": 3
+      },
+      {
+        "id": "CIDEF Vicuña Mackenna",
+        "name": "CIDEF Vicuña Mackenna",
+        "months": {
+          "2026-06": 33,
+          "2026-07": 43,
+          "2026-08": 43,
+          "2026-09": 30
+        },
+        "vin": 30,
+        "prior_avg": 39.666666666666664,
+        "active_prior_months": 3
+      },
+      {
+        "id": "Casa Matriz ",
+        "name": "Casa Matriz ",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 2,
+          "2026-08": 1,
+          "2026-09": 0
+        },
+        "vin": 0,
+        "prior_avg": 1,
+        "active_prior_months": 2
+      }
+    ],
+    "models": [
+      {
+        "id": "AEOLUS GS",
+        "name": "AEOLUS GS",
+        "months": {
+          "2026-06": 27,
+          "2026-07": 13,
+          "2026-08": 53,
+          "2026-09": 23
+        },
+        "vin": 23,
+        "prior_avg": 31,
+        "active_prior_months": 3
+      },
+      {
+        "id": "AEOLUS Y3",
+        "name": "AEOLUS Y3",
+        "months": {
+          "2026-06": 20,
+          "2026-07": 48,
+          "2026-08": 58,
+          "2026-09": 35
+        },
+        "vin": 35,
+        "prior_avg": 42,
+        "active_prior_months": 3
+      },
+      {
+        "id": "G7",
+        "name": "G7",
+        "months": {
+          "2026-06": 155,
+          "2026-07": 141,
+          "2026-08": 307,
+          "2026-09": 185
+        },
+        "vin": 185,
+        "prior_avg": 201,
+        "active_prior_months": 3
+      },
+      {
+        "id": "G9",
+        "name": "G9",
+        "months": {
+          "2026-06": 16,
+          "2026-07": 20,
+          "2026-08": 39,
+          "2026-09": 46
+        },
+        "vin": 46,
+        "prior_avg": 25,
+        "active_prior_months": 3
+      },
+      {
+        "id": "MAGE",
+        "name": "MAGE",
+        "months": {
+          "2026-06": 53,
+          "2026-07": 55,
+          "2026-08": 90,
+          "2026-09": 54
+        },
+        "vin": 54,
+        "prior_avg": 66,
+        "active_prior_months": 3
+      },
+      {
+        "id": "MIDI",
+        "name": "MIDI",
+        "months": {
+          "2026-06": 108,
+          "2026-07": 133,
+          "2026-08": 102,
+          "2026-09": 115
+        },
+        "vin": 115,
+        "prior_avg": 114.33333333333333,
+        "active_prior_months": 3
+      },
+      {
+        "id": "RICH 6",
+        "name": "RICH 6",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 2,
+          "2026-08": 3,
+          "2026-09": 3
+        },
+        "vin": 3,
+        "prior_avg": 1.6666666666666667,
+        "active_prior_months": 2
+      },
+      {
+        "id": "S50",
+        "name": "S50",
+        "months": {
+          "2026-06": 2,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "vin": 0,
+        "prior_avg": 0.6666666666666666,
+        "active_prior_months": 1
+      },
+      {
+        "id": "SX6",
+        "name": "SX6",
+        "months": {
+          "2026-06": 27,
+          "2026-07": 23,
+          "2026-08": 54,
+          "2026-09": 58
+        },
+        "vin": 58,
+        "prior_avg": 34.666666666666664,
+        "active_prior_months": 3
+      },
+      {
+        "id": "T5",
+        "name": "T5",
+        "months": {
+          "2026-06": 26,
+          "2026-07": 15,
+          "2026-08": 45,
+          "2026-09": 7
+        },
+        "vin": 7,
+        "prior_avg": 28.666666666666668,
+        "active_prior_months": 3
+      },
+      {
+        "id": "T5 EVO",
+        "name": "T5 EVO",
+        "months": {
+          "2026-06": 4,
+          "2026-07": 3,
+          "2026-08": 3,
+          "2026-09": 4
+        },
+        "vin": 4,
+        "prior_avg": 3.3333333333333335,
+        "active_prior_months": 3
+      },
+      {
+        "id": "T5 HEV",
+        "name": "T5 HEV",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 3,
+          "2026-09": 0
+        },
+        "vin": 0,
+        "prior_avg": 1,
+        "active_prior_months": 1
+      },
+      {
+        "id": "T5EVO",
+        "name": "T5EVO",
+        "months": {
+          "2026-06": 4,
+          "2026-07": 2,
+          "2026-08": 3,
+          "2026-09": 1
+        },
+        "vin": 1,
+        "prior_avg": 3,
+        "active_prior_months": 3
+      },
+      {
+        "id": "T5L",
+        "name": "T5L",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 8,
+          "2026-08": 17,
+          "2026-09": 12
+        },
+        "vin": 12,
+        "prior_avg": 10.333333333333334,
+        "active_prior_months": 3
+      },
+      {
+        "id": "TM3",
+        "name": "TM3",
+        "months": {
+          "2026-06": 159,
+          "2026-07": 148,
+          "2026-08": 111,
+          "2026-09": 174
+        },
+        "vin": 174,
+        "prior_avg": 139.33333333333334,
+        "active_prior_months": 3
+      },
+      {
+        "id": "TM5",
+        "name": "TM5",
+        "months": {
+          "2026-06": 143,
+          "2026-07": 168,
+          "2026-08": 154,
+          "2026-09": 178
+        },
+        "vin": 178,
+        "prior_avg": 155,
+        "active_prior_months": 3
+      },
+      {
+        "id": "V7",
+        "name": "V7",
+        "months": {
+          "2026-06": 44,
+          "2026-07": 47,
+          "2026-08": 46,
+          "2026-09": 30
+        },
+        "vin": 30,
+        "prior_avg": 45.666666666666664,
+        "active_prior_months": 3
+      },
+      {
+        "id": "V9",
+        "name": "V9",
+        "months": {
+          "2026-06": 34,
+          "2026-07": 43,
+          "2026-08": 45,
+          "2026-09": 63
+        },
+        "vin": 63,
+        "prior_avg": 40.666666666666664,
+        "active_prior_months": 3
+      },
+      {
+        "id": "VIEW GRAND",
+        "name": "VIEW GRAND",
+        "months": {
+          "2026-06": 43,
+          "2026-07": 22,
+          "2026-08": 53,
+          "2026-09": 44
+        },
+        "vin": 44,
+        "prior_avg": 39.333333333333336,
+        "active_prior_months": 3
+      },
+      {
+        "id": "WONDER",
+        "name": "WONDER",
+        "months": {
+          "2026-06": 1,
+          "2026-07": 0,
+          "2026-08": 2,
+          "2026-09": 2
+        },
+        "vin": 2,
+        "prior_avg": 1,
+        "active_prior_months": 2
+      }
+    ],
+    "dealers": [
+      {
+        "id": "30",
+        "name": "ROSSELOT",
+        "vin": 274,
+        "q2": 560,
+        "q3": 566,
+        "quarter_change": 0.010714285714285714,
+        "active_prior_months": null
+      },
+      {
+        "id": "33",
+        "name": "KLASSIK CAR",
+        "vin": 55,
+        "q2": 70,
+        "q3": 123,
+        "quarter_change": 0.7571428571428571,
+        "active_prior_months": null
+      },
+      {
+        "id": "24",
+        "name": "CARMONA Y CIA",
+        "vin": 53,
+        "q2": 27,
+        "q3": 101,
+        "quarter_change": 2.740740740740741,
+        "active_prior_months": null
+      },
+      {
+        "id": "13",
+        "name": "PORTILLO SUR",
+        "vin": 46,
+        "q2": 125,
+        "q3": 107,
+        "quarter_change": -0.144,
+        "active_prior_months": null
+      },
+      {
+        "id": "21",
+        "name": "AUTOMOTORA COLON",
+        "vin": 40,
+        "q2": 119,
+        "q3": 146,
+        "quarter_change": 0.226890756302521,
+        "active_prior_months": null
+      },
+      {
+        "id": "11",
+        "name": "CARPOINT",
+        "vin": 38,
+        "q2": 137,
+        "q3": 128,
+        "quarter_change": -0.06569343065693431,
+        "active_prior_months": null
+      },
+      {
+        "id": "32",
+        "name": "PIAMONTE",
+        "vin": 33,
+        "q2": 98,
+        "q3": 86,
+        "quarter_change": -0.12244897959183673,
+        "active_prior_months": null
+      },
+      {
+        "id": "22",
+        "name": "AUTOMOTORA AUSTRAL",
+        "vin": 23,
+        "q2": 53,
+        "q3": 83,
+        "quarter_change": 0.5660377358490566,
+        "active_prior_months": null
+      },
+      {
+        "id": "10",
+        "name": "FORCENTER",
+        "vin": 16,
+        "q2": 102,
+        "q3": 76,
+        "quarter_change": -0.2549019607843137,
+        "active_prior_months": null
+      },
+      {
+        "id": "26",
+        "name": "SALAZAR E ISRAEL",
+        "vin": 15,
+        "q2": 0,
+        "q3": 100,
+        "quarter_change": null,
+        "active_prior_months": null
+      },
+      {
+        "id": "23",
+        "name": "GELLONA",
+        "vin": 9,
+        "q2": 55,
+        "q3": 50,
+        "quarter_change": -0.09090909090909091,
+        "active_prior_months": null
+      },
+      {
+        "id": "29",
+        "name": "CURIFOR",
+        "vin": 8,
+        "q2": 19,
+        "q3": 77,
+        "quarter_change": 3.0526315789473686,
+        "active_prior_months": null
+      },
+      {
+        "id": "27",
+        "name": "ROMANINI",
+        "vin": 6,
+        "q2": 13,
+        "q3": 17,
+        "quarter_change": 0.3076923076923077,
+        "active_prior_months": null
+      },
+      {
+        "id": "17",
+        "name": "RENTAL BASILIO",
+        "vin": 5,
+        "q2": 11,
+        "q3": 14,
+        "quarter_change": 0.2727272727272727,
+        "active_prior_months": null
+      },
+      {
+        "id": "31",
+        "name": "IMPORT EXPORT",
+        "vin": 2,
+        "q2": 0,
+        "q3": 6,
+        "quarter_change": null,
+        "active_prior_months": null
+      },
+      {
+        "id": "19",
+        "name": "VEGAARTUS",
+        "vin": 1,
+        "q2": 43,
+        "q3": 34,
+        "quarter_change": -0.20930232558139536,
+        "active_prior_months": null
+      }
+    ],
+    "sellers": [
+      {
+        "id": "232",
+        "name": "TAMPOA GUANIPA VIRGINIA CENOBIA",
+        "vin": 16,
+        "coverage": "partial"
+      },
+      {
+        "id": "57",
+        "name": "BASANTA GUEVARA DOUGLAS JOSE",
+        "vin": 13,
+        "coverage": "partial"
+      },
+      {
+        "id": "45",
+        "name": "MALUENDA LEIVA CLAUDIA VIVIANA",
+        "vin": 10,
+        "coverage": "partial"
+      },
+      {
+        "id": "137",
+        "name": "CORTEZ PEÑA KARIN DANIELA",
+        "vin": 9,
+        "coverage": "partial"
+      },
+      {
+        "id": "41",
+        "name": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
+        "vin": 7,
+        "coverage": "partial"
+      },
+      {
+        "id": "76",
+        "name": "FELIX ACOSTA RODRIGUEZ",
+        "vin": 7,
+        "coverage": "partial"
+      },
+      {
+        "id": "205",
+        "name": "PALMA ORTA RICARDO ALEJANDRO",
+        "vin": 7,
+        "coverage": "partial"
+      },
+      {
+        "id": "155",
+        "name": "MAGLYS CARABALLO",
+        "vin": 7,
+        "coverage": "partial"
+      },
+      {
+        "id": "62",
+        "name": "JEREZ CORTEZ DIEGO ANDRES",
+        "vin": 6,
+        "coverage": "partial"
+      },
+      {
+        "id": "188",
+        "name": "OSVALDO FARIAS",
+        "vin": 6,
+        "coverage": "partial"
+      },
+      {
+        "id": "56",
+        "name": "DIEGO LEANDRO ARAYA MONDACA",
+        "vin": 6,
+        "coverage": "partial"
+      },
+      {
+        "id": "156",
+        "name": "CARDENAS ALVARADO MARIA CRISTINA",
+        "vin": 6,
+        "coverage": "partial"
+      },
+      {
+        "id": "104",
+        "name": "ALARCON PINILLA IVÁN ENRIQUE",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "106",
+        "name": "COVARRUBIAS DEE IVAN IGNACIO",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "110",
+        "name": "BASTIAS GONZALEZ JUAN CARLOS",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "131",
+        "name": "VALBUENA ZAMBRANO JOSE GABRIEL",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "47",
+        "name": "MORALES JIMENEZ CYNDI CAROLINA",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "159",
+        "name": "MARINA MARLENS GUTIERREZ GUTIERREZ",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "229",
+        "name": "RIFFO PAILLAO VICTOR JOHN",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "68",
+        "name": "EVELYN ASTUDILLO MENESES",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "161",
+        "name": "MARIN GRUSIC MAURICIO JAVIER",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "150",
+        "name": "DURAN BLANCO LUIS RAUL",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "103",
+        "name": "VALENZUELA CERDA HECTOR ALEJANDRO",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "193",
+        "name": "PEDRO IVO MILOVIC",
+        "vin": 5,
+        "coverage": "partial"
+      },
+      {
+        "id": "145",
+        "name": "ALAMOS PALMA LUISA FRANCISCA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "52",
+        "name": "VALENZUELA VERGARA CAROLINA EUGENIA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "223",
+        "name": "CABEZA ARCIA VIRGINIA CAROLINA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "77",
+        "name": "FRANCISCA JAVIERA FLORES FIGUEROA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "80",
+        "name": "FELIPE HERRERA TORRES",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "36",
+        "name": "CRISTIAN DIAZ",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "135",
+        "name": "JOSE MIGUEL WEBER SEPULVEDA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "44",
+        "name": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "144",
+        "name": "RIFFO OVIEDO KARIN MARCELA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "234",
+        "name": "YANINA GARCIA",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "170",
+        "name": "RIVERA RICON MAXIMO JAVIER",
+        "vin": 4,
+        "coverage": "partial"
+      },
+      {
+        "id": "235",
+        "name": "YOSELIN GARCIA",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "231",
+        "name": "SANCHEZ GALAVIS RAQUEL VICTORIA",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "240",
+        "name": "JUAN ANTONIO DIAZ CARDENAS",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "16",
+        "name": "ANGELICA MARIA MORENO DE MATOS",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "69",
+        "name": "EVELYN CONTRERAS",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "58",
+        "name": "CARO URREA DANILO ANDRES",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "226",
+        "name": "GONZALEZ NAVARRETE VALERIA IGNACIA",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "214",
+        "name": "RAMIREZ OCHOA STHEFANY JHOJANA",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "189",
+        "name": "ORLANDO HERRERA",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "239",
+        "name": "SEBASTIAN VELASQUEZ",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "111",
+        "name": "BRAVO GARCIA JORGE ALEXIS",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "180",
+        "name": "HERRERA FERNANDEZ NICOLAS ALEXIS",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "181",
+        "name": "IBAÑEZ ARAVENA NADIA SCARLETTE",
+        "vin": 3,
+        "coverage": "partial"
+      },
+      {
+        "id": "200",
+        "name": "ROSSANA GONZALEZ",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "71",
+        "name": "EDUARDO MESIAS",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "86",
+        "name": "YOUNG GALLE FRANCISCO EDUARDO",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "87",
+        "name": "GERALDINE ARIAS",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "129",
+        "name": "ROCA DE LA BARRA JUAN FRANCISCO",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "136",
+        "name": "KELVIN CEBALLOS",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "141",
+        "name": "KATHERINE MONARES",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "157",
+        "name": "MANUEL ALEXANDER FORT BELMONTE",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "10",
+        "name": "ADA GONZALEZ",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "215",
+        "name": "RIQUELME VILLATORO SERGIO NICOLAS",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "220",
+        "name": "USBALDINE OCTAVIO MEDINA TORREALBA",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "238",
+        "name": "DIETER ALEXANDER GUILLEN INFANTE",
+        "vin": 2,
+        "coverage": "partial"
+      },
+      {
+        "id": "196",
+        "name": "DUQUE RODRIGUEZ RONNA NOHEMI",
+        "vin": 1,
+        "coverage": "partial"
+      },
+      {
+        "id": "148",
+        "name": "CARDENAS SUAREZ LISMARY LISSETT",
+        "vin": 1,
+        "coverage": "partial"
+      },
+      {
+        "id": "105",
+        "name": "ILEANA ALBURJAS SUAREZ",
+        "vin": 1,
+        "coverage": "partial"
+      },
+      {
+        "id": "UNRESOLVED",
+        "name": "No resuelto",
+        "vin": 1,
+        "coverage": "partial"
+      },
+      {
+        "id": "38",
+        "name": "GALLEGOS MIRANDA CARLA FERNARDA",
+        "vin": 1,
+        "coverage": "partial"
+      },
+      {
+        "id": "37",
+        "name": "CONSTANZA GALARCE",
+        "vin": 1,
+        "coverage": "partial"
+      },
+      {
+        "id": "211",
+        "name": "SOLANGEL NEWKEYNY HERNANDEZ PEREIRA",
+        "vin": 1,
+        "coverage": "partial"
+      }
+    ]
+  }
+}
