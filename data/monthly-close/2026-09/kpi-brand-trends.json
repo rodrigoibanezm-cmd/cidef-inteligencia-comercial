@@ -5,7 +5,7 @@
     "SALES": "ventas_raw latest fecha_factura by VIN before 2026-10-01, category Cliente General OWN_STORES / Concesionaria DEALERS, brand FOTON / DFM plus ZNA DONGFENG grouped into Dongfeng where it appears",
     "RVM": "rvm_raw 2026 consolidated quantities. Share uses full market denominator. YTD uses cumulative vehicle counts, not arithmetic mean.",
     "FINANCE": "ventas_raw entidad_financiera nonempty, only category Cliente General, no claim equivalent to Forum UFIs.",
-    "caveat": "The original front displays SALES COMPANY 1044 / OWN 377 / DEALERS 667, whereas the latest raw brand counts 1041 / OWN 375 / DEALERS 666. Preserve displayed total and show source discrepancy."
+    "caveat": "Single ERP VIN universe: 2026-09 = 1041 (FOTON 837 + DONGFENG/DFM 204), own stores 375, dealers 666. Earlier historic facts.json shows 1044 (brand 840 + 205 = 1045) and remains archived, unreconciled. Executive SALES now derives exclusively from this ERP brand series. RVM and Forum maintain independent contracts."
   },
   "series": {
     "company": {
