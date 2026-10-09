@@ -1,0 +1,240 @@
+{
+  "schema_version": "1.0",
+  "period": "2026-09",
+  "provenance": {
+    "SALES": "ventas_raw latest fecha_factura by VIN before 2026-10-01, category Cliente General OWN_STORES / Concesionaria DEALERS, brand FOTON / DFM plus ZNA DONGFENG grouped into Dongfeng where it appears",
+    "RVM": "rvm_raw 2026 consolidated quantities. Share uses full market denominator. YTD uses cumulative vehicle counts, not arithmetic mean.",
+    "FINANCE": "ventas_raw entidad_financiera nonempty, only category Cliente General, no claim equivalent to Forum UFIs.",
+    "caveat": "The original front displays SALES COMPANY 1044 / OWN 377 / DEALERS 667, whereas the latest raw brand counts 1041 / OWN 375 / DEALERS 666. Preserve displayed total and show source discrepancy."
+  },
+  "series": {
+    "company": {
+      "FOTON": [
+        {
+          "period": "2026-06",
+          "value": 703
+        },
+        {
+          "period": "2026-07",
+          "value": 723
+        },
+        {
+          "period": "2026-08",
+          "value": 859
+        },
+        {
+          "period": "2026-09",
+          "value": 837
+        }
+      ],
+      "DFM": [
+        {
+          "period": "2026-06",
+          "value": 175
+        },
+        {
+          "period": "2026-07",
+          "value": 179
+        },
+        {
+          "period": "2026-08",
+          "value": 342
+        },
+        {
+          "period": "2026-09",
+          "value": 204
+        }
+      ]
+    },
+    "own_stores": {
+      "FOTON": [
+        {
+          "period": "2026-06",
+          "value": 252
+        },
+        {
+          "period": "2026-07",
+          "value": 279
+        },
+        {
+          "period": "2026-08",
+          "value": 345
+        },
+        {
+          "period": "2026-09",
+          "value": 257
+        }
+      ],
+      "DFM": [
+        {
+          "period": "2026-06",
+          "value": 112
+        },
+        {
+          "period": "2026-07",
+          "value": 131
+        },
+        {
+          "period": "2026-08",
+          "value": 210
+        },
+        {
+          "period": "2026-09",
+          "value": 118
+        }
+      ]
+    },
+    "dealers": {
+      "FOTON": [
+        {
+          "period": "2026-06",
+          "value": 451
+        },
+        {
+          "period": "2026-07",
+          "value": 444
+        },
+        {
+          "period": "2026-08",
+          "value": 514
+        },
+        {
+          "period": "2026-09",
+          "value": 580
+        }
+      ],
+      "DFM": [
+        {
+          "period": "2026-06",
+          "value": 63
+        },
+        {
+          "period": "2026-07",
+          "value": 48
+        },
+        {
+          "period": "2026-08",
+          "value": 132
+        },
+        {
+          "period": "2026-09",
+          "value": 86
+        }
+      ]
+    },
+    "rvm_monthly": {
+      "FOTON": [
+        {
+          "period": "2026-06",
+          "value": 2.7393136664659843
+        },
+        {
+          "period": "2026-07",
+          "value": 2.5766523744033654
+        },
+        {
+          "period": "2026-08",
+          "value": 2.6778032692859193
+        },
+        {
+          "period": "2026-09",
+          "value": 2.5396108296492304
+        }
+      ],
+      "DFM": [
+        {
+          "period": "2026-06",
+          "value": 0.8165261890427453
+        },
+        {
+          "period": "2026-07",
+          "value": 0.7887711350214384
+        },
+        {
+          "period": "2026-08",
+          "value": 1.0359908230570691
+        },
+        {
+          "period": "2026-09",
+          "value": 0.8067378747297428
+        }
+      ]
+    },
+    "rvm_ytd": {
+      "FOTON": [
+        {
+          "period": "2026-06",
+          "value": 2.0635003320874628
+        },
+        {
+          "period": "2026-07",
+          "value": 2.1346524879974873
+        },
+        {
+          "period": "2026-08",
+          "value": 2.208136106153488
+        },
+        {
+          "period": "2026-09",
+          "value": 2.2514450988907204
+        }
+      ],
+      "DFM": [
+        {
+          "period": "2026-06",
+          "value": 0.779428809564119
+        },
+        {
+          "period": "2026-07",
+          "value": 0.7807241889890968
+        },
+        {
+          "period": "2026-08",
+          "value": 0.8152595639016063
+        },
+        {
+          "period": "2026-09",
+          "value": 0.8141461584190977
+        }
+      ]
+    },
+    "financed": {
+      "FOTON": [
+        {
+          "period": "2026-06",
+          "value": 136
+        },
+        {
+          "period": "2026-07",
+          "value": 155
+        },
+        {
+          "period": "2026-08",
+          "value": 198
+        },
+        {
+          "period": "2026-09",
+          "value": 133
+        }
+      ],
+      "DFM": [
+        {
+          "period": "2026-06",
+          "value": 76
+        },
+        {
+          "period": "2026-07",
+          "value": 82
+        },
+        {
+          "period": "2026-08",
+          "value": 152
+        },
+        {
+          "period": "2026-09",
+          "value": 65
+        }
+      ]
+    }
+  }
+}
