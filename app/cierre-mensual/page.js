@@ -12,7 +12,7 @@ const format=n=>new Intl.NumberFormat("es-CL",{maximumFractionDigits:1}).format(
 const pct=n=>(n>0?"+":"")+format(n)+"%";
 const monthName={"2026-06":"Junio","2026-07":"Julio","2026-08":"Agosto","2026-09":"Septiembre"};
 const insight=analysis.insights.filter(x=>["SALES","RVM","FORUM"].includes(x.domain)).slice(0,7);
-const palettes={COMPANY:"#244d7a",FOTON:"#158267",DFM:"#cf8954"};
+const palettes={COMPANY:"#244d7a",FOTON:"#20b34b",DFM:"#ed8726"};
 function TrendComparison({total,brands,label}) {
  const keys=["COMPANY","FOTON","DFM"];
  const sets={COMPANY:total?.points||[],FOTON:brands?.FOTON||[],DFM:brands?.DFM||[]};
