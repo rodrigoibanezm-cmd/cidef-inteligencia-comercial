@@ -9,8 +9,6 @@ const f=facts.domains;
 const format=n=>new Intl.NumberFormat("es-CL",{maximumFractionDigits:1}).format(n);
 const pct=n=>(n>0?"+":"")+format(n)+"%";
 const monthName={"2026-06":"Junio","2026-07":"Julio","2026-08":"Agosto","2026-09":"Septiembre"};
-const four=f.sales.series.company_recent.points;
-const maximum=Math.max(...four.map(p=>p.value));
 const insight=analysis.insights.filter(x=>["SALES","RVM","FORUM"].includes(x.domain)).slice(0,7);
 function Sparkline({points=[],unit="VIN"}) {
  const fourPoints=points.filter(p=>Number.isFinite(p.value)).slice(-4);
@@ -53,7 +51,7 @@ return <main className="shell mc">
 <Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} sourceNote="Corte de /ventas; pendiente conciliación"/>
 </section>
 <div className="mc-layout">
-<section className="mc-panel"><div className="mc-panel-head"><h2>La película de las ventas</h2><span>Últimos cuatro meses · VIN</span></div><div className="mc-bars">{four.map(p=><div className="mc-barline" key={p.period}><span>{monthName[p.period]||p.period}</span><div className="mc-bartrack"><div className="mc-barfill" style={{width:(p.value/maximum*100)+"%"}}/></div><strong>{format(p.value)}</strong></div>)}</div><p className="mc-footnote">Una caída frente a agosto no define por sí sola un deterioro: la lectura debe considerar la trayectoria y el YoY.</p></section>
+
 <section className="mc-panel"><div className="mc-panel-head"><h2>Ventas por marca</h2><span>Snapshot histórico · revisar conciliación</span></div>{brands.map(b=><div className="mc-row" key={b.id}><span>{b.label}</span><strong>{format(b.value)} VIN</strong></div>)}<div className="mc-panel-head mc-space"><h2>RVM · Mercado</h2></div><div className="mc-row"><span>Inscripciones del mercado</span><strong>{format(rvm.market_units.value)}</strong></div><div className="mc-row"><span>Inscripciones Foton + DFM</span><strong>{format(rvm.portfolio_units.value)}</strong></div><p className="mc-footnote">RVM mide inscripciones de mercado, no facturas. DFM conserva su identidad de fuente hasta validar el puente con SALES.</p></section>
 <section className="mc-panel"><div className="mc-panel-head"><h2>Tiendas propias · ventas</h2><span>Ranking disponible</span></div>{stores.map(s=><div className="mc-row" key={s.id}><span>{s.label.replace("CIDEF ","")}</span><strong>{format(s.value)} VIN</strong></div>)}<p className="mc-footnote">Vista parcial. El desglose completo por tienda y vendedor se incorporará con su identidad de SALES certificada; CRM SOLD no reemplaza ventas ERP.</p></section>
 <section className="mc-panel mc-finance-full">
