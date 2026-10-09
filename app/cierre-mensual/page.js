@@ -39,30 +39,43 @@ function Metric({label,value,sub,series,brands,unit="VIN",sourceNote}){
 export const metadata={title:"Septiembre 2026 · Cierre mensual | CIDEF"};
 export default function CierreMensual(){
 const sales=f.sales.metrics.vin_sales;
+const salesByPeriod=brandTrends.series.company.FOTON.map((p,i)=>({
+ period:p.period,
+ value:p.value+brandTrends.series.company.DFM[i].value
+}));
+const consistentSales={
+ company:salesByPeriod.at(-1).value,
+ own:brandTrends.series.own_stores.FOTON[3].value+brandTrends.series.own_stores.DFM[3].value,
+ dealers:brandTrends.series.dealers.FOTON[3].value+brandTrends.series.dealers.DFM[3].value,
+ foton:brandTrends.series.company.FOTON[3].value,
+ dongfeng:brandTrends.series.company.DFM[3].value
+};
+if(consistentSales.company!==consistentSales.own+consistentSales.dealers ||
+   consistentSales.company!==consistentSales.foton+consistentSales.dongfeng)
+ throw new Error("SALES_RECONCILIATION_FAILED");
+const salesYoY=(consistentSales.company/924-1)*100;
 const rvm=f.rvm.metrics;
 const ytd=f.rvm.scopes.ytd.metrics;
 const u=f.forum.scopes.own_stores.metrics;
 const stores=f.sales.rankings.stores;
-const brands=f.sales.breakdowns.brand;
-const network=f.sales.breakdowns.network;
 const pctFinance=n=>format(financing.sales_denominator?n/financing.sales_denominator*100:0)+"%";
 return <main className="shell mc">
 <header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">CIERRE HISTÓRICO · SEPTIEMBRE 2026</span></header>
 <section className="mc-intro"><span className="eyebrow">CIERRE MENSUAL · PRIMERA VERSIÓN</span><h1>Septiembre 2026</h1><p>Ventas como resultado. Mercado, CRM y Forum como explicación. Una lectura del mes, su trayectoria y las señales del negocio.</p></section>
-<div className="mc-warning"><strong>Conciliación pendiente.</strong> Este tablero reproduce el snapshot histórico existente, sin modificarlo. SALES registra {format(sales.value)} VIN, mientras una observación posterior del motor reportó 1.043 VIN. El desglose de marcas tampoco reconcilia exactamente con el total. Estas cifras aún no deben considerarse un cierre nuevamente certificado.</div>
+<div className="mc-warning"><strong>Base de ventas consistente · septiembre 2026.</strong> Los resultados de SALES de esta vista provienen del mismo corte de <code>ventas_raw</code>, con 1.041 VIN = 837 Foton + 204 Dongfeng = 375 propias + 666 dealers. El snapshot anterior (1.044 VIN) se mantiene archivado y está pendiente de conciliación. Los indicadores de FORUM provenientes de ese snapshot conservan explícitamente su denominador original.</div>
 <div className="mc-tabs"><span className="mc-active">Compañía</span><span>Tiendas propias</span><span>Dealers</span><span>Foton</span><span>Dongfeng</span></div>
 <section className="mc-kpis">
-<Metric label="Ventas · VIN" value={format(sales.value)} sub={"YoY "+pct(sales.delta_pct)+" · snapshot"} series={trendData.series.company} brands={brandTrends.series.company} sourceNote="Suma por marcas del ERP: 1.041 VIN; total snapshot: 1.044"/>
-<Metric label="Ventas propias" value={format(network.find(x=>x.id==="OWN_STORES")?.value)} sub="VIN · canal propio" series={trendData.series.own_stores} brands={brandTrends.series.own_stores} sourceNote="Marcas ERP: 375 VIN; snapshot: 377"/>
-<Metric label="Ventas dealers" value={format(network.find(x=>x.id==="DEALERS")?.value)} sub="VIN · canal dealer" series={trendData.series.dealers} brands={brandTrends.series.dealers} sourceNote="Marcas ERP: 666 VIN; snapshot: 667"/>
+<Metric label="Ventas · VIN" value={format(consistentSales.company)} sub={"YoY "+pct(salesYoY)+" · ventas_raw"} series={{points:salesByPeriod}} brands={brandTrends.series.company}/>
+<Metric label="Ventas propias" value={format(consistentSales.own)} sub="VIN · canal propio" series={{points:brandTrends.series.own_stores.FOTON.map((p,i)=>({period:p.period,value:p.value+brandTrends.series.own_stores.DFM[i].value}))}} brands={brandTrends.series.own_stores}/>
+<Metric label="Ventas dealers" value={format(consistentSales.dealers)} sub="VIN · canal dealer" series={{points:brandTrends.series.dealers.FOTON.map((p,i)=>({period:p.period,value:p.value+brandTrends.series.dealers.DFM[i].value}))}} brands={brandTrends.series.dealers}/>
 <Metric label="RVM · Share mensual" value={format(rvm.portfolio_share.value)+"%"} sub={format(rvm.portfolio_share.delta_pp)+" pp YoY"} series={trendData.series.rvm_monthly} brands={brandTrends.series.rvm_monthly} unit="PERCENT"/>
 <Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} brands={brandTrends.series.rvm_ytd} unit="PERCENT"/>
-<Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} brands={brandTrends.series.financed} sourceNote="Corte de /ventas; pendiente conciliación"/>
+<Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} brands={brandTrends.series.financed} sourceNote="Financiamiento ERP; no equivale a UFIs Forum"/>
 </section>
 <PerformanceRanking/>
 <div className="mc-layout">
 
-<section className="mc-panel"><div className="mc-panel-head"><h2>Ventas por marca</h2><span>Snapshot histórico · revisar conciliación</span></div>{brands.map(b=><div className="mc-row" key={b.id}><span>{b.label}</span><strong>{format(b.value)} VIN</strong></div>)}<div className="mc-panel-head mc-space"><h2>RVM · Mercado</h2></div><div className="mc-row"><span>Inscripciones del mercado</span><strong>{format(rvm.market_units.value)}</strong></div><div className="mc-row"><span>Inscripciones Foton + DFM</span><strong>{format(rvm.portfolio_units.value)}</strong></div><p className="mc-footnote">RVM mide inscripciones de mercado, no facturas. DFM conserva su identidad de fuente hasta validar el puente con SALES.</p></section>
+<section className="mc-panel"><div className="mc-panel-head"><h2>Ventas por marca</h2><span>Mismo corte ERP que tarjetas superiores</span></div><div className="mc-row"><span>Foton</span><strong>{format(consistentSales.foton)} VIN</strong></div><div className="mc-row"><span>Dongfeng</span><strong>{format(consistentSales.dongfeng)} VIN</strong></div><div className="mc-row"><span><b>Total compañía</b></span><strong>{format(consistentSales.company)} VIN</strong></div><div className="mc-panel-head mc-space"><h2>RVM · Mercado</h2></div><div className="mc-row"><span>Inscripciones del mercado</span><strong>{format(rvm.market_units.value)}</strong></div><div className="mc-row"><span>Inscripciones Foton + DFM</span><strong>{format(rvm.portfolio_units.value)}</strong></div><p className="mc-footnote">RVM mide inscripciones de mercado, no facturas. DFM conserva su identidad de fuente hasta validar el puente con SALES.</p></section>
 <section className="mc-panel"><div className="mc-panel-head"><h2>Tiendas propias · ventas</h2><span>Ranking disponible</span></div>{stores.map(s=><div className="mc-row" key={s.id}><span>{s.label.replace("CIDEF ","")}</span><strong>{format(s.value)} VIN</strong></div>)}<p className="mc-footnote">Vista parcial. El desglose completo por tienda y vendedor se incorporará con su identidad de SALES certificada; CRM SOLD no reemplaza ventas ERP.</p></section>
 <section className="mc-panel mc-finance-full">
 <div className="mc-panel-head"><h2>Créditos y financiamiento</h2><span>Tiendas propias · septiembre 2026</span></div>
