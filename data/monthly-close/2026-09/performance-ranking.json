@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
   "period": "2026-09",
-  "generated_by": "read_only_snapshot_query_2026_10_09",
+  "generated_by": "read_only_neon_sales_2026_10_11_and_existing_store_model_snapshots",
   "method": {
     "metric": "VIN",
     "volume": "September recognized VIN count",
-    "trajectory": "September vs mean(June,July,August) with 3 positive-history months",
-    "alert_eligibility": "prior monthly average >= 5 VIN and 3 positive-history months (stores/dealers), >= 8 for models",
+    "trajectory": "September VIN minus monthly mean(June, July, August); identical for stores, dealers and models. Rank by absolute VIN delta, not percent.",
+    "alert_eligibility": "Three positive prior months, historical average at least 10 VIN, and September at least 10 VIN for positive ranking. Negative rankings retain drops to zero.",
     "source_notes": {
       "stores": "ventas_raw latest factura per VIN through Sep 30; category Cliente General; source total 375 vs frozen 377, not reconciled",
       "models": "ventas_raw VIN join vehiculo_canonico.modelo_raw; heuristic prefix grouping; excludes unmapped models; category Cliente General+Concesionaria",
-      "dealers": "Certified SALES motor run sales-dealer-detail-sep2026-001 (667 unique VIN); 624 prior resolved + 42 direct dealer RUT matches (12 AUTOS OGAZ, 30 SOCIEDAD REAL Y CIA) + 1 via nota_venta Forum intermediary linked to CARMONA; dealer_group_id is ranking entity. Historical Q3 comparison missing for newly resolved groups; existing Q3 Carmona increased by 1 VIN, Q2 preserved. No Neon writes.",
+      "dealers": "Read-only ventas_raw latest fecha_factura per VIN through September 30; dealer group by normalized client RUT using dealers_master, fallback vehiculo_canonico.dealer_group_id. Monthly mapping reconciles 514/514 Jun, 491/491 Jul, 646/646 Aug, 666/666 Sep. Historical dealer group uses current canonical membership, not an independent time-effective certified mapping; provisional.",
       "sellers": "monthly_close_metrics_v01 SALES SELLER OWN_STORES snapshot from earlier partial version; 274 VIN scope, not full certified close; no comparable seller trajectory"
     },
     "dealer_identity": {
@@ -44,7 +44,7 @@
           "method": "FORUM_COMENTARIO_IN_NOTAS_VENTA"
         }
       ],
-      "caveat": "Resolution for this archived snapshot only. Do not change the source P1 event or claim motor currently recomputes these enriched dealer identities."
+      "caveat": "Legacy October 6 snapshot of 667 superseded only in monthly ranking by October 10 corrected SALES source 666. Using current canonical dealer attribution historically is provisional; no master write."
     }
   },
   "categories": {
@@ -499,201 +499,271 @@
         "id": "19",
         "name": "ROSSELOT",
         "vin": 274,
-        "q2": 560,
-        "q3": 566,
-        "quarter_change": 0.010714285714285714,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "30",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 181,
+          "2026-07": 152,
+          "2026-08": 112,
+          "2026-09": 274
+        },
+        "prior_avg": 148.33333333333334
       },
       {
         "id": "22",
         "name": "KLASSIK CAR",
         "vin": 55,
-        "q2": 70,
-        "q3": 123,
-        "quarter_change": 0.7571428571428571,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "33",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 24,
+          "2026-07": 32,
+          "2026-08": 36,
+          "2026-09": 55
+        },
+        "prior_avg": 30.666666666666668
       },
       {
         "id": "13",
         "name": "CARMONA Y CIA",
         "vin": 54,
-        "q2": 27,
-        "q3": 102,
-        "quarter_change": 2.7777777777777777,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "24",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 23,
+          "2026-07": 23,
+          "2026-08": 25,
+          "2026-09": 54
+        },
+        "prior_avg": 23.666666666666668
       },
       {
         "id": "4",
         "name": "PORTILLO SUR",
         "vin": 46,
-        "q2": 125,
-        "q3": 107,
-        "quarter_change": -0.144,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "13",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 61,
+          "2026-07": 20,
+          "2026-08": 42,
+          "2026-09": 46
+        },
+        "prior_avg": 41
       },
       {
         "id": "10",
         "name": "AUTOMOTORA COLON",
         "vin": 40,
-        "q2": 119,
-        "q3": 146,
-        "quarter_change": 0.226890756302521,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "21",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 50,
+          "2026-07": 45,
+          "2026-08": 61,
+          "2026-09": 40
+        },
+        "prior_avg": 52
       },
       {
         "id": "2",
         "name": "CARPOINT",
         "vin": 38,
-        "q2": 137,
-        "q3": 128,
-        "quarter_change": -0.06569343065693431,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "11",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 34,
+          "2026-07": 36,
+          "2026-08": 54,
+          "2026-09": 38
+        },
+        "prior_avg": 41.333333333333336
       },
       {
         "id": "21",
         "name": "PIAMONTE",
         "vin": 33,
-        "q2": 98,
-        "q3": 86,
-        "quarter_change": -0.12244897959183673,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "32",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 33,
+          "2026-07": 16,
+          "2026-08": 37,
+          "2026-09": 33
+        },
+        "prior_avg": 28.666666666666668
       },
       {
         "id": "29",
         "dealer_id": "38",
         "name": "SOCIEDAD REAL Y CIA",
         "vin": 30,
-        "q2": null,
-        "q3": null,
-        "quarter_change": null,
-        "active_prior_months": null,
+        "active_prior_months": 0,
         "scope": "DEALER_GROUP",
-        "history_status": "NEWLY_RESOLVED"
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 30
+        },
+        "prior_avg": 0
       },
       {
         "id": "11",
         "name": "AUTOMOTORA AUSTRAL",
         "vin": 23,
-        "q2": 53,
-        "q3": 83,
-        "quarter_change": 0.5660377358490566,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "22",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 19,
+          "2026-07": 29,
+          "2026-08": 31,
+          "2026-09": 23
+        },
+        "prior_avg": 26.333333333333332
       },
       {
         "id": "1",
         "name": "FORCENTER",
         "vin": 16,
-        "q2": 102,
-        "q3": 76,
-        "quarter_change": -0.2549019607843137,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "10",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 24,
+          "2026-07": 15,
+          "2026-08": 45,
+          "2026-09": 16
+        },
+        "prior_avg": 28
       },
       {
         "id": "15",
         "name": "SALAZAR E ISRAEL",
-        "vin": 15,
-        "q2": 0,
-        "q3": 100,
-        "quarter_change": null,
-        "active_prior_months": null,
+        "vin": 14,
+        "active_prior_months": 2,
         "dealer_id": "26",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 10,
+          "2026-08": 77,
+          "2026-09": 14
+        },
+        "prior_avg": 29
       },
       {
         "id": "5",
         "dealer_id": "39",
         "name": "AUTOS OGAZ",
         "vin": 12,
-        "q2": null,
-        "q3": null,
-        "quarter_change": null,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "scope": "DEALER_GROUP",
-        "history_status": "NEWLY_RESOLVED"
+        "months": {
+          "2026-06": 22,
+          "2026-07": 22,
+          "2026-08": 34,
+          "2026-09": 12
+        },
+        "prior_avg": 26
       },
       {
         "id": "12",
         "name": "GELLONA",
         "vin": 9,
-        "q2": 55,
-        "q3": 50,
-        "quarter_change": -0.09090909090909091,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "23",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 15,
+          "2026-07": 29,
+          "2026-08": 12,
+          "2026-09": 9
+        },
+        "prior_avg": 18.666666666666668
       },
       {
         "id": "18",
         "name": "CURIFOR",
         "vin": 8,
-        "q2": 19,
-        "q3": 77,
-        "quarter_change": 3.0526315789473686,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "29",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 32,
+          "2026-08": 37,
+          "2026-09": 8
+        },
+        "prior_avg": 24.666666666666668
       },
       {
         "id": "16",
         "name": "ROMANINI",
         "vin": 6,
-        "q2": 13,
-        "q3": 17,
-        "quarter_change": 0.3076923076923077,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "27",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 3,
+          "2026-07": 1,
+          "2026-08": 10,
+          "2026-09": 6
+        },
+        "prior_avg": 4.666666666666667
       },
       {
         "id": "6",
         "name": "RENTAL BASILIO",
         "vin": 5,
-        "q2": 11,
-        "q3": 14,
-        "quarter_change": 0.2727272727272727,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "17",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 2,
+          "2026-08": 7,
+          "2026-09": 5
+        },
+        "prior_avg": 5.333333333333333
       },
       {
         "id": "20",
         "name": "IMPORT EXPORT",
         "vin": 2,
-        "q2": 0,
-        "q3": 6,
-        "quarter_change": null,
-        "active_prior_months": null,
+        "active_prior_months": 2,
         "dealer_id": "31",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 1,
+          "2026-08": 3,
+          "2026-09": 2
+        },
+        "prior_avg": 1.3333333333333333
       },
       {
         "id": "8",
         "name": "VEGAARTUS",
         "vin": 1,
-        "q2": 43,
-        "q3": 34,
-        "quarter_change": -0.20930232558139536,
-        "active_prior_months": null,
+        "active_prior_months": 3,
         "dealer_id": "19",
-        "scope": "DEALER_GROUP"
+        "scope": "DEALER_GROUP",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 19,
+          "2026-08": 14,
+          "2026-09": 1
+        },
+        "prior_avg": 13.333333333333334
       }
     ],
     "sellers": [
