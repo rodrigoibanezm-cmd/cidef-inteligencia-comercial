@@ -1,0 +1,27 @@
+name: Validate ranking motor
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/motors/ranking-performance-v1.js'
+      - 'data/monthly-close/**/performance-ranking.json'
+      - 'components/PerformanceRanking.js'
+      - 'test/ranking-performance.test.js'
+      - '.github/workflows/validate-ranking.yml'
+  pull_request:
+    paths:
+      - 'lib/motors/ranking-performance-v1.js'
+      - 'data/monthly-close/**/performance-ranking.json'
+      - 'components/PerformanceRanking.js'
+      - 'test/ranking-performance.test.js'
+      - '.github/workflows/validate-ranking.yml'
+jobs:
+  ranking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Ranking deterministic regression tests
+        run: npm run test:ranking
