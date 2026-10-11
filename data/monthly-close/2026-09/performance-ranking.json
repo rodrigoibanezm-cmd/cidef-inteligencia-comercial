@@ -764,6 +764,34 @@
           "2026-09": 1
         },
         "prior_avg": 13.333333333333334
+      },
+      {
+        "id": "9",
+        "name": "VARAS HERMANOS",
+        "scope": "DEALER_GROUP",
+        "vin": 0,
+        "months": {
+          "2026-06": 4,
+          "2026-07": 4,
+          "2026-08": 9,
+          "2026-09": 0
+        },
+        "prior_avg": 5.666666666666667,
+        "active_prior_months": 3
+      },
+      {
+        "id": "17",
+        "name": "GRASS Y ARUESTE",
+        "scope": "DEALER_GROUP",
+        "vin": 0,
+        "months": {
+          "2026-06": 2,
+          "2026-07": 3,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "prior_avg": 1.6666666666666667,
+        "active_prior_months": 2
       }
     ],
     "sellers": [
