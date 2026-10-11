@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:ranking": "node --test test/ranking-performance.test.js",
+    "verify:ranking": "npm run test:ranking"
   },
   "dependencies": {
     "next": "^15.5.0",
