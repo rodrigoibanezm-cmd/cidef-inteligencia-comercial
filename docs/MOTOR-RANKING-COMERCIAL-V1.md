@@ -59,3 +59,11 @@ El frontend `components/PerformanceRanking.js` **no implementa fórmulas ni orde
 La reconstrucción histórica de dealers y la agrupación por modelos siguen provisionales. La fuente comercial histórica `performance-ranking.json` y otros snapshots del cierre son evidencia guardada, no autoridad P1 por sí solos. Cuando haya nueva certificación, primero reemplazar los conteos mensuales con fuente rastreable; el motor y sus fórmulas no deben cambiar por intervención del asistente.
 
 **Versionado:** v1.1.0 incorpora tres estados y umbrales absolutos+relativos. Cambiar fórmulas, umbrales, universos o criterio requiere nueva versión y prueba de conciliación. La clasificación no significa causalidad o cumplimiento de metas comerciales.
+
+## Vendedores activos · registro de primera venta observada
+
+**Snapshot de evidencia:** `data/monthly-close/2026-09/active-sellers-first-sale.json` (corte de observación 2026-10-13). Registra 73 personas con estado `ACTIVO`, `habilitado=true` y `persona_id` presente en `weekly_projection_sellers`. De ellas, 66 tienen una venta histórica identificada y 7 quedan explícitamente como `NO_HISTORICAL_SALE`.
+
+**Fuente:** `ventas_raw` filtrada a `categoria_cliente='Cliente General'`, VIN no nulo, última factura válida por VIN con corte `2026-10-13`. Vinculación por `persona_id` mediante `personas_master.usuario_canonico`, `weekly_projection_sellers.ombu_id` y `persona_aliases` validados de tipo login, solo si cada token resuelve inequívocamente a una persona. La primera fecha observada es el mínimo `fecha_factura` por vendedor en el histórico disponible; en empates se guarda el VIN lexicográficamente menor para evidencia.
+
+**Interpretación:** `primera_venta_observada` **no es fecha de contratación ni fecha de inicio de vigencia laboral**. Puede variar si se incorpora historia anterior, se corrigen facturas o se modifica la resolución de identidades. Un vendedor sin ventas históricas puede estar recién incorporado o carecer de cobertura. Nunca convertir una fecha nula en cero o antigüedad inventada. La vigencia comercial seguirá gobernada por la fuente de activos. El registro de primeras ventas, por sí solo, **no habilita** el ranking de vendedores: aún se necesita generar series mensuales por persona y pasar las verificaciones del motor.
