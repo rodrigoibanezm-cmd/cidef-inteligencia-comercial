@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "period": "2026-09",
+  "event_cutoff": "2026-09-30",
+  "observed_at": "2026-10-13",
+  "authority": "FORUM P1 data_observe; SALES P1 Sep 2026",
+  "semantics": {
+    "period_events": "Closed calendar month based on fecha_cotizacion or fecha_curse",
+    "cohort_states": "Current observed state of quotations belonging to each month's cohort; NOT historical state as of month-end",
+    "conversion": "Cohort converted measured against same month's quotations; outcomes have unequal maturation windows",
+    "ufi": "Funded vehicle units from certified Curse; not Curse operation counts",
+    "sales": "Recognized ERP VIN company 1041, own stores 375, dealers 666"
+  },
+  "network": {
+    "OWN_STORES": {
+      "quotations": 2587,
+      "applications": 2107,
+      "curses": 172,
+      "ufis": 174,
+      "approved_pending": 773,
+      "sales_vin": 375
+    },
+    "DEALERS": {
+      "quotations": 3303,
+      "applications": 2739,
+      "curses": 209,
+      "ufis": 209,
+      "approved_pending": 1053,
+      "sales_vin": 666
+    }
+  },
+  "cohorts": [
+    {
+      "period": "2026-04",
+      "quotations": 4823,
+      "applications": 4232,
+      "approved_pending": 1073,
+      "converted": 321
+    },
+    {
+      "period": "2026-05",
+      "quotations": 5484,
+      "applications": 4667,
+      "approved_pending": 1653,
+      "converted": 398
+    },
+    {
+      "period": "2026-06",
+      "quotations": 5382,
+      "applications": 4427,
+      "approved_pending": 1606,
+      "converted": 355
+    },
+    {
+      "period": "2026-07",
+      "quotations": 6938,
+      "applications": 5808,
+      "approved_pending": 2131,
+      "converted": 430
+    },
+    {
+      "period": "2026-08",
+      "quotations": 7891,
+      "applications": 6553,
+      "approved_pending": 2426,
+      "converted": 620
+    },
+    {
+      "period": "2026-09",
+      "quotations": 5890,
+      "applications": 4846,
+      "approved_pending": 1826,
+      "converted": 339
+    }
+  ],
+  "event_trend": [
+    {
+      "period": "2026-06",
+      "curses": 358,
+      "ufis": 359
+    },
+    {
+      "period": "2026-07",
+      "curses": 410,
+      "ufis": 410
+    },
+    {
+      "period": "2026-08",
+      "curses": 611,
+      "ufis": 611
+    },
+    {
+      "period": "2026-09",
+      "curses": 381,
+      "ufis": 383
+    }
+  ]
+}
