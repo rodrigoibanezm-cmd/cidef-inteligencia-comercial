@@ -11,7 +11,7 @@
       "stores": "ventas_raw latest factura per VIN through Sep 30; category Cliente General; source total 375 vs frozen 377, not reconciled",
       "models": "ventas_raw VIN join vehiculo_canonico.modelo_raw; heuristic prefix grouping; excludes unmapped models; category Cliente General+Concesionaria",
       "dealers": "Read-only ventas_raw latest fecha_factura per VIN through September 30; dealer group by normalized client RUT using dealers_master, fallback vehiculo_canonico.dealer_group_id. Monthly mapping reconciles 514/514 Jun, 491/491 Jul, 646/646 Aug, 666/666 Sep. Historical dealer group uses current canonical membership, not an independent time-effective certified mapping; provisional.",
-      "sellers": "monthly_close_metrics_v01 SALES SELLER OWN_STORES snapshot from earlier partial version; 274 VIN scope, not full certified close; no comparable seller trajectory"
+      "sellers": "ventas_raw last invoice per VIN at 2026-09-30 with Cliente General, matched via validated unique login tokens to personas_master.persona_id; active from weekly_projection_sellers; historical first-sale snapshot is separate and not hiring date"
     },
     "dealer_identity": {
       "authority": "dealer_groups/dealers_master",
@@ -45,7 +45,15 @@
         }
       ],
       "caveat": "Legacy October 6 snapshot of 667 superseded only in monthly ranking by October 10 corrected SALES source 666. Using current canonical dealer attribution historically is provisional; no master write."
-    }
+    },
+    "sellers_expected_monthly_totals": {
+      "2026-06": 322,
+      "2026-07": 373,
+      "2026-08": 494,
+      "2026-09": 364
+    },
+    "active_sellers_expected_count": 73,
+    "seller_first_sale_snapshot": "data/monthly-close/2026-09/active-sellers-first-sale.json"
   },
   "categories": {
     "stores": [
@@ -796,406 +804,953 @@
     ],
     "sellers": [
       {
-        "id": "232",
-        "name": "TAMPOA GUANIPA VIRGINIA CENOBIA",
-        "vin": 16,
-        "coverage": "partial"
-      },
-      {
-        "id": "57",
-        "name": "BASANTA GUEVARA DOUGLAS JOSE",
-        "vin": 13,
-        "coverage": "partial"
-      },
-      {
-        "id": "45",
-        "name": "MALUENDA LEIVA CLAUDIA VIVIANA",
-        "vin": 10,
-        "coverage": "partial"
-      },
-      {
-        "id": "137",
-        "name": "CORTEZ PEÑA KARIN DANIELA",
-        "vin": 9,
-        "coverage": "partial"
-      },
-      {
-        "id": "41",
-        "name": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
-        "vin": 7,
-        "coverage": "partial"
-      },
-      {
-        "id": "76",
-        "name": "FELIX ACOSTA RODRIGUEZ",
-        "vin": 7,
-        "coverage": "partial"
-      },
-      {
-        "id": "205",
-        "name": "PALMA ORTA RICARDO ALEJANDRO",
-        "vin": 7,
-        "coverage": "partial"
-      },
-      {
-        "id": "155",
-        "name": "MAGLYS CARABALLO",
-        "vin": 7,
-        "coverage": "partial"
-      },
-      {
-        "id": "62",
-        "name": "JEREZ CORTEZ DIEGO ANDRES",
-        "vin": 6,
-        "coverage": "partial"
-      },
-      {
-        "id": "188",
-        "name": "OSVALDO FARIAS",
-        "vin": 6,
-        "coverage": "partial"
-      },
-      {
-        "id": "56",
-        "name": "DIEGO LEANDRO ARAYA MONDACA",
-        "vin": 6,
-        "coverage": "partial"
-      },
-      {
-        "id": "156",
-        "name": "CARDENAS ALVARADO MARIA CRISTINA",
-        "vin": 6,
-        "coverage": "partial"
-      },
-      {
-        "id": "104",
-        "name": "ALARCON PINILLA IVÁN ENRIQUE",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "106",
-        "name": "COVARRUBIAS DEE IVAN IGNACIO",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "110",
-        "name": "BASTIAS GONZALEZ JUAN CARLOS",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "131",
-        "name": "VALBUENA ZAMBRANO JOSE GABRIEL",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "47",
-        "name": "MORALES JIMENEZ CYNDI CAROLINA",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "159",
-        "name": "MARINA MARLENS GUTIERREZ GUTIERREZ",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "229",
-        "name": "RIFFO PAILLAO VICTOR JOHN",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "68",
-        "name": "EVELYN ASTUDILLO MENESES",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "161",
-        "name": "MARIN GRUSIC MAURICIO JAVIER",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "150",
-        "name": "DURAN BLANCO LUIS RAUL",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "103",
-        "name": "VALENZUELA CERDA HECTOR ALEJANDRO",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "193",
-        "name": "PEDRO IVO MILOVIC",
-        "vin": 5,
-        "coverage": "partial"
-      },
-      {
-        "id": "145",
-        "name": "ALAMOS PALMA LUISA FRANCISCA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "52",
-        "name": "VALENZUELA VERGARA CAROLINA EUGENIA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "223",
-        "name": "CABEZA ARCIA VIRGINIA CAROLINA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "77",
-        "name": "FRANCISCA JAVIERA FLORES FIGUEROA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "80",
-        "name": "FELIPE HERRERA TORRES",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "36",
-        "name": "CRISTIAN DIAZ",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "135",
-        "name": "JOSE MIGUEL WEBER SEPULVEDA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "44",
-        "name": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "144",
-        "name": "RIFFO OVIEDO KARIN MARCELA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "234",
-        "name": "YANINA GARCIA",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "170",
-        "name": "RIVERA RICON MAXIMO JAVIER",
-        "vin": 4,
-        "coverage": "partial"
-      },
-      {
-        "id": "235",
-        "name": "YOSELIN GARCIA",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "231",
-        "name": "SANCHEZ GALAVIS RAQUEL VICTORIA",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "240",
-        "name": "JUAN ANTONIO DIAZ CARDENAS",
-        "vin": 3,
-        "coverage": "partial"
+        "id": "1",
+        "name": "ALEXANDER JOHAN ALBORNOZ",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 1,
+          "2026-08": 2,
+          "2026-09": 1
+        },
+        "first_sale_observed": "2026-07-25",
+        "first_sale_evidence_vin": "LGJE1EE2XTM534529",
+        "identity": "ACTIVE_PERSONA_ID"
       },
       {
         "id": "16",
         "name": "ANGELICA MARIA MORENO DE MATOS",
-        "vin": 3,
-        "coverage": "partial"
+        "months": {
+          "2026-06": 8,
+          "2026-07": 10,
+          "2026-08": 9,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2025-04-28",
+        "first_sale_evidence_vin": "LVAV2MABXSU316208",
+        "identity": "ACTIVE_PERSONA_ID"
       },
       {
-        "id": "69",
-        "name": "EVELYN CONTRERAS",
-        "vin": 3,
-        "coverage": "partial"
+        "id": "17",
+        "name": "ORTA MEDINA ADRIANA ALEJANDRA",
+        "months": {
+          "2026-06": 10,
+          "2026-07": 12,
+          "2026-08": 14,
+          "2026-09": 1
+        },
+        "first_sale_observed": "2021-05-06",
+        "first_sale_evidence_vin": "LVAV2JVB8ME301311",
+        "identity": "ACTIVE_PERSONA_ID"
       },
       {
-        "id": "58",
-        "name": "CARO URREA DANILO ANDRES",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "226",
-        "name": "GONZALEZ NAVARRETE VALERIA IGNACIA",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "214",
-        "name": "RAMIREZ OCHOA STHEFANY JHOJANA",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "189",
-        "name": "ORLANDO HERRERA",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "239",
-        "name": "SEBASTIAN VELASQUEZ",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "111",
-        "name": "BRAVO GARCIA JORGE ALEXIS",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "180",
-        "name": "HERRERA FERNANDEZ NICOLAS ALEXIS",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "181",
-        "name": "IBAÑEZ ARAVENA NADIA SCARLETTE",
-        "vin": 3,
-        "coverage": "partial"
-      },
-      {
-        "id": "200",
-        "name": "ROSSANA GONZALEZ",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "71",
-        "name": "EDUARDO MESIAS",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "86",
-        "name": "YOUNG GALLE FRANCISCO EDUARDO",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "87",
-        "name": "GERALDINE ARIAS",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "129",
-        "name": "ROCA DE LA BARRA JUAN FRANCISCO",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "136",
-        "name": "KELVIN CEBALLOS",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "141",
-        "name": "KATHERINE MONARES",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "157",
-        "name": "MANUEL ALEXANDER FORT BELMONTE",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "10",
-        "name": "ADA GONZALEZ",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "215",
-        "name": "RIQUELME VILLATORO SERGIO NICOLAS",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "220",
-        "name": "USBALDINE OCTAVIO MEDINA TORREALBA",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "238",
-        "name": "DIETER ALEXANDER GUILLEN INFANTE",
-        "vin": 2,
-        "coverage": "partial"
-      },
-      {
-        "id": "196",
-        "name": "DUQUE RODRIGUEZ RONNA NOHEMI",
-        "vin": 1,
-        "coverage": "partial"
-      },
-      {
-        "id": "148",
-        "name": "CARDENAS SUAREZ LISMARY LISSETT",
-        "vin": 1,
-        "coverage": "partial"
-      },
-      {
-        "id": "105",
-        "name": "ILEANA ALBURJAS SUAREZ",
-        "vin": 1,
-        "coverage": "partial"
-      },
-      {
-        "id": "UNRESOLVED",
-        "name": "No resuelto",
-        "vin": 1,
-        "coverage": "partial"
+        "id": "36",
+        "name": "CRISTIAN DIAZ",
+        "months": {
+          "2026-06": 8,
+          "2026-07": 11,
+          "2026-08": 13,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2026-01-29",
+        "first_sale_evidence_vin": "LGJE5EE03SM366539",
+        "identity": "ACTIVE_PERSONA_ID"
       },
       {
         "id": "38",
         "name": "GALLEGOS MIRANDA CARLA FERNARDA",
-        "vin": 1,
-        "coverage": "partial"
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 1
+        },
+        "first_sale_observed": "2024-01-29",
+        "first_sale_evidence_vin": "LVAV2JVB4RE303418",
+        "identity": "ACTIVE_PERSONA_ID"
       },
       {
-        "id": "37",
-        "name": "CONSTANZA GALARCE",
-        "vin": 1,
-        "coverage": "partial"
+        "id": "41",
+        "name": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
+        "months": {
+          "2026-06": 4,
+          "2026-07": 3,
+          "2026-08": 3,
+          "2026-09": 11
+        },
+        "first_sale_observed": "2025-01-09",
+        "first_sale_evidence_vin": "LVAV2MAB2SU313948",
+        "identity": "ACTIVE_PERSONA_ID"
       },
       {
-        "id": "211",
-        "name": "SOLANGEL NEWKEYNY HERNANDEZ PEREIRA",
-        "vin": 1,
-        "coverage": "partial"
+        "id": "44",
+        "name": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
+        "months": {
+          "2026-06": 13,
+          "2026-07": 14,
+          "2026-08": 12,
+          "2026-09": 10
+        },
+        "first_sale_observed": "2025-09-01",
+        "first_sale_evidence_vin": "LMXA14AG2TZ351393",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "45",
+        "name": "MALUENDA LEIVA CLAUDIA VIVIANA",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 6,
+          "2026-08": 9,
+          "2026-09": 12
+        },
+        "first_sale_observed": "2020-09-16",
+        "first_sale_evidence_vin": "LGG8D2D15KZ352465",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "47",
+        "name": "MORALES JIMENEZ CYNDI CAROLINA",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 3,
+          "2026-08": 9,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2025-08-21",
+        "first_sale_evidence_vin": "LMXA14AG5TZ350142",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "52",
+        "name": "VALENZUELA VERGARA CAROLINA EUGENIA",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 5,
+          "2026-08": 9,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2020-09-14",
+        "first_sale_evidence_vin": "LGG8E3D18LZ351217",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "56",
+        "name": "DIEGO LEANDRO ARAYA MONDACA",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 8,
+          "2026-08": 12,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2026-04-21",
+        "first_sale_evidence_vin": "LVAV2JVB0TE302290",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "57",
+        "name": "BASANTA GUEVARA DOUGLAS JOSE",
+        "months": {
+          "2026-06": 10,
+          "2026-07": 10,
+          "2026-08": 12,
+          "2026-09": 14
+        },
+        "first_sale_observed": "2023-03-16",
+        "first_sale_evidence_vin": "LMXA14AGXPZ350580",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "58",
+        "name": "CARO URREA DANILO ANDRES",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 6,
+          "2026-08": 6,
+          "2026-09": 4
+        },
+        "first_sale_observed": "2025-04-30",
+        "first_sale_evidence_vin": "LGJE5EE00SM371228",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "62",
+        "name": "JEREZ CORTEZ DIEGO ANDRES",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 8,
+          "2026-08": 15,
+          "2026-09": 8
+        },
+        "first_sale_observed": "2023-10-25",
+        "first_sale_evidence_vin": "LJNTGU536PN406777",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "68",
+        "name": "EVELYN ASTUDILLO MENESES",
+        "months": {
+          "2026-06": 1,
+          "2026-07": 7,
+          "2026-08": 5,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2026-05-18",
+        "first_sale_evidence_vin": "LVAV2AVB4TE204251",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "69",
+        "name": "EVELYN CONTRERAS",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 6,
+          "2026-08": 11,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2026-05-07",
+        "first_sale_evidence_vin": "LMXA14AG4TZ356398",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "71",
+        "name": "EDUARDO MESIAS",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 5,
+          "2026-08": 11,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2026-07-16",
+        "first_sale_evidence_vin": "LVAV2MABXTU475229",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "76",
+        "name": "FELIX ACOSTA RODRIGUEZ",
+        "months": {
+          "2026-06": 4,
+          "2026-07": 9,
+          "2026-08": 6,
+          "2026-09": 11
+        },
+        "first_sale_observed": "2026-06-09",
+        "first_sale_evidence_vin": "LVAV2JVB8TE390473",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "77",
+        "name": "FRANCISCA JAVIERA FLORES FIGUEROA",
+        "months": {
+          "2026-06": 1,
+          "2026-07": 12,
+          "2026-08": 19,
+          "2026-09": 5
+        },
+        "first_sale_observed": "2023-03-06",
+        "first_sale_evidence_vin": "LGG8E2D16PZ353807",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "80",
+        "name": "FELIPE HERRERA TORRES",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 7,
+          "2026-08": 1,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2025-04-23",
+        "first_sale_evidence_vin": "LVAV2MAB6SU316318",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "86",
+        "name": "YOUNG GALLE FRANCISCO EDUARDO",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 2,
+          "2026-08": 7,
+          "2026-09": 4
+        },
+        "first_sale_observed": "2025-05-14",
+        "first_sale_evidence_vin": "LGJE5EE06SM371945",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "95",
+        "name": "MUÑOZ ROJAS GUILLERMO JOSE",
+        "months": {
+          "2026-06": 3,
+          "2026-07": 5,
+          "2026-08": 4,
+          "2026-09": 0
+        },
+        "first_sale_observed": "2026-03-19",
+        "first_sale_evidence_vin": "LMXA14AG8TZ357277",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "103",
+        "name": "VALENZUELA CERDA HECTOR ALEJANDRO",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 5,
+          "2026-08": 5,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2025-08-16",
+        "first_sale_evidence_vin": "LMXA14AG8TZ351317",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "104",
+        "name": "ALARCON PINILLA IVÁN ENRIQUE",
+        "months": {
+          "2026-06": 8,
+          "2026-07": 8,
+          "2026-08": 13,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2020-09-30",
+        "first_sale_evidence_vin": "LGJE5FE23KM671496",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "106",
+        "name": "COVARRUBIAS DEE IVAN IGNACIO",
+        "months": {
+          "2026-06": 2,
+          "2026-07": 4,
+          "2026-08": 4,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2024-12-05",
+        "first_sale_evidence_vin": "LVAV2JVB6RE318812",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "110",
+        "name": "BASTIAS GONZALEZ JUAN CARLOS",
+        "months": {
+          "2026-06": 2,
+          "2026-07": 8,
+          "2026-08": 7,
+          "2026-09": 5
+        },
+        "first_sale_observed": "2025-08-12",
+        "first_sale_evidence_vin": "LVAV2AVB4SE226815",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "129",
+        "name": "ROCA DE LA BARRA JUAN FRANCISCO",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 4,
+          "2026-08": 8,
+          "2026-09": 4
+        },
+        "first_sale_observed": "2024-11-07",
+        "first_sale_evidence_vin": "LVAV2AVB8RE327740",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "131",
+        "name": "VALBUENA ZAMBRANO JOSE GABRIEL",
+        "months": {
+          "2026-06": 1,
+          "2026-07": 0,
+          "2026-08": 2,
+          "2026-09": 5
+        },
+        "first_sale_observed": "2026-06-16",
+        "first_sale_evidence_vin": "LMXA14AG4VZ352564",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "136",
+        "name": "KELVIN CEBALLOS",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 1,
+          "2026-08": 2,
+          "2026-09": 2
+        },
+        "first_sale_observed": "2026-04-07",
+        "first_sale_evidence_vin": "LDP35B960TG454627",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "137",
+        "name": "CORTEZ PEÑA KARIN DANIELA",
+        "months": {
+          "2026-06": 8,
+          "2026-07": 11,
+          "2026-08": 14,
+          "2026-09": 10
+        },
+        "first_sale_observed": "2023-02-28",
+        "first_sale_evidence_vin": "LMXA14AF5PZ355936",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "141",
+        "name": "KATHERINE MONARES",
+        "months": {
+          "2026-06": 3,
+          "2026-07": 6,
+          "2026-08": 3,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2025-10-31",
+        "first_sale_evidence_vin": "LVAV2MABXTU454784",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "144",
+        "name": "RIFFO OVIEDO KARIN MARCELA",
+        "months": {
+          "2026-06": 9,
+          "2026-07": 8,
+          "2026-08": 13,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2025-07-30",
+        "first_sale_evidence_vin": "LMXA14AG2RZ354030",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "145",
+        "name": "ALAMOS PALMA LUISA FRANCISCA",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 7,
+          "2026-08": 3,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2025-07-09",
+        "first_sale_evidence_vin": "LMXA14AG8TZ351320",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "148",
+        "name": "CARDENAS SUAREZ LISMARY LISSETT",
+        "months": {
+          "2026-06": 4,
+          "2026-07": 6,
+          "2026-08": 0,
+          "2026-09": 1
+        },
+        "first_sale_observed": "2022-11-18",
+        "first_sale_evidence_vin": "LVAV2AVB8NE308356",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "150",
+        "name": "DURAN BLANCO LUIS RAUL",
+        "months": {
+          "2026-06": 12,
+          "2026-07": 9,
+          "2026-08": 14,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2022-01-08",
+        "first_sale_evidence_vin": "LGG8E2D1XNZ352110",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "155",
+        "name": "MAGLYS CARABALLO",
+        "months": {
+          "2026-06": 9,
+          "2026-07": 8,
+          "2026-08": 9,
+          "2026-09": 10
+        },
+        "first_sale_observed": "2020-09-30",
+        "first_sale_evidence_vin": "LGG8D2D10KZ364667",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "156",
+        "name": "CARDENAS ALVARADO MARIA CRISTINA",
+        "months": {
+          "2026-06": 8,
+          "2026-07": 11,
+          "2026-08": 11,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2021-07-13",
+        "first_sale_evidence_vin": "LVAV2JVB5ME542467",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "157",
+        "name": "MANUEL ALEXANDER FORT BELMONTE",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 6,
+          "2026-09": 2
+        },
+        "first_sale_observed": "2026-08-14",
+        "first_sale_evidence_vin": "LVAV2JVB7TE217804",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "159",
+        "name": "MARINA MARLENS GUTIERREZ GUTIERREZ",
+        "months": {
+          "2026-06": 9,
+          "2026-07": 7,
+          "2026-08": 13,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2026-01-30",
+        "first_sale_evidence_vin": "LVAV2MAB6TU460016",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "161",
+        "name": "MARIN GRUSIC MAURICIO JAVIER",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 12,
+          "2026-08": 10,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2024-02-14",
+        "first_sale_evidence_vin": "LMXA14AJ9RZ351475",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "166",
+        "name": "PANIAGUA BADILLA MAXIMO DANGUELLO",
+        "months": {
+          "2026-06": 7,
+          "2026-07": 5,
+          "2026-08": 4,
+          "2026-09": 0
+        },
+        "first_sale_observed": "2024-07-16",
+        "first_sale_evidence_vin": "LVAV2AVB0RE313993",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "170",
+        "name": "RIVERA RICON MAXIMO JAVIER",
+        "months": {
+          "2026-06": 11,
+          "2026-07": 7,
+          "2026-08": 6,
+          "2026-09": 5
+        },
+        "first_sale_observed": "2025-11-29",
+        "first_sale_evidence_vin": "LVAV2MAB0TU454728",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "175",
+        "name": "WAGNER GONZALEZ MATIAS ALEJANDRO",
+        "months": {
+          "2026-06": 4,
+          "2026-07": 3,
+          "2026-08": 7,
+          "2026-09": 0
+        },
+        "first_sale_observed": "2025-09-27",
+        "first_sale_evidence_vin": "LGJE1EE22TM429211",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "180",
+        "name": "HERRERA FERNANDEZ NICOLAS ALEXIS",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 6,
+          "2026-08": 6,
+          "2026-09": 4
+        },
+        "first_sale_observed": "2024-11-29",
+        "first_sale_evidence_vin": "LMXG14DA0SZ352462",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "181",
+        "name": "IBAÑEZ ARAVENA NADIA SCARLETTE",
+        "months": {
+          "2026-06": 3,
+          "2026-07": 8,
+          "2026-08": 8,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2024-05-09",
+        "first_sale_evidence_vin": "LVAV2JVB9RE237982",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "188",
+        "name": "OSVALDO FARIAS",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 4,
+          "2026-09": 8
+        },
+        "first_sale_observed": "2026-08-25",
+        "first_sale_evidence_vin": "LMXA14AG9VZ354682",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "189",
+        "name": "ORLANDO HERRERA",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 3,
+          "2026-08": 6,
+          "2026-09": 5
+        },
+        "first_sale_observed": "2026-07-20",
+        "first_sale_evidence_vin": "LVAV2AVB4TE316368",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "190",
+        "name": "OLIVEROS BOHORQUEZ OMAR FRANCISCO",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 4,
+          "2026-08": 8,
+          "2026-09": 0
+        },
+        "first_sale_observed": "2024-11-05",
+        "first_sale_evidence_vin": "LMXA14AG7RZ354590",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "193",
+        "name": "PEDRO IVO MILOVIC",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 3,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2026-08-18",
+        "first_sale_evidence_vin": "LVAV2AVB4TE222443",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "196",
+        "name": "DUQUE RODRIGUEZ RONNA NOHEMI",
+        "months": {
+          "2026-06": 6,
+          "2026-07": 4,
+          "2026-08": 9,
+          "2026-09": 1
+        },
+        "first_sale_observed": "2025-03-18",
+        "first_sale_evidence_vin": "LVAV2MAB7SU314125",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "200",
+        "name": "ROSSANA GONZALEZ",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 2,
+          "2026-08": 6,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2026-07-31",
+        "first_sale_evidence_vin": "LGJE1EE23TM534517",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "205",
+        "name": "PALMA ORTA RICARDO ALEJANDRO",
+        "months": {
+          "2026-06": 11,
+          "2026-07": 8,
+          "2026-08": 15,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2025-10-31",
+        "first_sale_evidence_vin": "LVAV2AVB5SE324073",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "214",
+        "name": "RAMIREZ OCHOA STHEFANY JHOJANA",
+        "months": {
+          "2026-06": 5,
+          "2026-07": 4,
+          "2026-08": 5,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2025-03-13",
+        "first_sale_evidence_vin": "LVAV2AVB9SE302836",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "215",
+        "name": "RIQUELME VILLATORO SERGIO NICOLAS",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 2,
+          "2026-09": 5
+        },
+        "first_sale_observed": "2026-08-19",
+        "first_sale_evidence_vin": "LGJE5EE05TM514787",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "220",
+        "name": "USBALDINE OCTAVIO MEDINA TORREALBA",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 2,
+          "2026-08": 3,
+          "2026-09": 2
+        },
+        "first_sale_observed": "2026-07-25",
+        "first_sale_evidence_vin": "LVAV2MAB2TU475256",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "223",
+        "name": "CABEZA ARCIA VIRGINIA CAROLINA",
+        "months": {
+          "2026-06": 11,
+          "2026-07": 6,
+          "2026-08": 9,
+          "2026-09": 4
+        },
+        "first_sale_observed": "2025-07-26",
+        "first_sale_evidence_vin": "LVAV2JVBXSE203720",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "226",
+        "name": "GONZALEZ NAVARRETE VALERIA IGNACIA",
+        "months": {
+          "2026-06": 8,
+          "2026-07": 11,
+          "2026-08": 11,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2024-10-30",
+        "first_sale_evidence_vin": "LGJE1EE20SM332913",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "229",
+        "name": "RIFFO PAILLAO VICTOR JOHN",
+        "months": {
+          "2026-06": 12,
+          "2026-07": 7,
+          "2026-08": 8,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2025-04-15",
+        "first_sale_evidence_vin": "LVAV2MAB8SU314120",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "231",
+        "name": "SANCHEZ GALAVIS RAQUEL VICTORIA",
+        "months": {
+          "2026-06": 3,
+          "2026-07": 4,
+          "2026-08": 10,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2022-07-14",
+        "first_sale_evidence_vin": "LVAV2JVB4NU501464",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "232",
+        "name": "TAMPOA GUANIPA VIRGINIA CENOBIA",
+        "months": {
+          "2026-06": 14,
+          "2026-07": 15,
+          "2026-08": 20,
+          "2026-09": 30
+        },
+        "first_sale_observed": "2020-11-25",
+        "first_sale_evidence_vin": "LVAV2AVB7ME300876",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "234",
+        "name": "YANINA GARCIA",
+        "months": {
+          "2026-06": 2,
+          "2026-07": 9,
+          "2026-08": 9,
+          "2026-09": 6
+        },
+        "first_sale_observed": "2026-06-30",
+        "first_sale_evidence_vin": "LVAV2MAB1TU475765",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "235",
+        "name": "YOSELIN GARCIA",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 5,
+          "2026-09": 4
+        },
+        "first_sale_observed": "2026-08-24",
+        "first_sale_evidence_vin": "LMXA14AG7VZ354678",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "238",
+        "name": "DIETER ALEXANDER GUILLEN INFANTE",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2026-09-07",
+        "first_sale_evidence_vin": "LVAV2MAB0TU480567",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "239",
+        "name": "SEBASTIAN VELASQUEZ",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 4,
+          "2026-09": 3
+        },
+        "first_sale_observed": "2026-08-31",
+        "first_sale_evidence_vin": "LGJE5EE01TM529156",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "240",
+        "name": "JUAN ANTONIO DIAZ CARDENAS",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 7
+        },
+        "first_sale_observed": "2026-09-22",
+        "first_sale_evidence_vin": "LVAV2JVB5TE322194",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "241",
+        "name": "MERIBETH SOTOMAYOR",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 2
+        },
+        "first_sale_observed": "2026-09-25",
+        "first_sale_evidence_vin": "LGJE5EE00TM529049",
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "242",
+        "name": "Jessica Guapacha",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "243",
+        "name": "Leidy Puerta",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "244",
+        "name": "Ada Gonzalez",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "245",
+        "name": "SOLANGEL HERNANDEZ",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "246",
+        "name": "GENESIS CAMACHO",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "247",
+        "name": "DANIELA ORTIZ",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
+      },
+      {
+        "id": "248",
+        "name": "ROSARIO MORENO SANTIS",
+        "months": {
+          "2026-06": 0,
+          "2026-07": 0,
+          "2026-08": 0,
+          "2026-09": 0
+        },
+        "first_sale_observed": null,
+        "first_sale_evidence_vin": null,
+        "identity": "ACTIVE_PERSONA_ID"
       }
     ]
   }
