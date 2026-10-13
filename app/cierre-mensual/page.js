@@ -1,5 +1,6 @@
 import Link from "next/link";
 import PerformanceRanking from "../../components/PerformanceRanking";
+import ForumClose from "../../components/ForumClose";
 import facts from "../../data/monthly-close/2026-09/facts.json";
 import analysis from "../../data/monthly-close/2026-09/analysis.json";
 import executive from "../../data/monthly-close/2026-09/executive-close.json";
@@ -56,13 +57,11 @@ if(consistentSales.company!==consistentSales.own+consistentSales.dealers ||
 const salesYoY=(consistentSales.company/924-1)*100;
 const rvm=f.rvm.metrics;
 const ytd=f.rvm.scopes.ytd.metrics;
-const u=f.forum.scopes.own_stores.metrics;
-const stores=f.sales.rankings.stores;
 const pctFinance=n=>format(financing.sales_denominator?n/financing.sales_denominator*100:0)+"%";
 return <main className="shell mc">
 <header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">CIERRE HISTÓRICO · SEPTIEMBRE 2026</span></header>
 <section className="mc-intro"><span className="eyebrow">CIERRE MENSUAL · PRIMERA VERSIÓN</span><h1>Septiembre 2026</h1><p>Ventas como resultado. Mercado, CRM y Forum como explicación. Una lectura del mes, su trayectoria y las señales del negocio.</p></section>
-<div className="mc-warning"><strong>Base de ventas consistente · septiembre 2026.</strong> Los resultados de SALES de esta vista provienen del mismo corte de <code>ventas_raw</code>, con 1.041 VIN = 837 Foton + 204 Dongfeng = 375 propias + 666 dealers. El snapshot anterior (1.044 VIN) se mantiene archivado y está pendiente de conciliación. Los indicadores de FORUM provenientes de ese snapshot conservan explícitamente su denominador original.</div>
+<div className="mc-warning"><strong>Base de ventas consistente · septiembre 2026.</strong> Los resultados de SALES de esta vista provienen del mismo corte de <code>ventas_raw</code>, con 1.041 VIN = 837 Foton + 204 Dongfeng = 375 propias + 666 dealers. El snapshot anterior (1.044 VIN) se mantiene archivado y está pendiente de conciliación. FORUM se muestra ahora con sus datos certificados de mes completo; el archivo histórico anterior no se utiliza para esas métricas.</div>
 <div className="mc-tabs"><span className="mc-active">Compañía</span><span>Tiendas propias</span><span>Dealers</span><span>Foton</span><span>Dongfeng</span></div>
 <section className="mc-kpis">
 <Metric label="Ventas · VIN" value={format(consistentSales.company)} sub={"YoY "+pct(salesYoY)+" · ventas_raw"} series={{points:salesByPeriod}} brands={brandTrends.series.company}/>
@@ -72,11 +71,9 @@ return <main className="shell mc">
 <Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} brands={brandTrends.series.rvm_ytd} unit="PERCENT"/>
 <Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} brands={brandTrends.series.financed} sourceNote="Financiamiento ERP; no equivale a UFIs Forum"/>
 </section>
+<ForumClose/>
 <PerformanceRanking/>
 <div className="mc-layout">
-
-<section className="mc-panel"><div className="mc-panel-head"><h2>Ventas por marca</h2><span>Mismo corte ERP que tarjetas superiores</span></div><div className="mc-row"><span>Foton</span><strong>{format(consistentSales.foton)} VIN</strong></div><div className="mc-row"><span>Dongfeng</span><strong>{format(consistentSales.dongfeng)} VIN</strong></div><div className="mc-row"><span><b>Total compañía</b></span><strong>{format(consistentSales.company)} VIN</strong></div><div className="mc-panel-head mc-space"><h2>RVM · Mercado</h2></div><div className="mc-row"><span>Inscripciones del mercado</span><strong>{format(rvm.market_units.value)}</strong></div><div className="mc-row"><span>Inscripciones Foton + DFM</span><strong>{format(rvm.portfolio_units.value)}</strong></div><p className="mc-footnote">RVM mide inscripciones de mercado, no facturas. DFM conserva su identidad de fuente hasta validar el puente con SALES.</p></section>
-<section className="mc-panel"><div className="mc-panel-head"><h2>Tiendas propias · ventas</h2><span>Ranking disponible</span></div>{stores.map(s=><div className="mc-row" key={s.id}><span>{s.label.replace("CIDEF ","")}</span><strong>{format(s.value)} VIN</strong></div>)}<p className="mc-footnote">Vista parcial. El desglose completo por tienda y vendedor se incorporará con su identidad de SALES certificada; CRM SOLD no reemplaza ventas ERP.</p></section>
 <section className="mc-panel mc-finance-full">
 <div className="mc-panel-head"><h2>Créditos y financiamiento</h2><span>Tiendas propias · septiembre 2026</span></div>
 <div className="mc-finance-grid">
@@ -89,8 +86,6 @@ return <main className="shell mc">
 {financing.entities.map(e=><div className="mc-finance-entity" key={e.entity}><span>{e.entity}</span><strong>{format(e.vins)} VIN</strong><span>{pctFinance(e.vins)}</span></div>)}
 <p className="mc-footnote">Porcentajes sobre {format(financing.sales_denominator)} VIN del corte observado de /ventas, no sobre UFIs.</p></div>
 </div>
-<div className="mc-forum-separate"><div><span className="eyebrow">FORUM · CRÉDITOS EJECUTADOS</span><div className="mc-forum-number">{format(u.ufis.value)} <small>UFIs</small></div></div><div><span className="eyebrow">PENETRACIÓN FORUM</span><div className="mc-forum-number">{format(u.ufi_penetration.value)}%</div></div><p>174 unidades financiadas por Curse sobre 377 VIN de ventas propias del snapshot de cierre. No son equivalentes a los 159 VIN facturados con financiera Forum.</p></div>
-<div className="mc-warning-inline">Conciliación pendiente: el módulo /ventas observado registra 375 VIN (198 financiados y 177 no financiados); el cierre mensual registra 377. Estas bases no se fusionan ni se suman.</div>
 </section>
 <section className="mc-panel mc-crm-separate"><div className="mc-panel-head"><h2>CRM · Gestión comercial</h2><span>Leads y actividad · tiendas propias</span></div><div className="mc-row"><span>Leads creados</span><strong>{format(executive.company.crm.total_leads)}</strong></div><div className="mc-row"><span>Leads gestionados</span><strong>{format(executive.company.crm.total_managed)}</strong></div><div className="mc-row"><span>Cobertura de gestión</span><strong>{format(executive.company.crm.total_management_rate*100)}%</strong></div><p className="mc-footnote">CRM mide generación y gestión de prospectos. SOLD en CRM no sustituye las ventas VIN certificadas de SALES.</p></section>
 </div>
