@@ -1,0 +1,747 @@
+{
+  "schema_version": "1.0",
+  "as_of_date": "2026-10-13",
+  "source": "Neon SALES ventas_raw (read only)",
+  "active_authority": "weekly_projection_sellers WHERE estado='ACTIVO' AND habilitado=true AND persona_id IS NOT NULL",
+  "identity": "personas_master.usuario_canonico plus weekly_projection_sellers.ombu_id and validated persona_aliases tipo_alias login, only tokens mapping uniquely to one persona_id",
+  "recognition": "last valid factura per VIN through as_of_date, category Cliente General, earliest recognized fecha_factura per persona_id; tied same date resolved by VIN lexical ascending",
+  "semantics": "primera_venta_observada is earliest sale in currently loaded historical SALES, not hire date or commercial effective_from",
+  "status": "OBSERVED_NOT_HR_CERTIFIED",
+  "counts": {
+    "active": 73,
+    "with_first_sale": 66,
+    "no_sales": 7
+  },
+  "sellers": [
+    {
+      "persona_id": "1",
+      "nombre": "ALEXANDER JOHAN ALBORNOZ",
+      "canonical_login": "AALBORNOZ",
+      "primera_venta_observada": "2026-07-25",
+      "vin_primera_venta": "LGJE1EE2XTM534529",
+      "login_primera_venta": "AALBORNOZ",
+      "ventas_historicas_reconocidas": 5,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "16",
+      "nombre": "ANGELICA MARIA MORENO DE MATOS",
+      "canonical_login": "AMORENO",
+      "primera_venta_observada": "2025-04-28",
+      "vin_primera_venta": "LVAV2MABXSU316208",
+      "login_primera_venta": "AMORENO",
+      "ventas_historicas_reconocidas": 118,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "17",
+      "nombre": "ORTA MEDINA ADRIANA ALEJANDRA",
+      "canonical_login": "AORTA",
+      "primera_venta_observada": "2021-05-06",
+      "vin_primera_venta": "LVAV2JVB8ME301311",
+      "login_primera_venta": "AORTA",
+      "ventas_historicas_reconocidas": 689,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "36",
+      "nombre": "CRISTIAN DIAZ",
+      "canonical_login": "CDIAZ",
+      "primera_venta_observada": "2026-01-29",
+      "vin_primera_venta": "LGJE5EE03SM366539",
+      "login_primera_venta": "CDIAZ",
+      "ventas_historicas_reconocidas": 63,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "38",
+      "nombre": "GALLEGOS MIRANDA CARLA FERNARDA",
+      "canonical_login": "CGALLEGOS",
+      "primera_venta_observada": "2024-01-29",
+      "vin_primera_venta": "LVAV2JVB4RE303418",
+      "login_primera_venta": "CGALLEGOS",
+      "ventas_historicas_reconocidas": 81,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "41",
+      "nombre": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
+      "canonical_login": "CGONZALEZP",
+      "primera_venta_observada": "2025-01-09",
+      "vin_primera_venta": "LVAV2MAB2SU313948",
+      "login_primera_venta": "CGONZALEZP",
+      "ventas_historicas_reconocidas": 117,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "44",
+      "nombre": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
+      "canonical_login": "CMACFARLANE",
+      "primera_venta_observada": "2025-09-01",
+      "vin_primera_venta": "LMXA14AG2TZ351393",
+      "login_primera_venta": "CMACFARLANE",
+      "ventas_historicas_reconocidas": 109,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "45",
+      "nombre": "MALUENDA LEIVA CLAUDIA VIVIANA",
+      "canonical_login": "CMALUENDA",
+      "primera_venta_observada": "2020-09-16",
+      "vin_primera_venta": "LGG8D2D15KZ352465",
+      "login_primera_venta": "CMALUENDA",
+      "ventas_historicas_reconocidas": 913,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "47",
+      "nombre": "MORALES JIMENEZ CYNDI CAROLINA",
+      "canonical_login": "CMORALES",
+      "primera_venta_observada": "2025-08-21",
+      "vin_primera_venta": "LMXA14AG5TZ350142",
+      "login_primera_venta": "CMORALES",
+      "ventas_historicas_reconocidas": 93,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "52",
+      "nombre": "VALENZUELA VERGARA CAROLINA EUGENIA",
+      "canonical_login": "CVALENZUELA",
+      "primera_venta_observada": "2020-09-14",
+      "vin_primera_venta": "LGG8E3D18LZ351217",
+      "login_primera_venta": "CVALENZUELA",
+      "ventas_historicas_reconocidas": 691,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "56",
+      "nombre": "DIEGO LEANDRO ARAYA MONDACA",
+      "canonical_login": "DARAYA",
+      "primera_venta_observada": "2026-04-21",
+      "vin_primera_venta": "LVAV2JVB0TE302290",
+      "login_primera_venta": "DARAYA",
+      "ventas_historicas_reconocidas": 45,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "57",
+      "nombre": "BASANTA GUEVARA DOUGLAS JOSE",
+      "canonical_login": "DBASANTA",
+      "primera_venta_observada": "2023-03-16",
+      "vin_primera_venta": "LMXA14AGXPZ350580",
+      "login_primera_venta": "DBASANTA",
+      "ventas_historicas_reconocidas": 293,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "58",
+      "nombre": "CARO URREA DANILO ANDRES",
+      "canonical_login": "DCARO",
+      "primera_venta_observada": "2025-04-30",
+      "vin_primera_venta": "LGJE5EE00SM371228",
+      "login_primera_venta": "DCARO",
+      "ventas_historicas_reconocidas": 76,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "62",
+      "nombre": "JEREZ CORTEZ DIEGO ANDRES",
+      "canonical_login": "DJEREZ",
+      "primera_venta_observada": "2023-10-25",
+      "vin_primera_venta": "LJNTGU536PN406777",
+      "login_primera_venta": "DJEREZ",
+      "ventas_historicas_reconocidas": 260,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "68",
+      "nombre": "EVELYN ASTUDILLO MENESES",
+      "canonical_login": "EASTUDILLO",
+      "primera_venta_observada": "2026-05-18",
+      "vin_primera_venta": "LVAV2AVB4TE204251",
+      "login_primera_venta": "EASTUDILLO",
+      "ventas_historicas_reconocidas": 23,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "69",
+      "nombre": "EVELYN CONTRERAS",
+      "canonical_login": "ECONTRERAS",
+      "primera_venta_observada": "2026-05-07",
+      "vin_primera_venta": "LMXA14AG4TZ356398",
+      "login_primera_venta": "ECONTRERAS",
+      "ventas_historicas_reconocidas": 35,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "71",
+      "nombre": "EDUARDO MESIAS",
+      "canonical_login": "EMESIAS",
+      "primera_venta_observada": "2026-07-16",
+      "vin_primera_venta": "LVAV2MABXTU475229",
+      "login_primera_venta": "EMESIAS",
+      "ventas_historicas_reconocidas": 23,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "76",
+      "nombre": "FELIX ACOSTA RODRIGUEZ",
+      "canonical_login": "FACOSTA",
+      "primera_venta_observada": "2026-06-09",
+      "vin_primera_venta": "LVAV2JVB8TE390473",
+      "login_primera_venta": "FACOSTA",
+      "ventas_historicas_reconocidas": 31,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "77",
+      "nombre": "FRANCISCA JAVIERA FLORES FIGUEROA",
+      "canonical_login": "FFLORES",
+      "primera_venta_observada": "2023-03-06",
+      "vin_primera_venta": "LGG8E2D16PZ353807",
+      "login_primera_venta": "FFLORES",
+      "ventas_historicas_reconocidas": 210,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "80",
+      "nombre": "FELIPE HERRERA TORRES",
+      "canonical_login": "FHERRERA",
+      "primera_venta_observada": "2025-04-23",
+      "vin_primera_venta": "LVAV2MAB6SU316318",
+      "login_primera_venta": "FHERRERA",
+      "ventas_historicas_reconocidas": 49,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "86",
+      "nombre": "YOUNG GALLE FRANCISCO EDUARDO",
+      "canonical_login": "FYOUNG",
+      "primera_venta_observada": "2025-05-14",
+      "vin_primera_venta": "LGJE5EE06SM371945",
+      "login_primera_venta": "FYOUNG",
+      "ventas_historicas_reconocidas": 84,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "95",
+      "nombre": "MUÑOZ ROJAS GUILLERMO JOSE",
+      "canonical_login": "GMUNOZ",
+      "primera_venta_observada": "2026-03-19",
+      "vin_primera_venta": "LMXA14AG8TZ357277",
+      "login_primera_venta": "GMUNOZ",
+      "ventas_historicas_reconocidas": 24,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "103",
+      "nombre": "VALENZUELA CERDA HECTOR ALEJANDRO",
+      "canonical_login": "HVALENZUELA",
+      "primera_venta_observada": "2025-08-16",
+      "vin_primera_venta": "LMXA14AG8TZ351317",
+      "login_primera_venta": "HVALENZUELA",
+      "ventas_historicas_reconocidas": 62,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "104",
+      "nombre": "ALARCON PINILLA IVÁN ENRIQUE",
+      "canonical_login": "IALARCON",
+      "primera_venta_observada": "2020-09-30",
+      "vin_primera_venta": "LGJE5FE23KM671496",
+      "login_primera_venta": "IALARCON",
+      "ventas_historicas_reconocidas": 738,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "106",
+      "nombre": "COVARRUBIAS DEE IVAN IGNACIO",
+      "canonical_login": "ICOVARRUBIAS",
+      "primera_venta_observada": "2024-12-05",
+      "vin_primera_venta": "LVAV2JVB6RE318812",
+      "login_primera_venta": "ICOVARRUBIAS",
+      "ventas_historicas_reconocidas": 76,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "110",
+      "nombre": "BASTIAS GONZALEZ JUAN CARLOS",
+      "canonical_login": "JBASTIAS",
+      "primera_venta_observada": "2025-08-12",
+      "vin_primera_venta": "LVAV2AVB4SE226815",
+      "login_primera_venta": "JBASTIAS",
+      "ventas_historicas_reconocidas": 63,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "129",
+      "nombre": "ROCA DE LA BARRA JUAN FRANCISCO",
+      "canonical_login": "JROCA",
+      "primera_venta_observada": "2024-11-07",
+      "vin_primera_venta": "LVAV2AVB8RE327740",
+      "login_primera_venta": "JROCA",
+      "ventas_historicas_reconocidas": 121,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "131",
+      "nombre": "VALBUENA ZAMBRANO JOSE GABRIEL",
+      "canonical_login": "JVALBUENA",
+      "primera_venta_observada": "2026-06-16",
+      "vin_primera_venta": "LMXA14AG4VZ352564",
+      "login_primera_venta": "JVALBUENA",
+      "ventas_historicas_reconocidas": 8,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "136",
+      "nombre": "KELVIN CEBALLOS",
+      "canonical_login": "KCABALLOS",
+      "primera_venta_observada": "2026-04-07",
+      "vin_primera_venta": "LDP35B960TG454627",
+      "login_primera_venta": "KCABALLOS",
+      "ventas_historicas_reconocidas": 9,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "137",
+      "nombre": "CORTEZ PEÑA KARIN DANIELA",
+      "canonical_login": "KCORTEZ",
+      "primera_venta_observada": "2023-02-28",
+      "vin_primera_venta": "LMXA14AF5PZ355936",
+      "login_primera_venta": "KCORTEZ",
+      "ventas_historicas_reconocidas": 328,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "141",
+      "nombre": "KATHERINE MONARES",
+      "canonical_login": "KMONARES",
+      "primera_venta_observada": "2025-10-31",
+      "vin_primera_venta": "LVAV2MABXTU454784",
+      "login_primera_venta": "KMONARES",
+      "ventas_historicas_reconocidas": 40,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "144",
+      "nombre": "RIFFO OVIEDO KARIN MARCELA",
+      "canonical_login": "KRIFFO",
+      "primera_venta_observada": "2025-07-30",
+      "vin_primera_venta": "LMXA14AG2RZ354030",
+      "login_primera_venta": "KRIFFO",
+      "ventas_historicas_reconocidas": 107,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "145",
+      "nombre": "ALAMOS PALMA LUISA FRANCISCA",
+      "canonical_login": "LALAMOS",
+      "primera_venta_observada": "2025-07-09",
+      "vin_primera_venta": "LMXA14AG8TZ351320",
+      "login_primera_venta": "LALAMOS",
+      "ventas_historicas_reconocidas": 73,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "148",
+      "nombre": "CARDENAS SUAREZ LISMARY LISSETT",
+      "canonical_login": "LCARDENAS",
+      "primera_venta_observada": "2022-11-18",
+      "vin_primera_venta": "LVAV2AVB8NE308356",
+      "login_primera_venta": "LCARDENAS",
+      "ventas_historicas_reconocidas": 305,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "150",
+      "nombre": "DURAN BLANCO LUIS RAUL",
+      "canonical_login": "LDURAN",
+      "primera_venta_observada": "2022-01-08",
+      "vin_primera_venta": "LGG8E2D1XNZ352110",
+      "login_primera_venta": "LDURAN",
+      "ventas_historicas_reconocidas": 437,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "155",
+      "nombre": "MAGLYS CARABALLO",
+      "canonical_login": "MCARABALLO",
+      "primera_venta_observada": "2020-09-30",
+      "vin_primera_venta": "LGG8D2D10KZ364667",
+      "login_primera_venta": "MCARABALLO",
+      "ventas_historicas_reconocidas": 530,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "156",
+      "nombre": "CARDENAS ALVARADO MARIA CRISTINA",
+      "canonical_login": "MCARDENAS",
+      "primera_venta_observada": "2021-07-13",
+      "vin_primera_venta": "LVAV2JVB5ME542467",
+      "login_primera_venta": "MCARDENAS",
+      "ventas_historicas_reconocidas": 428,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "157",
+      "nombre": "MANUEL ALEXANDER FORT BELMONTE",
+      "canonical_login": "MFORT",
+      "primera_venta_observada": "2026-08-14",
+      "vin_primera_venta": "LVAV2JVB7TE217804",
+      "login_primera_venta": "MFORT",
+      "ventas_historicas_reconocidas": 8,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "159",
+      "nombre": "MARINA MARLENS GUTIERREZ GUTIERREZ",
+      "canonical_login": "MGUTIERREZ",
+      "primera_venta_observada": "2026-01-30",
+      "vin_primera_venta": "LVAV2MAB6TU460016",
+      "login_primera_venta": "MGUTIERREZ",
+      "ventas_historicas_reconocidas": 67,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "161",
+      "nombre": "MARIN GRUSIC MAURICIO JAVIER",
+      "canonical_login": "MMARIN",
+      "primera_venta_observada": "2024-02-14",
+      "vin_primera_venta": "LMXA14AJ9RZ351475",
+      "login_primera_venta": "MMARIN",
+      "ventas_historicas_reconocidas": 228,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "166",
+      "nombre": "PANIAGUA BADILLA MAXIMO DANGUELLO",
+      "canonical_login": "MPANIAGUA",
+      "primera_venta_observada": "2024-07-16",
+      "vin_primera_venta": "LVAV2AVB0RE313993",
+      "login_primera_venta": "MPANIAGUA",
+      "ventas_historicas_reconocidas": 106,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "170",
+      "nombre": "RIVERA RICON MAXIMO JAVIER",
+      "canonical_login": "MRIVERAR",
+      "primera_venta_observada": "2025-11-29",
+      "vin_primera_venta": "LVAV2MAB0TU454728",
+      "login_primera_venta": "MRIVERAR",
+      "ventas_historicas_reconocidas": 65,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "175",
+      "nombre": "WAGNER GONZALEZ MATIAS ALEJANDRO",
+      "canonical_login": "MWAGNER",
+      "primera_venta_observada": "2025-09-27",
+      "vin_primera_venta": "LGJE1EE22TM429211",
+      "login_primera_venta": "MWAGNER",
+      "ventas_historicas_reconocidas": 69,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "180",
+      "nombre": "HERRERA FERNANDEZ NICOLAS ALEXIS",
+      "canonical_login": "NHERRERA",
+      "primera_venta_observada": "2024-11-29",
+      "vin_primera_venta": "LMXG14DA0SZ352462",
+      "login_primera_venta": "NHERRERA",
+      "ventas_historicas_reconocidas": 76,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "181",
+      "nombre": "IBAÑEZ ARAVENA NADIA SCARLETTE",
+      "canonical_login": "NIBANEZ",
+      "primera_venta_observada": "2024-05-09",
+      "vin_primera_venta": "LVAV2JVB9RE237982",
+      "login_primera_venta": "NIBANEZ",
+      "ventas_historicas_reconocidas": 180,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "188",
+      "nombre": "OSVALDO FARIAS",
+      "canonical_login": "OFARIAS",
+      "primera_venta_observada": "2026-08-25",
+      "vin_primera_venta": "LMXA14AG9VZ354682",
+      "login_primera_venta": "OFARIAS",
+      "ventas_historicas_reconocidas": 14,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "189",
+      "nombre": "ORLANDO HERRERA",
+      "canonical_login": "OHERRERA",
+      "primera_venta_observada": "2026-07-20",
+      "vin_primera_venta": "LVAV2AVB4TE316368",
+      "login_primera_venta": "OHERRERA",
+      "ventas_historicas_reconocidas": 14,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "190",
+      "nombre": "OLIVEROS BOHORQUEZ OMAR FRANCISCO",
+      "canonical_login": "OOLIVEROS",
+      "primera_venta_observada": "2024-11-05",
+      "vin_primera_venta": "LMXA14AG7RZ354590",
+      "login_primera_venta": "OOLIVEROS",
+      "ventas_historicas_reconocidas": 150,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "193",
+      "nombre": "PEDRO IVO MILOVIC",
+      "canonical_login": "PMILOVIC",
+      "primera_venta_observada": "2026-08-18",
+      "vin_primera_venta": "LVAV2AVB4TE222443",
+      "login_primera_venta": "PMILOVIC",
+      "ventas_historicas_reconocidas": 12,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "196",
+      "nombre": "DUQUE RODRIGUEZ RONNA NOHEMI",
+      "canonical_login": "RDUQUE",
+      "primera_venta_observada": "2025-03-18",
+      "vin_primera_venta": "LVAV2MAB7SU314125",
+      "login_primera_venta": "RDUQUE",
+      "ventas_historicas_reconocidas": 113,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "200",
+      "nombre": "ROSSANA GONZALEZ",
+      "canonical_login": "ROGONZALEZ",
+      "primera_venta_observada": "2026-07-31",
+      "vin_primera_venta": "LGJE1EE23TM534517",
+      "login_primera_venta": "ROGONZALEZ",
+      "ventas_historicas_reconocidas": 14,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "205",
+      "nombre": "PALMA ORTA RICARDO ALEJANDRO",
+      "canonical_login": "RPALMA",
+      "primera_venta_observada": "2025-10-31",
+      "vin_primera_venta": "LVAV2AVB5SE324073",
+      "login_primera_venta": "RPALMA",
+      "ventas_historicas_reconocidas": 81,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "214",
+      "nombre": "RAMIREZ OCHOA STHEFANY JHOJANA",
+      "canonical_login": "SRAMIREZ",
+      "primera_venta_observada": "2025-03-13",
+      "vin_primera_venta": "LVAV2AVB9SE302836",
+      "login_primera_venta": "SRAMIREZ",
+      "ventas_historicas_reconocidas": 115,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "215",
+      "nombre": "RIQUELME VILLATORO SERGIO NICOLAS",
+      "canonical_login": "SRIQUELMEV",
+      "primera_venta_observada": "2026-08-19",
+      "vin_primera_venta": "LGJE5EE05TM514787",
+      "login_primera_venta": "SRIQUELMEV",
+      "ventas_historicas_reconocidas": 8,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "220",
+      "nombre": "USBALDINE OCTAVIO MEDINA TORREALBA",
+      "canonical_login": "UMEDINA",
+      "primera_venta_observada": "2026-07-25",
+      "vin_primera_venta": "LVAV2MAB2TU475256",
+      "login_primera_venta": "UMEDINA",
+      "ventas_historicas_reconocidas": 7,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "223",
+      "nombre": "CABEZA ARCIA VIRGINIA CAROLINA",
+      "canonical_login": "VCABEZA",
+      "primera_venta_observada": "2025-07-26",
+      "vin_primera_venta": "LVAV2JVBXSE203720",
+      "login_primera_venta": "VCABEZA",
+      "ventas_historicas_reconocidas": 91,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "226",
+      "nombre": "GONZALEZ NAVARRETE VALERIA IGNACIA",
+      "canonical_login": "VGONZALEZN",
+      "primera_venta_observada": "2024-10-30",
+      "vin_primera_venta": "LGJE1EE20SM332913",
+      "login_primera_venta": "VGONZALEZN",
+      "ventas_historicas_reconocidas": 165,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "229",
+      "nombre": "RIFFO PAILLAO VICTOR JOHN",
+      "canonical_login": "VRIFFO",
+      "primera_venta_observada": "2025-04-15",
+      "vin_primera_venta": "LVAV2MAB8SU314120",
+      "login_primera_venta": "VRIFFO",
+      "ventas_historicas_reconocidas": 111,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "231",
+      "nombre": "SANCHEZ GALAVIS RAQUEL VICTORIA",
+      "canonical_login": "VSANCHEZ",
+      "primera_venta_observada": "2022-07-14",
+      "vin_primera_venta": "LVAV2JVB4NU501464",
+      "login_primera_venta": "VSANCHEZ",
+      "ventas_historicas_reconocidas": 270,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "232",
+      "nombre": "TAMPOA GUANIPA VIRGINIA CENOBIA",
+      "canonical_login": "VTAMPOA",
+      "primera_venta_observada": "2020-11-25",
+      "vin_primera_venta": "LVAV2AVB7ME300876",
+      "login_primera_venta": "VTAMPOA",
+      "ventas_historicas_reconocidas": 1494,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "234",
+      "nombre": "YANINA GARCIA",
+      "canonical_login": "YGARCIA",
+      "primera_venta_observada": "2026-06-30",
+      "vin_primera_venta": "LVAV2MAB1TU475765",
+      "login_primera_venta": "YGARCIA",
+      "ventas_historicas_reconocidas": 27,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "235",
+      "nombre": "YOSELIN GARCIA",
+      "canonical_login": "YGARCIAB",
+      "primera_venta_observada": "2026-08-24",
+      "vin_primera_venta": "LMXA14AG7VZ354678",
+      "login_primera_venta": "YGARCIAB",
+      "ventas_historicas_reconocidas": 10,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "238",
+      "nombre": "DIETER ALEXANDER GUILLEN INFANTE",
+      "canonical_login": "DGUILLEN",
+      "primera_venta_observada": "2026-09-07",
+      "vin_primera_venta": "LVAV2MAB0TU480567",
+      "login_primera_venta": "DGUILLEN",
+      "ventas_historicas_reconocidas": 3,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "239",
+      "nombre": "SEBASTIAN VELASQUEZ",
+      "canonical_login": "SVELASQUEZ",
+      "primera_venta_observada": "2026-08-31",
+      "vin_primera_venta": "LGJE5EE01TM529156",
+      "login_primera_venta": "SVELASQUEZ",
+      "ventas_historicas_reconocidas": 8,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "240",
+      "nombre": "JUAN ANTONIO DIAZ CARDENAS",
+      "canonical_login": "JDIAZ",
+      "primera_venta_observada": "2026-09-22",
+      "vin_primera_venta": "LVAV2JVB5TE322194",
+      "login_primera_venta": "JDIAZ",
+      "ventas_historicas_reconocidas": 9,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "241",
+      "nombre": "MERIBETH SOTOMAYOR",
+      "canonical_login": "MSOTOMAYOR",
+      "primera_venta_observada": "2026-09-25",
+      "vin_primera_venta": "LGJE5EE00TM529049",
+      "login_primera_venta": "MSOTOMAYOR",
+      "ventas_historicas_reconocidas": 2,
+      "status": "OBSERVED"
+    },
+    {
+      "persona_id": "242",
+      "nombre": "Jessica Guapacha",
+      "canonical_login": "248475862",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    },
+    {
+      "persona_id": "243",
+      "nombre": "Leidy Puerta",
+      "canonical_login": "270478204",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    },
+    {
+      "persona_id": "244",
+      "nombre": "Ada Gonzalez",
+      "canonical_login": "255846337",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    },
+    {
+      "persona_id": "245",
+      "nombre": "SOLANGEL HERNANDEZ",
+      "canonical_login": "1",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    },
+    {
+      "persona_id": "246",
+      "nombre": "GENESIS CAMACHO",
+      "canonical_login": "2",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    },
+    {
+      "persona_id": "247",
+      "nombre": "DANIELA ORTIZ",
+      "canonical_login": "3",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    },
+    {
+      "persona_id": "248",
+      "nombre": "ROSARIO MORENO SANTIS",
+      "canonical_login": "6",
+      "primera_venta_observada": null,
+      "vin_primera_venta": null,
+      "login_primera_venta": null,
+      "ventas_historicas_reconocidas": 0,
+      "status": "NO_HISTORICAL_SALE"
+    }
+  ]
+}
