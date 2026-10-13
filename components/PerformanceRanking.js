@@ -39,7 +39,7 @@ export default function PerformanceRanking(){
  <div className="rank-cats" role="group" aria-label="Categoría">{categories.map(c=><button type="button" key={c.id} className={category===c.id?"selected":""} aria-pressed={category===c.id} onClick={()=>setCategory(c.id)}>{c.title}</button>)}</div>
  </div>
  {category==="sellers"?<div className="rank-unavailable"><strong>Trayectoria de vendedores no disponible</strong><p>Falta completar y conciliar el histórico de ventas por vendedor para ordenar destacados y alertas. El ranking no se construirá usando solo el volumen de septiembre.</p></div>:
- <div className="rank-columns" style={{gridTemplateColumns:"repeat(3,minmax(0,1fr))"}}>
+ <div className="rank-columns rank-columns-three">
   <div className="rank-panel"><div className="rank-panel-header"><span className="rank-up">↗</span><strong>Mejoran ({ranking.counts.IMPROVING})</strong></div><RankingItems items={ranking.improving} emptyText="Sin mejoras relevantes."/></div>
   <div className="rank-panel"><div className="rank-panel-header"><span>→</span><strong>Se mantienen ({ranking.counts.STABLE})</strong></div><RankingItems items={ranking.stable} emptyText="Sin casos estables elegibles."/></div>
   <div className="rank-panel"><div className="rank-panel-header"><span className="rank-down">↘</span><strong>Retroceden ({ranking.counts.DECLINING})</strong></div><RankingItems items={ranking.declining} emptyText="Sin retrocesos relevantes."/></div>
