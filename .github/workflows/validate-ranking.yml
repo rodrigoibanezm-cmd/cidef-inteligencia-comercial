@@ -7,6 +7,10 @@ on:
       - 'data/monthly-close/**/performance-ranking.json'
       - 'components/PerformanceRanking.js'
       - 'test/ranking-performance.test.js'
+      - 'lib/motors/forum-close-v1.js'
+      - 'data/monthly-close/**/forum-close-source.json'
+      - 'components/ForumClose.js'
+      - 'test/forum-close.test.js'
       - '.github/workflows/validate-ranking.yml'
   pull_request:
     paths:
@@ -24,4 +28,4 @@ jobs:
         with:
           node-version: '22'
       - name: Ranking deterministic regression tests
-        run: npm run test:ranking
+        run: npm run test:ranking && node --test test/forum-close.test.js
