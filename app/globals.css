@@ -67,3 +67,6 @@
 .mc-index-note{display:block;font-size:10px;text-align:right;color:#8490a0;margin-top:-3px}
 .mc-brand-spark .mc-spark{height:auto;max-height:110px}
 @media(max-width:980px){.mc-kpi-values{align-items:flex-start;flex-wrap:wrap}.mc-kpi-brands{min-width:100px}}
+
+.rank-columns-three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1040px){.rank-columns-three{grid-template-columns:1fr}}
