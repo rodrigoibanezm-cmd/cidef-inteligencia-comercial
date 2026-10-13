@@ -7,7 +7,7 @@ const computed=calculateAllRankings(rankings);
 
 const categories=[
  {id:"stores",title:"Tiendas propias",unit:"VIN",basis:"4 meses"},
- {id:"sellers",title:"Vendedores",unit:"VIN",basis:"Corte parcial"},
+ {id:"sellers",title:"Vendedores activos",unit:"VIN",basis:"4 meses"},
  {id:"dealers",title:"Dealers",unit:"VIN",basis:"4 meses"},
  {id:"models",title:"Modelos",unit:"VIN",basis:"4 meses"}
 ];
@@ -27,7 +27,7 @@ export default function PerformanceRanking(){
  const [category,setCategory]=useState("stores");
  const ranking=computed.category_results[category];
  const info=category==="sellers"
- ?"Vendedores: fuente parcial de 274 VIN. Sin historial completo ni cobertura certificada, no se publica ranking."
+ ?"Vendedores activos: padrón semanal activo y habilitado por persona_id; 73 personas, VIN comparables de junio a septiembre, con primera venta histórica observada. Promedio mínimo: 5 VIN/mes. Primera venta debe ser anterior a junio para evitar falsos crecimientos de nuevos vendedores. Esta fecha no representa contratación."
  :category==="dealers"
  ?"Dealers: reconstrucción junio–septiembre por VIN y grupo comercial (514/514, 491/491, 646/646 y 666/666). Agrupación histórica con identidad canónica actual: comparación provisional hasta validar vigencias de grupos. Ya no se utiliza Q3/Q2."
  :category==="models"
@@ -38,14 +38,13 @@ export default function PerformanceRanking(){
  <div className="rank-controls">
  <div className="rank-cats" role="group" aria-label="Categoría">{categories.map(c=><button type="button" key={c.id} className={category===c.id?"selected":""} aria-pressed={category===c.id} onClick={()=>setCategory(c.id)}>{c.title}</button>)}</div>
  </div>
- {category==="sellers"?<div className="rank-unavailable"><strong>Trayectoria de vendedores no disponible</strong><p>Falta completar y conciliar el histórico de ventas por vendedor para ordenar destacados y alertas. El ranking no se construirá usando solo el volumen de septiembre.</p></div>:
  <div className="rank-columns rank-columns-three">
   <div className="rank-panel"><div className="rank-panel-header"><span className="rank-up">↗</span><strong>Mejoran ({ranking.counts.IMPROVING})</strong></div><RankingItems items={ranking.improving} emptyText="Sin mejoras relevantes."/></div>
   <div className="rank-panel"><div className="rank-panel-header"><span>→</span><strong>Se mantienen ({ranking.counts.STABLE})</strong></div><RankingItems items={ranking.stable} emptyText="Sin casos estables elegibles."/></div>
   <div className="rank-panel"><div className="rank-panel-header"><span className="rank-down">↘</span><strong>Retroceden ({ranking.counts.DECLINING})</strong></div><RankingItems items={ranking.declining} emptyText="Sin retrocesos relevantes."/></div>
- </div>}
+ </div>
  <p className="rank-source-note">{info}</p>
- {category!=="sellers"&&<p className="rank-source-note">Sin clasificación por historial/volumen insuficiente: {ranking.counts.UNCLASSIFIED}. Cada grupo muestra hasta cinco resultados.</p>}
- <p className="rank-source-note">Mismo criterio para tiendas, dealers y modelos: septiembre frente al promedio junio–agosto. Mejoran o retroceden solo cuando |Δ| ≥5 VIN y |variación| ≥10%; las demás variaciones elegibles se mantienen. Exige ventas en cada mes previo y promedio ≥10 VIN. Top 5 por impacto VIN (estables por volumen); el número entre paréntesis indica todos los clasificados. Los casos sin historial suficiente no se clasifican. Vendedores pendiente.</p>
+ <p className="rank-source-note">Sin clasificación por historial, antigüedad observada o volumen insuficiente: {ranking.counts.UNCLASSIFIED}. Cada grupo muestra hasta cinco resultados.</p>
+ <p className="rank-source-note">Mismo criterio para tiendas, dealers y modelos: septiembre frente al promedio junio–agosto. Mejoran o retroceden solo cuando |Δ| ≥5 VIN y |variación| ≥10%; las demás variaciones elegibles se mantienen. Exige ventas en cada mes previo y promedio ≥10 VIN para tiendas/dealers/modelos; para vendedores activos, ≥5 VIN y primera venta observada antes de junio. Top 5 por impacto VIN (estables por volumen); el número entre paréntesis indica todos los clasificados. Los casos sin historial suficiente no se clasifican. Vendedores no activos excluidos.</p>
  </section>;
 }
