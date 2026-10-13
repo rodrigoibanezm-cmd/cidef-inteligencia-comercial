@@ -53,7 +53,13 @@
       "2026-09": 364
     },
     "active_sellers_expected_count": 73,
-    "seller_first_sale_snapshot": "data/monthly-close/2026-09/active-sellers-first-sale.json"
+    "seller_first_sale_snapshot": "data/monthly-close/2026-09/active-sellers-first-sale.json",
+    "dealers_expected_totals": {
+      "2026-06": 514,
+      "2026-07": 491,
+      "2026-08": 646,
+      "2026-09": 666
+    }
   },
   "categories": {
     "stores": [
