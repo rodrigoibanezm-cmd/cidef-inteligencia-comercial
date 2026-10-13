@@ -1,4 +1,4 @@
-# Motor de ranking comercial · v1.1.0
+# Motor de ranking comercial · v1.2.0
 
 **Propietario:** repositorio `cidef-inteligencia-comercial`. No vive en `cidef-data-loader` ni modifica sus motores P1.
 
@@ -10,9 +10,9 @@ Producir de forma **determinista y auditable** los rankings de mejor trayectoria
 
 ## Contrato de entrada
 
-`data/monthly-close/2026-09/performance-ranking.json` mantiene el snapshot versionado de observaciones de ventas por entidad. El motor lee de `categories.stores`, `categories.dealers` y `categories.models` únicamente `id`, `name`, `months` (y metadatos descriptivos), **ignora los antiguos campos de ranking ya calculados** (`prior_avg`, `quarter_change`, `q2`, `q3`, etc.) y recalcula las métricas desde VIN mensuales. Fechas permitidas en v1: `2026-06`, `2026-07`, `2026-08`, `2026-09`. Un mes omitido o VIN no entero/no positivo o cero invalida la entrada (el cero sí es válido). El sistema falla si hay IDs duplicados.
+`data/monthly-close/2026-09/performance-ranking.json` mantiene el snapshot versionado de observaciones de ventas por entidad. El motor lee de `categories.stores`, `categories.dealers`, `categories.models` y `categories.sellers` únicamente `id`, `name`, `months` (y metadatos descriptivos), **ignora los antiguos campos de ranking ya calculados** (`prior_avg`, `quarter_change`, `q2`, `q3`, etc.) y recalcula las métricas desde VIN mensuales. Fechas permitidas en v1: `2026-06`, `2026-07`, `2026-08`, `2026-09`. Un mes omitido o VIN no entero/no positivo o cero invalida la entrada (el cero sí es válido). El sistema falla si hay IDs duplicados.
 
-**Reconstrucción de fuente (fuera del motor):** SALES `ventas_raw`, última `fecha_factura` por VIN anterior o igual a 2026-09-30, clasificación de canal por `categoria_cliente`: `Cliente General` propia, `Concesionaria` dealer. Para dealer: grupo comercial vía RUT normalizado en `dealers_master` y respaldo `vehiculo_canonico.dealer_group_id`. Esta atribución histórica usa el maestro actual y permanece **provisional** hasta homologar vigencias. Modelos usan agrupación provisional por alias, no una dimensión producto completamente certificada. Vendedores solo tenían cobertura parcial (274 VIN) y **no se ranquean**.
+**Reconstrucción de fuente (fuera del motor):** SALES `ventas_raw`, última `fecha_factura` por VIN anterior o igual a 2026-09-30, clasificación de canal por `categoria_cliente`: `Cliente General` propia, `Concesionaria` dealer. Para dealer: grupo comercial vía RUT normalizado en `dealers_master` y respaldo `vehiculo_canonico.dealer_group_id`. Esta atribución histórica usa el maestro actual y permanece **provisional** hasta homologar vigencias. Modelos usan agrupación provisional por alias, no una dimensión producto completamente certificada. Vendedores: exclusivamente los activos y habilitados en `weekly_projection_sellers` con `persona_id` identificada; las series mensuales se vinculan por login canónico, `ombu_id` o alias login validado y no ambiguo. Se publica únicamente historia comparable.
 
 ## Fórmulas y elegibilidad
 
@@ -22,7 +22,7 @@ delta_vin = VIN_septiembre - promedio_3_meses
 variacion_pct = 100 * delta_vin / promedio_3_meses
 ```
 
-Una entidad entra en evaluación si registra **ventas positivas en cada uno** de junio, julio y agosto y su promedio histórico es **al menos 10 VIN/mes**. Las entidades con historial incompleto o bajo volumen quedan en estado **UNCLASSIFIED**, no se etiquetan erróneamente como estables.
+Una entidad entra en evaluación si registra **ventas positivas en cada uno** de junio, julio y agosto y su promedio histórico es **al menos 10 VIN/mes** para tiendas, dealers y modelos, o **5 VIN/mes** para vendedores activos. En vendedores, además, `primera_venta_observada` debe ser anterior al primer mes histórico utilizado (junio 2026 en este corte). Las entidades con historial incompleto o bajo volumen quedan en estado **UNCLASSIFIED**, no se etiquetan erróneamente como estables.
 
 ### Clasificación determinista v1.1
 
@@ -31,8 +31,7 @@ Dos umbrales se cumplen **simultáneamente**: diferencia absoluta **≥5 VIN** y
 - **IMPROVING / Mejoran:** Δ VIN ≥5 **y** variación ≥+10%.
 - **DECLINING / Retroceden:** Δ VIN ≤−5 **y** variación ≤−10%. Incluye venta de 0 en septiembre.
 - **STABLE / Se mantienen:** elegible que no supera ambos umbrales en alguna dirección (puede crecer o caer levemente).
-- **UNCLASSIFIED / Sin clasificación:** tres meses previos insuficientes o promedio anterior menor a 10 VIN.
-- **UNAVAILABLE / Vendedores:** histórico incompleto; no hay listas publicables.
+- **UNCLASSIFIED / Sin clasificación:** tres meses previos insuficientes, volumen histórico inferior al mínimo por categoría o vendedor cuya primera venta observada no es anterior a junio.
 
 Para mejorar y retroceder, se ordena por **magnitud absoluta de Δ VIN**, no porcentaje; para estables se ordena por VIN vendidos en septiembre (con desempate por menor |Δ VIN|). Se muestran máximo cinco por columna, **pero los conteos del encabezado comprenden todas las entidades elegibles**. Desempate por volumen de septiembre y nombre en las variaciones.
 
@@ -42,15 +41,15 @@ Para mejorar y retroceder, se ordena por **magnitud absoluta de Δ VIN**, no por
 
 ## Contrato de salida
 
-`calculateAllRankings(snapshot)` emite `{ schema_version, motor_version, period, months, policy, category_results }`. Cada categoría contiene `observations` con evidencia mensual, promedio, delta, porcentaje, elegibilidad, `performance_status` y causa de exclusión; los grupos `improving`, `stable`, `declining`, sus contadores `counts` y alias de compatibilidad `positive`/`negative`. Vendedores retorna estado `UNAVAILABLE` sin clasificación.
+`calculateAllRankings(snapshot)` emite `{ schema_version, motor_version, period, months, policy, category_results }`. Cada categoría contiene `observations` con evidencia mensual, promedio, delta, porcentaje, elegibilidad, `performance_status` y causa de exclusión; los grupos `improving`, `stable`, `declining`, sus contadores `counts` y alias de compatibilidad `positive`/`negative`. Vendedores tiene las mismas listas y contadores que las otras categorías; su elegibilidad requiere `first_sale_observed` previo al inicio del histórico y el mínimo de 5 VIN.
 
 El frontend `components/PerformanceRanking.js` **no implementa fórmulas ni ordenamiento**; consume este contrato. La fuente versionada sigue siendo un snapshot; **no afirmar que un nuevo valor de Neon se sincroniza automáticamente** sin un proceso de extracción/publicación de observaciones.
 
 ## Invariantes y pruebas
 
-- **Conciliación dealers:** junio 514, julio 491, agosto 646 y septiembre 666 VIN. Cualquier diferencia lanza `DEALER_VIN_RECONCILIATION_FAILED`.
+- **Conciliación dealers:** junio 514, julio 491, agosto 646 y septiembre 666 VIN. Cualquier diferencia lanza `RANKING_VIN_RECONCILIATION_FAILED`.
 - Los conteos mensuales son enteros >=0, explícitos por mes; un histórico incompleto no se rellena.
-- La cobertura de vendedor es insuficiente y permanece oculta.
+- **Conciliación vendedores activos:** junio 322, julio 373, agosto 494 y septiembre 364 VIN, distribuidos entre 73 `persona_id` únicos. Todos los cuatro totales y tamaño del padrón se validan contra metadatos del snapshot, no contra constantes codificadas en el motor.
 - Pruebas de regresión CURIFOR (8 VIN, retrocede), Bellavista mejora, Alameda estable, Rosselot destaca por impacto, umbrales simultáneos, caídas a cero, exclusión por historial y categorías exhaustivas.
 - Ejecutar en esta repo: `npm run test:ranking`. En nuevas versiones actualizar snapshot, contrato, tests y control de cierre antes de publicar.
 
@@ -58,7 +57,7 @@ El frontend `components/PerformanceRanking.js` **no implementa fórmulas ni orde
 
 La reconstrucción histórica de dealers y la agrupación por modelos siguen provisionales. La fuente comercial histórica `performance-ranking.json` y otros snapshots del cierre son evidencia guardada, no autoridad P1 por sí solos. Cuando haya nueva certificación, primero reemplazar los conteos mensuales con fuente rastreable; el motor y sus fórmulas no deben cambiar por intervención del asistente.
 
-**Versionado:** v1.1.0 incorpora tres estados y umbrales absolutos+relativos. Cambiar fórmulas, umbrales, universos o criterio requiere nueva versión y prueba de conciliación. La clasificación no significa causalidad o cumplimiento de metas comerciales.
+**Versionado:** v1.2.0 incluye vendedores activos y elegibilidad por primera venta observada y volumen histórico; v1.1.0 incorporó tres estados y umbrales absolutos+relativos. Cambiar fórmulas, umbrales, universos o criterio requiere nueva versión y prueba de conciliación. La clasificación no significa causalidad o cumplimiento de metas comerciales.
 
 ## Vendedores activos · registro de primera venta observada
 
@@ -66,4 +65,4 @@ La reconstrucción histórica de dealers y la agrupación por modelos siguen pro
 
 **Fuente:** `ventas_raw` filtrada a `categoria_cliente='Cliente General'`, VIN no nulo, última factura válida por VIN con corte `2026-10-13`. Vinculación por `persona_id` mediante `personas_master.usuario_canonico`, `weekly_projection_sellers.ombu_id` y `persona_aliases` validados de tipo login, solo si cada token resuelve inequívocamente a una persona. La primera fecha observada es el mínimo `fecha_factura` por vendedor en el histórico disponible; en empates se guarda el VIN lexicográficamente menor para evidencia.
 
-**Interpretación:** `primera_venta_observada` **no es fecha de contratación ni fecha de inicio de vigencia laboral**. Puede variar si se incorpora historia anterior, se corrigen facturas o se modifica la resolución de identidades. Un vendedor sin ventas históricas puede estar recién incorporado o carecer de cobertura. Nunca convertir una fecha nula en cero o antigüedad inventada. La vigencia comercial seguirá gobernada por la fuente de activos. El registro de primeras ventas, por sí solo, **no habilita** el ranking de vendedores: aún se necesita generar series mensuales por persona y pasar las verificaciones del motor.
+**Interpretación:** `primera_venta_observada` **no es fecha de contratación ni fecha de inicio de vigencia laboral**. Puede variar si se incorpora historia anterior, se corrigen facturas o se modifica la resolución de identidades. Un vendedor sin ventas históricas puede estar recién incorporado o carecer de cobertura. Nunca convertir una fecha nula en cero o antigüedad inventada. La vigencia comercial seguirá gobernada por la fuente de activos. El registro de primeras ventas, junto con `categories.sellers` (series de junio a septiembre por persona_id) y las conciliaciones que ejecuta el motor, permite clasificar únicamente vendedores activos elegibles. Se excluyen los nuevos y los que no tengan historia o volumen mínimos, sin inferir fecha de contratación. Estas observaciones son un snapshot: no se actualizan automáticamente al cambiar Neon o la nómina.
