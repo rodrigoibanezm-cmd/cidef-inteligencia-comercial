@@ -43,7 +43,7 @@ export default function PerformanceRanking(){
   <div className="rank-panel"><div className="rank-panel-header"><span className="rank-up">↗</span><strong>Mejoran ({ranking.counts.IMPROVING})</strong></div><RankingItems items={ranking.improving} emptyText="Sin mejoras relevantes."/></div>
   <div className="rank-panel"><div className="rank-panel-header"><span>→</span><strong>Se mantienen ({ranking.counts.STABLE})</strong></div><RankingItems items={ranking.stable} emptyText="Sin casos estables elegibles."/></div>
   <div className="rank-panel"><div className="rank-panel-header"><span className="rank-down">↘</span><strong>Retroceden ({ranking.counts.DECLINING})</strong></div><RankingItems items={ranking.declining} emptyText="Sin retrocesos relevantes."/></div>
- </div>
+ </div>}
  <p className="rank-source-note">{info}</p>
  {category!=="sellers"&&<p className="rank-source-note">Sin clasificación por historial/volumen insuficiente: {ranking.counts.UNCLASSIFIED}. Cada grupo muestra hasta cinco resultados.</p>}
  <p className="rank-source-note">Mismo criterio para tiendas, dealers y modelos: septiembre frente al promedio junio–agosto. Mejoran o retroceden solo cuando |Δ| ≥5 VIN y |variación| ≥10%; las demás variaciones elegibles se mantienen. Exige ventas en cada mes previo y promedio ≥10 VIN. Top 5 por impacto VIN (estables por volumen); el número entre paréntesis indica todos los clasificados. Los casos sin historial suficiente no se clasifican. Vendedores pendiente.</p>
