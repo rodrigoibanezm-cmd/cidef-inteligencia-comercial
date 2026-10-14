@@ -46,3 +46,16 @@ Snapshot agregado auditable: `data/monthly-close/2026-09/forum-operation-state-s
 - Estado CURSADA al cierre: 202. Es un estado de la foto, **no equivalente** a 381 operaciones con fecha de curse durante septiembre.
 
 `computeForumOperationSnapshot(snapshot, expectedDate)` compara fecha exacta, autoridad temporal y conciliación por red; falla ante datos incompletos o cambiados. La tarjeta UFIs mantiene 383 ejecuciones del mes completo por fecha de curse, con serie de cierres de eventos. Los estados de solicitudes y aprobadas no tienen por ahora curvas históricas publicables: P1 no dispone de fotos exactas de cierre de abril–agosto y no se sintetizan con información actual.
+
+## Histórico anual recuperado (2026)
+
+Los archivos históricos sí contienen cotizaciones y ejecuciones desde enero. La ausencia de estados exactos en cierres anteriores no debe confundirse con ausencia de datos mensuales.
+
+- `quotation_volume_history`: enero–agosto, número de cotizaciones por mes certificado por P1 desde el baseline histórico (archivo Forum/Cotizacion_Cidef_Enero_a_Agosto_2026.csv, fecha de captura 2026-08-31); septiembre, 5.675 operaciones del snapshot diario exacto de 2026-09-30. Este indicador refleja volúmenes por mes, no transiciones administrativas históricas de esos meses. No mezclar el conteo revisado posteriormente del universo consolidado 5.890 con la foto fija del mes.
+- `event_trend`: enero–septiembre, `CURSES` y `UFIS` por mes de ejecución obtenidas desde P1. Cada mes completo usa la fecha de Curse.
+- `approved_pending`: solo se publica septiembre (1.815) desde el snapshot exacto 2026-09-30. Los estados de la base histórica capturados el 31-08 no prueban por sí mismos las fotos de enero–julio al último día de cada mes.
+- La portada utiliza tres tarjetas: cotizaciones por mes (con solicitudes 4.674 de la foto septiembre como segunda cifra), aprobaciones congeladas al corte y UFIs mensuales. Jamás se usa la curva de cohortes actualmente aprobadas para fingir una serie de cierre.
+- Al generar cierres futuros, conservar el snapshot diario del último día del mes junto con su reporte y provenance.
+
+`computeForumClose` valida que la serie de cotizaciones llegue al mes de cierre y expone el histórico. El componente verifica que la última observación del histórico de cotizaciones sea igual al total de operaciones del snapshot certificado 30-09. La CI prueba los 9 meses y los totales.
+
