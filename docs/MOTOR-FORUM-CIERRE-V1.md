@@ -33,3 +33,16 @@ La primera tabla es un **cierre de eventos de septiembre**, acompañado por los 
 `components/ForumClose.js` presenta tabla por red, gráfico de aprobadas sin curse/cotizaciones, curva mensual UFIs, tabla de cohortes y tres indicadores de variación. `app/cierre-mensual/page.js` lo muestra inmediatamente después de KPIs y antes del ranking. La sección antigua con 174 UFIs/377 VIN fue eliminada. Financiamiento ERP se conserva separado, pues un VIN con financiera no equivale a UFI FORUM.
 
 Tests: `node --test test/forum-close.test.js`. La CI ejecuta estos tests y los de ranking. Cambios de períodos o fuentes requieren materialización versionada, validación y nueva versión contractual.
+
+## Regla de fotografía de cierre (corrección 2026-10-13)
+
+La portada del informe mensual de septiembre queda anclada estrictamente a la observación `OPERATION_STATES / OPERATION_STATE_SNAPSHOT` P1, `snapshot_date=2026-09-30` y `EXACT_DAILY_COTIZACION_SNAPSHOT`. La fecha de publicación del informe puede ser el 1 de octubre, pero los estados representados son únicamente los existentes al 30 de septiembre. Nunca reutilizar `COHORT_APPROVED` actual de octubre como si fuese saldo de septiembre.
+
+Snapshot agregado auditable: `data/monthly-close/2026-09/forum-operation-state-sep30.json`, producido de 5.675 operaciones únicas de la foto diaria certificada. El motor calcula desde `states` por red:
+
+- Operaciones totales: 5.675 (propias 2.511; dealers 3.164)
+- Solicitudes/operaciones avanzadas: estados distintos de `COTIZACION`, 4.674 (total 5.675 - 1.001 cotizaciones puras)
+- Aprobadas sin curse en la foto: `APROBADA`, 1.815 (propias 773; dealers 1.042)
+- Estado CURSADA al cierre: 202. Es un estado de la foto, **no equivalente** a 381 operaciones con fecha de curse durante septiembre.
+
+`computeForumOperationSnapshot(snapshot, expectedDate)` compara fecha exacta, autoridad temporal y conciliación por red; falla ante datos incompletos o cambiados. La tarjeta UFIs mantiene 383 ejecuciones del mes completo por fecha de curse, con serie de cierres de eventos. Los estados de solicitudes y aprobadas no tienen por ahora curvas históricas publicables: P1 no dispone de fotos exactas de cierre de abril–agosto y no se sintetizan con información actual.
