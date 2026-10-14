@@ -1,15 +1,15 @@
 import source from "../data/monthly-close/2026-09/forum-close-source.json";
-import { computeForumClose } from "../lib/motors/forum-close-v1";
+import { computeForumClose, computeForumOperationSnapshot } from "../lib/motors/forum-close-v1";
+import dailySnapshot from "../data/monthly-close/2026-09/forum-operation-state-sep30.json";
 
 const result = computeForumClose(source);
+const daily = computeForumOperationSnapshot(dailySnapshot, source.event_cutoff);
 const formatNumber = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 0 });
 const formatPercent = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 1 });
 const number = value => formatNumber.format(value);
 const percent = value => Number.isFinite(value) ? formatPercent.format(value * 100) + "%" : "—";
 const signedPercent = value => Number.isFinite(value)
   ? (value > 0 ? "+" : "") + percent(value) : "—";
-const signedPoints = value => Number.isFinite(value)
-  ? (value > 0 ? "+" : "") + formatPercent.format(value * 100) + " pp" : "—";
 const shortMonth = period => new Date(period + "-01T12:00:00Z")
   .toLocaleDateString("es-CL", { month: "short", timeZone: "UTC" }).replace(".", "");
 const changeFromPrevious = (rows, field) => {
@@ -19,7 +19,7 @@ const changeFromPrevious = (rows, field) => {
 };
 
 function MiniTrend({ rows, field, isRate = false, title }) {
-  if (!rows?.length) return <div className="forum-mini-empty">Sin serie histórica</div>;
+  if (!rows?.length) return <div className="forum-mini-empty">Sin cierres históricos comparables certificados</div>;
   const values = rows.map(row => row[field]);
   if (values.some(value => !Number.isFinite(value))) return <div className="forum-mini-empty">Serie incompleta</div>;
   const width = 360, left = 19, right = 341, top = 22, bottom = 96;
@@ -54,7 +54,7 @@ function Card({ label, main, subtitle, subtitleTone, own, dealers, trend, field,
       </div>
     </div>
     <div className="forum-exec-chart">
-      <MiniTrend rows={trend} field={field} isRate={isRate} title={"Evolución de " + label.toLowerCase() + " de " + shortMonth(trend[0].period) + " a " + shortMonth(trend.at(-1).period)}/>
+      <MiniTrend rows={trend} field={field} isRate={isRate} title={trend.length ? "Evolución de " + label.toLowerCase() + " de " + shortMonth(trend[0].period) + " a " + shortMonth(trend.at(-1).period) : "Sin cierres históricos comparables"}/>
     </div>
     <p className="forum-exec-caption">{footnote}</p>
   </article>;
@@ -65,23 +65,25 @@ export default function ForumClose() {
   const dealers = result.networks.find(row => row.id === "DEALERS");
   const company = result.networks.find(row => row.id === "COMPANY");
   const ufiChange = changeFromPrevious(result.event_trend, "ufis");
+  const snapshotOwn = daily.networks.find(row => row.id === "OWN_STORES");
+  const snapshotDealers = daily.networks.find(row => row.id === "DEALERS");
+  const snapshotCompany = daily.networks.find(row => row.id === "COMPANY");
   return <section className="mc-forum-executive" aria-label="FORUM · desempeño del financiamiento">
     <div className="forum-exec-header">
       <div><h2>FORUM · Desempeño del financiamiento</h2><p>Septiembre 2026 · cierre mensual</p></div>
       <span>Compañía · Motor v{result.version}</span>
     </div>
     <div className="forum-exec-grid">
-      <Card label="Solicitudes" main={company.applications}
-        subtitle={signedPercent(result.signals?.applications_change) + " vs agosto"}
-        subtitleTone={result.signals?.applications_change < 0 ? "down" : "neutral"}
-        own={own.applications} dealers={dealers.applications}
-        trend={result.cohorts} field="applications"
-        footnote="Entrada al embudo · abril–septiembre"/>
-      <Card label="Aprobadas sin curse" main={company.approved_pending}
-        subtitle={percent(company.approved_pending_share) + " de cotizaciones"}
-        own={own.approved_pending} dealers={dealers.approved_pending}
-        trend={result.cohorts} field="approved_pending_share" isRate
-        footnote={signedPoints(result.signals?.approved_pending_pp) + " vs agosto · estados actuales por cohorte"}/>
+      <Card label="Solicitudes al cierre" main={snapshotCompany.applications}
+        subtitle="Foto exacta al 30 de septiembre"
+        own={snapshotOwn.applications} dealers={snapshotDealers.applications}
+        trend={[]} field="applications"
+        footnote={number(snapshotCompany.operations) + " operaciones totales · " + number(snapshotCompany.quotations_only) + " aún en cotización"}/>
+      <Card label="Aprobadas sin curse" main={snapshotCompany.approved_pending}
+        subtitle={percent(snapshotCompany.approved_pending_share) + " del total de operaciones"}
+        own={snapshotOwn.approved_pending} dealers={snapshotDealers.approved_pending}
+        trend={[]} field="approved_pending_share" isRate
+        footnote="Stock exacto al 30 de septiembre · sin actualización posterior"/>
       <Card label="UFIs ejecutadas" main={company.ufis}
         subtitle={signedPercent(ufiChange) + " vs agosto · " + percent(company.penetration) + " penetración"}
         subtitleTone={ufiChange < 0 ? "down" : "neutral"}
@@ -89,6 +91,6 @@ export default function ForumClose() {
         trend={result.event_trend} field="ufis"
         footnote={number(company.curses) + " curses · " + number(company.sales_vin) + " VIN vendidos · junio–septiembre"}/>
     </div>
-    <p className="forum-exec-method">Solicitudes: operaciones de cotización que avanzaron de etapa. Aprobadas sin curse: estado actual de cada cohorte; su curva no representa una foto histórica al cierre ni compara cohortes de igual maduración. UFIs: vehículos financiados por Curse en cada mes. Penetración = UFIs / VIN vendidos.</p>
+    <p className="forum-exec-method">Foto congelada al 30 de septiembre: operaciones y estados certificados del snapshot diario FORUM, sin cambios posteriores. Solicitudes = operaciones cuyo estado ya no es COTIZACION; aprobadas sin curse = estado APROBADA. No se muestran curvas para esos estados porque no existen snapshots certificados de los cierres anteriores. UFIs: unidades financiadas por Curse en cada mes completo. Penetración = UFIs / VIN vendidos.</p>
   </section>;
 }
