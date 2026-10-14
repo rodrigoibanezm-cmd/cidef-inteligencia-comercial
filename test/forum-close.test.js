@@ -52,3 +52,19 @@ test("snapshot dates must match the requested cutoff and fail on tampering",()=>
  const altered=structuredClone(snapshot);altered.network.OWN_STORES.states.APROBADA++;
  assert.throws(()=>computeForumOperationSnapshot(altered,"2026-09-30"),/FORUM_DAILY_OPERATION_COUNT_RECONCILIATION_FAILED/);
 });
+
+test("January through September quotation volumes and executed UFIs are exhaustive",()=>{
+ const result=computeForumClose(input);
+ assert.deepEqual(result.quotation_volume_history.map(x=>x.period),["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09"]);
+ assert.deepEqual(result.event_trend.map(x=>x.period),result.quotation_volume_history.map(x=>x.period));
+ assert.equal(result.quotation_volume_history[0].quotations,4510);
+ assert.equal(result.quotation_volume_history.at(-1).quotations,5675);
+ assert.equal(result.event_trend[0].ufis,266);
+ assert.equal(result.event_trend.at(-1).ufis,383);
+ assert.equal(result.quotation_volume_history.at(-1).quotations,computeForumOperationSnapshot(snapshot,"2026-09-30").networks.find(x=>x.id==="COMPANY").operations);
+});
+test("rejects tampered history, avoids inventing historical approval snapshots",()=>{
+ const bad=structuredClone(input);bad.quotation_volume_history.pop();
+ assert.throws(()=>computeForumClose(bad),/FORUM_QUOTATION_HISTORY_INCOMPLETE/);
+ assert.equal(input.history_semantics.month_end_state.includes("Only 2026-09-30"),true);
+});
