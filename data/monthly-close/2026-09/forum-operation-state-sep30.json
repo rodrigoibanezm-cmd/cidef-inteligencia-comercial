@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "source": "FORUM P1 OPERATION_STATES / OPERATION_STATE_SNAPSHOT",
+  "evidence_date": "2026-09-30",
+  "evidence_contract": "P1_OPERATION_STATE_SNAPSHOT",
+  "observation_semantics": "EXACT_DAILY_COTIZACION_SNAPSHOT",
+  "operation_count": 5675,
+  "unique_operation_count": 5675,
+  "network": {
+    "OWN_STORES": {
+      "states": {
+        "COTIZACION": 464,
+        "APROBADA": 773,
+        "SOLICITUD CADUCADA": 354,
+        "CURSADA": 90,
+        "PENDIENTE INFO": 196,
+        "BLOQUEADA": 46,
+        "SOLICITUD": 8,
+        "ENVIO A CURSE": 14,
+        "PRE CURSADA": 28,
+        "RECHAZADA": 538
+      }
+    },
+    "DEALERS": {
+      "states": {
+        "APROBADA": 1042,
+        "PENDIENTE INFO": 353,
+        "SOLICITUD CADUCADA": 437,
+        "CURSADA": 112,
+        "COTIZACION": 537,
+        "BLOQUEADA": 78,
+        "PRE CURSADA": 31,
+        "RECHAZADA": 541,
+        "CANCELADO": 1,
+        "SOLICITUD": 8,
+        "ENVIO A CURSE": 20,
+        "EN 2A EVALUACION": 2,
+        "PEND. FIRMA": 2
+      }
+    }
+  }
+}
