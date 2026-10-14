@@ -68,22 +68,34 @@ export default function ForumClose() {
   const snapshotOwn = daily.networks.find(row => row.id === "OWN_STORES");
   const snapshotDealers = daily.networks.find(row => row.id === "DEALERS");
   const snapshotCompany = daily.networks.find(row => row.id === "COMPANY");
+  if(result.quotation_volume_history.at(-1)?.quotations!==snapshotCompany.operations)throw new Error("FORUM_QUOTATION_HISTORY_SNAPSHOT_MISMATCH");
   return <section className="mc-forum-executive" aria-label="FORUM · desempeño del financiamiento">
     <div className="forum-exec-header">
       <div><h2>FORUM · Desempeño del financiamiento</h2><p>Septiembre 2026 · cierre mensual</p></div>
       <span>Compañía · Motor v{result.version}</span>
     </div>
     <div className="forum-exec-grid">
-      <Card label="Solicitudes al cierre" main={snapshotCompany.applications}
-        subtitle="Foto exacta al 30 de septiembre"
-        own={snapshotOwn.applications} dealers={snapshotDealers.applications}
-        trend={[]} field="applications"
-        footnote={number(snapshotCompany.operations) + " operaciones totales · " + number(snapshotCompany.quotations_only) + " aún en cotización"}/>
-      <Card label="Aprobadas sin curse" main={snapshotCompany.approved_pending}
-        subtitle={percent(snapshotCompany.approved_pending_share) + " del total de operaciones"}
-        own={snapshotOwn.approved_pending} dealers={snapshotDealers.approved_pending}
-        trend={[]} field="approved_pending_share" isRate
-        footnote="Stock exacto al 30 de septiembre · sin actualización posterior"/>
+      <Card label="Cotizaciones" main={snapshotCompany.operations}
+        subtitle={number(snapshotCompany.applications) + " solicitudes al cierre"}
+        own={snapshotOwn.operations} dealers={snapshotDealers.operations}
+        trend={result.quotation_volume_history} field="quotations"
+        footnote="Cotizaciones por mes · enero–septiembre; septiembre: foto al 30"/>
+      <article className="forum-exec-card">
+        <h3>Aprobadas sin curse</h3>
+        <div className="forum-exec-headline">
+          <div className="forum-exec-main"><strong>{number(snapshotCompany.approved_pending)}</strong><span>{percent(snapshotCompany.approved_pending_share)} de operaciones</span></div>
+          <div className="forum-exec-split">
+            <div><span>Propias</span><strong>{number(snapshotOwn.approved_pending)}</strong></div>
+            <div><span>Dealers</span><strong>{number(snapshotDealers.approved_pending)}</strong></div>
+          </div>
+        </div>
+        <div className="forum-snapshot-breakdown">
+          <div><span>Foto al 30 de septiembre</span><strong>{percent(snapshotCompany.approved_pending_share)}</strong></div>
+          <div className="forum-snapshot-meter"><span style={{width:percent(snapshotCompany.approved_pending_share)}}/></div>
+          <p>No hay fotos certificadas de aprobaciones de los cierres anteriores. No se infiere una tendencia.</p>
+        </div>
+        <p className="forum-exec-caption">1.815 aprobadas sin curse · 5.675 operaciones</p>
+      </article>
       <Card label="UFIs ejecutadas" main={company.ufis}
         subtitle={signedPercent(ufiChange) + " vs agosto · " + percent(company.penetration) + " penetración"}
         subtitleTone={ufiChange < 0 ? "down" : "neutral"}
@@ -91,6 +103,6 @@ export default function ForumClose() {
         trend={result.event_trend} field="ufis"
         footnote={number(company.curses) + " curses · " + number(company.sales_vin) + " VIN vendidos · junio–septiembre"}/>
     </div>
-    <p className="forum-exec-method">Foto congelada al 30 de septiembre: operaciones y estados certificados del snapshot diario FORUM, sin cambios posteriores. Solicitudes = operaciones cuyo estado ya no es COTIZACION; aprobadas sin curse = estado APROBADA. No se muestran curvas para esos estados porque no existen snapshots certificados de los cierres anteriores. UFIs: unidades financiadas por Curse en cada mes completo. Penetración = UFIs / VIN vendidos.</p>
+    <p className="forum-exec-method">Foto de septiembre congelada al 30/09. Cotizaciones de enero–agosto: histórico cargado al 31/08; septiembre: snapshot exacto del 30/09. Aprobadas sin curse: estado APROBADA en esa fecha; sin tendencia porque no hay cierres diarios equivalentes anteriores. UFIs: ejecución mensual certificada enero–septiembre. Penetración = UFIs / VIN vendidos.</p>
   </section>;
 }
