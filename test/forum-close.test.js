@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import {computeForumClose} from "../lib/motors/forum-close-v1.js";
+import {computeForumClose,computeForumOperationSnapshot} from "../lib/motors/forum-close-v1.js";
 const input=JSON.parse(fs.readFileSync(new URL("../data/monthly-close/2026-09/forum-close-source.json",import.meta.url)));
 test("Forum network totals reconcile to September certified evidence",()=>{
  const x=computeForumClose(input);
@@ -33,4 +33,22 @@ test("fails closed on tampered sources or missing values",()=>{
  assert.throws(()=>computeForumClose(v),/FORUM_CLOSE_RECONCILIATION_FAILED/);
  v=structuredClone(input);delete v.network.DEALERS.curses;
  assert.throws(()=>computeForumClose(v),/FORUM_INVALID_SOURCE/);
+});
+
+const snapshot=JSON.parse(fs.readFileSync(new URL("../data/monthly-close/2026-09/forum-operation-state-sep30.json",import.meta.url)));
+test("exact September 30 operational snapshot reconciles without October cohort states",()=>{
+ const x=computeForumOperationSnapshot(snapshot,"2026-09-30");
+ const total=x.networks.find(n=>n.id==="COMPANY");
+ assert.equal(total.operations,5675);
+ assert.equal(total.applications,4674);
+ assert.equal(total.approved_pending,1815);
+ assert.equal(total.cursada_state,202);
+ assert.equal(x.networks.find(n=>n.id==="OWN_STORES").approved_pending,773);
+ assert.equal(x.networks.find(n=>n.id==="DEALERS").approved_pending,1042);
+ assert.notEqual(total.approved_pending,computeForumClose(input).networks.find(n=>n.id==="COMPANY").approved_pending);
+});
+test("snapshot dates must match the requested cutoff and fail on tampering",()=>{
+ assert.throws(()=>computeForumOperationSnapshot(snapshot,"2026-10-13"),/FORUM_EXACT_SNAPSHOT_REQUIRED/);
+ const altered=structuredClone(snapshot);altered.network.OWN_STORES.states.APROBADA++;
+ assert.throws(()=>computeForumOperationSnapshot(altered,"2026-09-30"),/FORUM_DAILY_OPERATION_COUNT_RECONCILIATION_FAILED/);
 });
