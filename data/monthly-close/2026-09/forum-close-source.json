@@ -75,6 +75,31 @@
   ],
   "event_trend": [
     {
+      "period": "2026-01",
+      "curses": 266,
+      "ufis": 266
+    },
+    {
+      "period": "2026-02",
+      "curses": 216,
+      "ufis": 217
+    },
+    {
+      "period": "2026-03",
+      "curses": 304,
+      "ufis": 304
+    },
+    {
+      "period": "2026-04",
+      "curses": 308,
+      "ufis": 308
+    },
+    {
+      "period": "2026-05",
+      "curses": 406,
+      "ufis": 408
+    },
+    {
       "period": "2026-06",
       "curses": 358,
       "ufis": 359
@@ -94,5 +119,48 @@
       "curses": 381,
       "ufis": 383
     }
-  ]
+  ],
+  "quotation_volume_history": [
+    {
+      "period": "2026-01",
+      "quotations": 4510
+    },
+    {
+      "period": "2026-02",
+      "quotations": 3974
+    },
+    {
+      "period": "2026-03",
+      "quotations": 5340
+    },
+    {
+      "period": "2026-04",
+      "quotations": 4823
+    },
+    {
+      "period": "2026-05",
+      "quotations": 5484
+    },
+    {
+      "period": "2026-06",
+      "quotations": 5382
+    },
+    {
+      "period": "2026-07",
+      "quotations": 6938
+    },
+    {
+      "period": "2026-08",
+      "quotations": 7891
+    },
+    {
+      "period": "2026-09",
+      "quotations": 5675
+    }
+  ],
+  "history_semantics": {
+    "quotation_volume_history": "Jan-Aug historical baseline monthly quotation-event volume, retained in snapshot as of Aug 31; September from Sep 30 exact daily certified operation-state snapshot (5675). Not a historical monthly status snapshot for Jan-Aug.",
+    "event_trend": "P1 certified CURSES and UFIS from dated execution events, complete calendar months Jan-Sep 2026; not daily-operation snapshots",
+    "month_end_state": "Only 2026-09-30 has certified exact daily operation-state snapshot. Never represent August-baseline statuses as prior month-end approvals."
+  }
 }
