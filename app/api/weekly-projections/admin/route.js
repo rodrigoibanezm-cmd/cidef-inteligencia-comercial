@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
+import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,42 +39,32 @@ export async function GET(request) {
     if(!/^\d{4}-\d{2}-\d{2}$/.test(requestedCutoff)) throw new Error('cutoff_date must use YYYY-MM-DD');
     const cutoffDate=requestedCutoff.slice(0,7)===weekStart.slice(0,7)&&requestedCutoff>=weekStart?requestedCutoff:weekStart;
     const historyFrom=shiftYear(monthStart(cutoffDate),-1);
-    const salesRaw=await sql`
-      SELECT DISTINCT ON (upper(trim(v.nro_vin_chasis)))
-        upper(trim(v.nro_vin_chasis)) vin,
-        (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END)::text fecha_venta,
-        sm.sucursal_id::text sucursal_id,
-        sm.nombre_canonico sucursal,
-        v.nombre_usuario vendedor,
-        pe.persona_id::text persona_id,
-        coalesce(pe.nombre_canonico, nullif(trim(v.nombre_usuario),''), 'Usuario ERP sin nombre') vendedor_nombre,
-        v.entidad_financiera,
-        coalesce(ma.nombre_canonico,v.desc_mae_marca,'Sin marca') marca,
-        coalesce(mo.nombre_canonico,vc.modelo_raw,v.desc_articulo,'Sin modelo') modelo,
-        coalesce(v.nro_factura,v.factura) factura
-      FROM ventas_raw v
-      LEFT JOIN sucursales_master sm
-        ON lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-        OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
-        OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-      LEFT JOIN personas_master pe ON upper(trim(pe.usuario_canonico))=upper(trim(v.nombre_usuario))
-      LEFT JOIN vehiculo_canonico vc ON upper(trim(vc.vin))=upper(trim(v.nro_vin_chasis))
-      LEFT JOIN versiones_master_v01 ve ON ve.version_id=vc.version_id
-      LEFT JOIN modelos_master_v01 mo ON mo.modelo_id=ve.modelo_id
-      LEFT JOIN marcas_master_v01 ma ON ma.marca_id=mo.marca_id
-      WHERE btrim(v.categoria_cliente)='Cliente General'
-        AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
-        AND (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) BETWEEN ${historyFrom}::date AND ${cutoffDate}::date
-        AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
-      ORDER BY upper(trim(v.nro_vin_chasis)), (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) DESC
-    `;
-    const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
+    const p1RunId=`proyecciones-admin-${cutoffDate}-${Date.now()}`;
+    const salesFilters={commercial_universe:'OWN_STORES',date_from:historyFrom,date_to:cutoffDate,...(storeId?{store_id:storeId}:{})};
+    const salesEvidence=await withP1Mcp(async client=>callP1(client,'data_fetch',{
+      run_id:p1RunId,source:'SALES',filters:salesFilters,
+      fields:['vin','sale_date','invoice','brand_id','model_id','version_id','store_id','store_label','seller_id','financial_entity']
+    }));
+    let sellerLabels=new Map();
+    if(storeId){
+      const sellers=await withP1Mcp(async client=>callP1(client,'data_observe',{
+        run_id:p1RunId+'-sellers',source:'SALES',measure:'VIN_SALES',
+        evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'SELLER',
+        filters:{...salesFilters,date_from:monthStart(cutoffDate),date_to:cutoffDate}
+      }));
+      sellerLabels=new Map((sellers.payload?.members||[]).map(row=>[String(row.member_id),row.member_label]));
+    }
+    const all=(salesEvidence.rows||[]).map(r=>{
+      const sellerId=r.seller_id==null?null:String(r.seller_id);
+      const sellerName=sellerId?sellerLabels.get(sellerId):null;
+      return {
+        vin:r.vin,fecha_venta:normalizeDate(r.sale_date),sucursal_id:r.store_id==null?null:String(r.store_id),
+        sucursal:r.store_label||'Tienda no resuelta',vendedor:sellerName||sellerId||'Usuario ERP sin nombre',
+        persona_id:sellerId,vendedor_nombre:sellerName||'Usuario ERP sin nombre',
+        entidad_financiera:r.financial_entity,marca:r.brand_id||'Sin marca',modelo:r.model_id||'Sin modelo',
+        factura:r.invoice
+      };
+    }).filter(r=>r.fecha_venta);
     const cuts=[['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
     const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId));
     const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-3','M-2','M-1'].includes(p.label));

@@ -1,35 +1,69 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
+import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
 
-const formatDate = date => date.toISOString().slice(0, 10);
 function priorCutoff(cutoff, offset) {
   const day = Number(cutoff.slice(8, 10));
   const d = new Date(`${cutoff.slice(0, 7)}-01T12:00:00Z`);
   d.setUTCMonth(d.getUTCMonth() + offset);
   const year = d.getUTCFullYear(), month = d.getUTCMonth();
   const monthEnd = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  return `${year}-${String(month + 1).padStart(2, '0')}-${String(Math.min(day,monthEnd)).padStart(2, '0')}`;
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(Math.min(day, monthEnd)).padStart(2, '0')}`;
 }
+function financeCounts(evidence) {
+  const counts = { ufi: 0, otros: 0, unresolved: 0 };
+  for (const member of evidence?.payload?.members || []) {
+    const entity = String(member.member_id ?? '').trim().toUpperCase();
+    const value = Number(member.value || 0);
+    if (entity === 'UNRESOLVED' || !entity) counts.unresolved += value;
+    else if (entity === 'FORUM') counts.ufi += value;
+    else counts.otros += value;
+  }
+  return counts;
+}
+function memberId(row, dimension) {
+  return row.members?.find(member => member.dimension === dimension)?.member_id ?? null;
+}
+
 export async function GET(request) {
   try {
     const params = new URL(request.url).searchParams;
     const cutoff = params.get('cutoff_date');
     const storeId = params.get('sucursal_id') || null;
-    if (storeId && !/^\d+$/.test(storeId)) return NextResponse.json({ok:false,error:'Invalid sucursal_id'},{status:400});
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoff || '') ||
+    if (storeId && !/^\\d+$/.test(storeId)) return NextResponse.json({ok:false,error:'Invalid sucursal_id'},{status:400});
+    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(cutoff || '') ||
         Number.isNaN(Date.parse(cutoff)) || new Date(cutoff).toISOString().slice(0,10)!==cutoff) {
       return NextResponse.json({ok:false,error:'Invalid cutoff_date'}, {status:400});
     }
-    const periods = [-3,-2,-1,0].map((n,i) => ({
-      label: i===3?'CURRENT':`M-${-n}`,
-      month: priorCutoff(cutoff,n).slice(0,7),
-      cutoff_date: priorCutoff(cutoff,n)
-    }));
-    const from = periods[0].month+'-01';
+    const periods = [-3,-2,-1,0].map((n,i) => {
+      const periodCutoff = priorCutoff(cutoff,n);
+      return {label:i===3?'CURRENT':`M-${-n}`,month:periodCutoff.slice(0,7),cutoff_date:periodCutoff,
+        date_from:periodCutoff.slice(0,7)+'-01'};
+    });
     const sql = db();
-    const [forum, others] = await Promise.all([
+    const storeAliasRows = await sql`
+      WITH candidates AS (
+        SELECT upper(trim(a.valor_raw)) alias,s.sucursal_id::text store_id
+        FROM sucursal_aliases a
+        JOIN sucursales_master s ON s.sucursal_id=a.sucursal_id
+        WHERE a.validated=true AND a.fuente='forum_raw' AND s.tipo_canal='CIDEF'
+          AND s.vigente=true AND lower(trim(s.nombre_canonico))<>'casa matriz'
+          AND nullif(trim(a.valor_raw),'') IS NOT NULL
+      ), unique_aliases AS (
+        SELECT alias,min(store_id)::text store_id FROM candidates
+        GROUP BY alias HAVING count(DISTINCT store_id)=1
+      )
+      SELECT store_id,array_agg(alias ORDER BY alias) aliases
+      FROM unique_aliases GROUP BY store_id
+    `;
+    const aliasesByStore=new Map(storeAliasRows.map(row=>[String(row.store_id),row.aliases||[]]));
+    const storeAliases=storeId?(aliasesByStore.get(String(storeId))||[]):[];
+    const forumFilters = storeAliases.length
+      ? { network:'OWN_STORES', store:storeAliases.map(row=>row.alias) }
+      : { network:'OWN_STORES' };
+    const [forum, storeForum] = await Promise.all([
       sql`
         WITH matched_stores AS (
           SELECT DISTINCT upper(trim(a.valor_raw)) alias
@@ -45,76 +79,12 @@ export async function GET(request) {
         FROM forum_funnel_universe_v01 u
         JOIN matched_stores s ON upper(trim(u.sucursal))=s.alias
         WHERE upper(trim(u.distribuidor))='CIDEF'
-          AND u.fecha_cotizacion::date >= ${from}::date
+          AND u.fecha_cotizacion::date >= ${periods[0].date_from}::date
           AND u.fecha_cotizacion::date <= ${cutoff}::date
           AND extract(day from u.fecha_cotizacion::date) <= ${Number(cutoff.slice(8,10))}
         GROUP BY 1
       `,
-      sql`
-        WITH sales AS (
-          SELECT upper(trim(v.nro_vin_chasis)) vin,
-                 (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$'
-                   THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
-                   ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at
-          FROM ventas_raw v
-          LEFT JOIN sucursales_master sm ON (
-            lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-            OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
-            OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-          )
-          WHERE btrim(v.categoria_cliente)='Cliente General'
-            AND (${storeId}::text IS NULL OR sm.sucursal_id::text=${storeId}::text)
-            AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
-            AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
-            AND nullif(trim(v.entidad_financiera),'') IS NOT NULL
-            AND upper(trim(v.entidad_financiera)) <> 'FORUM'
-        )
-        SELECT to_char(sold_at,'YYYY-MM') period_month,count(distinct vin)::int other_credits
-        FROM sales
-        WHERE sold_at >= ${from}::date AND sold_at <= ${cutoff}::date
-          AND extract(day from sold_at) <= ${Number(cutoff.slice(8,10))}
-        GROUP BY 1
-      `
-    ]);
-    // UFI = sold VIN with FORUM as financing entity in SALES.
-    const ufis = await sql`
-        WITH sales AS (
-          SELECT upper(trim(v.nro_vin_chasis)) vin,
-                 (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$'
-                   THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
-                   ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at
-          FROM ventas_raw v
-          LEFT JOIN sucursales_master sm ON (
-            lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-            OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
-            OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
-            OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-          )
-          WHERE btrim(v.categoria_cliente)='Cliente General'
-            AND (${storeId}::text IS NULL OR sm.sucursal_id::text=${storeId}::text)
-            AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
-            AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
-            AND nullif(trim(v.entidad_financiera),'') IS NOT NULL
-            AND upper(trim(v.entidad_financiera)) = 'FORUM'
-        )
-        SELECT to_char(sold_at,'YYYY-MM') period_month,count(distinct vin)::int ufi
-        FROM sales
-        WHERE sold_at >= ${from}::date AND sold_at <= ${cutoff}::date
-          AND extract(day from sold_at) <= ${Number(cutoff.slice(8,10))}
-        GROUP BY 1
-      `;
-    const storeForum = !storeId ? await sql`
+      !storeId ? sql`
         WITH matched_stores AS (
           SELECT upper(trim(a.valor_raw)) alias,min(s.sucursal_id)::text store_id
           FROM sucursal_aliases a JOIN sucursales_master s ON s.sucursal_id=a.sucursal_id
@@ -129,24 +99,92 @@ export async function GET(request) {
           count(distinct u.numero_operacion) FILTER (
             WHERE u.estado_actual='APROBADA'
               AND u.fecha_cotizacion::date BETWEEN date_trunc('month',${cutoff}::date)::date AND ${cutoff}::date
-          )::int aprobados,
-          0::int ufi
+          )::int aprobados
         FROM forum_funnel_universe_v01 u JOIN matched_stores ms ON upper(trim(u.sucursal))=ms.alias
         WHERE upper(trim(u.distribuidor))='CIDEF'
           AND (u.fecha_cotizacion::date BETWEEN date_trunc('month',${cutoff}::date)::date AND ${cutoff}::date
             OR u.fecha_curse::date BETWEEN date_trunc('month',${cutoff}::date)::date AND ${cutoff}::date)
         GROUP BY ms.store_id
-      ` : [];
+      ` : []
+    ]);
+    const runId=`proyecciones-finanzas-${cutoff}-${Date.now()}`;
+    const sellerAliasRows=storeId?await sql`
+      WITH active AS (
+        SELECT persona_id FROM weekly_projection_sellers
+        WHERE sucursal_id=${storeId}::bigint AND habilitado=true AND estado='ACTIVO' AND persona_id IS NOT NULL
+      ), unique_aliases AS (
+        SELECT upper(trim(a.valor_raw)) alias,min(a.persona_id)::text persona_id
+        FROM persona_aliases a JOIN active w ON w.persona_id=a.persona_id
+        WHERE a.validated=true AND a.fuente ILIKE '%forum%'
+          AND nullif(trim(a.valor_raw),'') IS NOT NULL
+        GROUP BY upper(trim(a.valor_raw)) HAVING count(DISTINCT a.persona_id)=1
+      )
+      SELECT persona_id,array_agg(alias ORDER BY alias) aliases
+      FROM unique_aliases GROUP BY persona_id
+    `:[]; 
+    const p1 = await withP1Mcp(async client => {
+      const financeEvidence = await Promise.all(periods.map(period => callP1(client,'data_observe',{
+        run_id:`${runId}-${period.label}`,source:'SALES',measure:'VIN_SALES',
+        evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'FINANCIAL_ENTITY',
+        filters:{commercial_universe:'OWN_STORES',date_from:period.date_from,date_to:period.cutoff_date,...(storeId?{store_id:storeId}:{})}
+      })));
+      const storeEvidence = storeId ? null : await callP1(client,'sales_observe_many',{
+        run_id:`${runId}-stores`,period:cutoff.slice(0,7),cutoff,commercial_universe:'OWN_STORES',
+        operations:[{kind:'STORE'},{kind:'STORE_FINANCIAL_ENTITY'}]
+      });
+      const observePrecurse=(runSuffix,filters)=>callP1(client,'data_observe',{
+        run_id:`${runId}-precurse-${runSuffix}`,source:'FORUM',measure:'PRECURSE',
+        evidence_shape:'QUANTITATIVE_OBSERVATION',filters
+      });
+      const precurse = (!storeId || storeAliases.length) ? await observePrecurse(storeId||'company',forumFilters) : null;
+      const precurseByStore = !storeId ? await Promise.all([...aliasesByStore.entries()].map(async ([id,aliases])=>({
+        sucursal_id:id,value:Number((await observePrecurse(`store-${id}`,{network:'OWN_STORES',store:aliases}))?.payload?.value||0)
+      }))) : [];
+      const precurseBySeller = storeId && storeAliases.length ? await Promise.all(sellerAliasRows.map(async row=>({
+        persona_id:String(row.persona_id),
+        value:Number((await observePrecurse(`seller-${row.persona_id}`,{network:'OWN_STORES',store:storeAliases,seller:row.aliases}))?.payload?.value||0)
+      }))) : [];
+      return {financeEvidence,storeEvidence,precurse,precurseByStore,precurseBySeller};
+    });
+    const forumMap=new Map(forum.map(row=>[row.period_month,row]));
+    const financialPeriods=periods.map((period,index)=>{
+      const counts=financeCounts(p1.financeEvidence[index]);
+      const funnel=forumMap.get(period.month)||{};
+      return {...period,cotizaciones:Number(funnel.cotizaciones||0),aprobados:Number(funnel.aprobados||0),
+        ufi:counts.ufi,otros:counts.otros,financing_unresolved:counts.unresolved};
+    });
     const storeMap=new Map();
-    for(const r of storeForum)storeMap.set(r.store_id,{sucursal_id:r.store_id,cotizaciones:Number(r.cotizaciones),aprobados:Number(r.aprobados),ufi:Number(r.ufi),otros:0});
-    const fm=new Map(forum.map(r=>[r.period_month,r])),um=new Map(ufis.map(r=>[r.period_month,r])),om=new Map(others.map(r=>[r.period_month,r]));
-    return NextResponse.json({ok:true,cutoff_date:cutoff,sucursal_id:storeId,stores:[...storeMap.values()],periods:periods.map(p=>({
-      ...p,
-      cotizaciones:Number(fm.get(p.month)?.cotizaciones||0),
-      aprobados:Number(fm.get(p.month)?.aprobados||0),
-      ufi:Number(um.get(p.month)?.ufi||0),
-      otros:Number(om.get(p.month)?.other_credits||0)
-    }))});
+    for(const row of storeForum)storeMap.set(String(row.store_id),{
+      sucursal_id:String(row.store_id),cotizaciones:Number(row.cotizaciones||0),aprobados:Number(row.aprobados||0),ventas:0,ufi:0,otros:0
+    });
+    if(p1.storeEvidence){
+      const resultMap=new Map((p1.storeEvidence.results||[]).map(result=>[result.operation.kind,result.evidence]));
+      const storeSales=resultMap.get('STORE')?.payload?.members||[];
+      for(const member of storeSales){
+        const id=String(member.member_id);
+        const row=storeMap.get(id)||{sucursal_id:id,cotizaciones:0,aprobados:0,ventas:0,ufi:0,otros:0};
+        row.ventas=Number(member.value||0);storeMap.set(id,row);
+      }
+      const financial=resultMap.get('STORE_FINANCIAL_ENTITY')?.payload?.members||[];
+      for(const member of financial){
+        const id=String(memberId(member,'STORE'));
+        if(!id||id==='UNRESOLVED')continue;
+        const row=storeMap.get(id)||{sucursal_id:id,cotizaciones:0,aprobados:0,ventas:0,ufi:0,otros:0};
+        const counts=financeCounts({payload:{members:[{member_id:memberId(member,'FINANCIAL_ENTITY'),value:member.value}]}});
+        row.ufi+=counts.ufi;row.otros+=counts.otros;storeMap.set(id,row);
+      }
+    }
+    for(const item of p1.precurseByStore){
+      const row=storeMap.get(item.sucursal_id)||{sucursal_id:item.sucursal_id,cotizaciones:0,aprobados:0,ventas:0,ufi:0,otros:0};
+      row.precurse=item.value;storeMap.set(item.sucursal_id,row);
+    }
+    const precurseValue=Number(p1.precurse?.payload?.value||0);
+    return NextResponse.json({ok:true,cutoff_date:cutoff,sucursal_id:storeId,
+      precurse:{available:Boolean(p1.precurse),value:p1.precurse?precurseValue:null,snapshot_date:p1.precurse?.temporal?.snapshot_date||null,
+        scope:storeId?'STORE':'OWN_STORES',by_store:p1.precurseByStore,by_seller:p1.precurseBySeller,
+        store_alias_coverage:storeId?storeAliases.length>0:true},
+      stores:[...storeMap.values()].map(row=>({...row,precurse:p1.precurseByStore.find(item=>item.sucursal_id===row.sucursal_id)?.value??null})),
+      periods:financialPeriods});
   } catch (error) {
     console.error(error);
     return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:500});
