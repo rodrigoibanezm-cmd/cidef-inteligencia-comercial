@@ -1,0 +1,232 @@
+import { NextResponse } from 'next/server';
+import { db, withDbTransaction } from '../../../../lib/db.js';
+import { GET as getAdmin } from '../admin/route.js';
+import { GET as getCompanyFinance } from '../company-finance/route.js';
+import { GET as getForumSellers } from '../forum-sellers/route.js';
+import { GET as getBranches } from '../sucursales/route.js';
+import { GET as getSellers } from '../vendedores/route.js';
+import { GET as getProjections } from '../projections/route.js';
+import { GET as getNotInvoiced } from '../not-invoiced/route.js';
+
+export const dynamic = 'force-dynamic';
+
+const bad = (message, status = 400) => NextResponse.json({ ok: false, error: message }, { status });
+
+function dates(params) {
+  const weekStart = params.get('week_start') || '';
+  const cutoffDate = params.get('cutoff_date') || weekStart;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(weekStart) || Number.isNaN(Date.parse(weekStart)) ||
+      new Date(`${weekStart}T00:00:00Z`).toISOString().slice(0, 10) !== weekStart ||
+      new Date(`${weekStart}T12:00:00Z`).getUTCDay() !== 1) {
+    throw new Error('week_start must be a Monday');
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoffDate) || Number.isNaN(Date.parse(cutoffDate)) || new Date(`${cutoffDate}T00:00:00Z`).toISOString().slice(0, 10) !== cutoffDate) {
+    throw new Error('cutoff_date must use YYYY-MM-DD');
+  }
+  return { weekStart, cutoffDate };
+}
+
+function environment() {
+  // This route is deployed only to the staging app; never infer a write target from request headers.
+  return 'staging';
+}
+
+async function call(handler, url) {
+  const response = await handler(new Request(url));
+  const data = await response.json();
+  if (!response.ok || data?.ok !== true) throw new Error(data?.error || `Source endpoint failed (${response.status})`);
+  return data;
+}
+
+function requireArray(value, name) {
+  if (!Array.isArray(value)) throw new Error(`Incomplete source result: ${name}`);
+  return value;
+}
+
+function requireAdmin(value, scope) {
+  if (!value.sales_mtd || !Array.isArray(value.sales_mtd.details) || !value.historical_context ||
+      !Array.isArray(value.historical_context.periods) || !value.next_cut_context) {
+    throw new Error(`Incomplete admin result: ${scope}`);
+  }
+  return value;
+}
+
+function requireFinance(value, scope) {
+  if (!Array.isArray(value.periods) || !Array.isArray(value.stores)) throw new Error(`Incomplete finance result: ${scope}`);
+  return value;
+}
+
+function resultRow({ weekStart, cutoffDate, env, dimension, scopeKey, storeId = null, personId = null, payload }) {
+  if (!payload || typeof payload !== 'object') throw new Error(`Incomplete ${dimension} result: ${scopeKey}`);
+  return { weekStart, cutoffDate, env, dimension, scopeKey, storeId, personId, payload };
+}
+
+function sum(rows, field) { return rows.reduce((total, row) => total + Number(row[field] || 0), 0); }
+
+export async function GET(request) {
+  try {
+    const url = new URL(request.url), { weekStart, cutoffDate } = dates(url.searchParams);
+    const env = environment(), storeId = url.searchParams.get('sucursal_id') || null;
+    if (storeId && !/^\d+$/.test(storeId)) return bad('Invalid sucursal_id');
+    const sql = db();
+    const rows = await sql`
+      SELECT dimension, scope_key, sucursal_id::text, persona_id::text, payload, updated_at::text
+      FROM weekly_projection_results
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+        AND scope_key=${storeId ? `STORE:${storeId}` : 'COMPANY'}
+    `;
+    if (!rows.length) return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
+    const cached = rows[0];
+    const branches = await call(getBranches, `${url.origin}/api/weekly-projections/sucursales`);
+    const scopeStores = storeId ? branches.sucursales.filter(s => String(s.sucursal_id) === storeId) : branches.sucursales;
+    if (!scopeStores.length) throw new Error('No fue posible resolver la tienda del resultado');
+
+    // Projections and sent-not-invoiced remain live reads from their current tables.
+    const liveByStore = await Promise.all(scopeStores.map(async (store) => {
+      const sid = String(store.sucursal_id);
+      const [projectionData, sentData] = await Promise.all([
+        call(getProjections, `${url.origin}/api/weekly-projections/projections?sucursal_id=${sid}&week_start=${weekStart}`),
+        call(getNotInvoiced, `${url.origin}/api/weekly-projections/not-invoiced?sucursal_id=${sid}&week_start=${weekStart}`),
+      ]);
+      return {
+        projections: projectionData.projections.map(row => ({ ...row, sucursal_id: sid, sucursal: store.nombre_canonico })),
+        sent: sentData.items.map(row => ({ ...row, sucursal_id: sid, sucursal: store.nombre_canonico })),
+      };
+    }));
+    const projections = liveByStore.flatMap(x => x.projections);
+    const sent = liveByStore.flatMap(x => x.sent);
+    const payload = cached.payload.admin;
+    payload.projections = projections;
+    payload.sent_not_invoiced = sent;
+    payload.summary = { total_units: sum(projections, 'projected_units'), sent_not_invoiced_units: sum(sent, 'units') };
+    const current = payload.historical_context.periods.find(p => p.label === 'CURRENT');
+    payload.next_cut_context.expected_units = Number(current.mtd_units || 0) + payload.summary.total_units;
+
+    // The current cut's live projections also feed the previous-cut comparison.
+    if (payload.evolution?.previous_cut) {
+      const previousByStore = await Promise.all(scopeStores.map(async (store) => {
+        const data = await call(getProjections, `${url.origin}/api/weekly-projections/projections?sucursal_id=${store.sucursal_id}&week_start=${payload.evolution.previous_cut}`);
+        return { store, units: sum(data.projections, 'projected_units') };
+      }));
+      const previousTotal = sum(previousByStore, 'units');
+      payload.evolution.previous_projection = previousTotal;
+      payload.evolution.expected_current = Number(payload.evolution.previous_sales_mtd || 0) + previousTotal;
+      if (payload.evolution.stores?.length) {
+        const old = new Map(previousByStore.map(x => [String(x.store.sucursal_id), x.units]));
+        for (const row of payload.evolution.stores) {
+          const projected = old.get(String(row.sucursal_id)) || 0;
+          row.previous_projection = projected;
+          row.expected_current = Number(row.previous_sales_mtd || 0) + projected;
+          row.projection_fulfillment = projected ? Number(row.new_sales || 0) / projected : null;
+          row.expected_fulfillment = row.expected_current ? Number(row.current_sales_mtd || 0) / row.expected_current : null;
+        }
+      }
+    }
+
+    const sellers = storeId ? await sql`
+      SELECT payload FROM weekly_projection_results
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+        AND dimension='SELLER' AND sucursal_id=${storeId}::bigint
+      ORDER BY persona_id
+    ` : [];
+    const sellerPayloads = sellers.map(r => r.payload);
+    return NextResponse.json({
+      ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
+      admin: payload, companyFinance: cached.payload.companyFinance,
+      forumSellerData: storeId ? {
+        aliases: cached.payload.aliases,
+        forum: sellerPayloads.map(x => x.forum).filter(Boolean),
+      } : { aliases: [], forum: [] },
+      updated_at: cached.updated_at,
+    });
+  } catch (error) {
+    console.error(error);
+    if (error?.code === '42P01') return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
+    return bad(error?.message || 'Internal server error', 500);
+  }
+}
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const { weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' }));
+    const env = environment(), origin = new URL(request.url).origin;
+    const branches = await call(getBranches, `${origin}/api/weekly-projections/sucursales`);
+    if (!Array.isArray(branches.sucursales) || !branches.sucursales.length) throw new Error('No se recibieron tiendas para calcular los resultados');
+    const rows = [];
+    const companyParams = `week_start=${weekStart}&cutoff_date=${cutoffDate}`;
+    const companyAdmin = requireAdmin(await call(getAdmin, `${origin}/api/weekly-projections/admin?${companyParams}`), 'COMPANY');
+    const companyFinance = requireFinance(await call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}`), 'COMPANY');
+    delete companyAdmin.projections;
+    delete companyAdmin.sent_not_invoiced;
+    companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
+    rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
+
+    for (const store of branches.sucursales) {
+      const storeId = String(store.sucursal_id);
+      const params = `week_start=${weekStart}&cutoff_date=${cutoffDate}&sucursal_id=${storeId}`;
+      const [admin, companyFinanceByStore, sellerData, roster] = await Promise.all([
+        call(getAdmin, `${origin}/api/weekly-projections/admin?${params}`),
+        call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&sucursal_id=${storeId}`),
+        call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?sucursal_id=${storeId}&cutoff_date=${cutoffDate}`),
+        call(getSellers, `${origin}/api/weekly-projections/vendedores?sucursal_id=${storeId}`),
+      ]);
+      requireAdmin(admin, `STORE:${storeId}`);
+      requireFinance(companyFinanceByStore, `STORE:${storeId}`);
+      requireArray(sellerData.aliases, `SELLER_ALIASES:${storeId}`);
+      requireArray(sellerData.forum, `SELLER_FORUM:${storeId}`);
+      requireArray(roster.vendedores, `SELLER_ROSTER:${storeId}`);
+      delete admin.projections;
+      delete admin.sent_not_invoiced;
+      admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
+      const financePayload = { admin, companyFinance: companyFinanceByStore, aliases: sellerData.aliases };
+      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: financePayload }));
+      const sellerIds = new Set((roster.vendedores || []).map(s => String(s.persona_id)).filter(id => id && id !== 'null'));
+      for (const sellerId of sellerIds) {
+        const forum = sellerData.forum.find(s => String(s.persona_id) === sellerId) || null;
+        rows.push(resultRow({
+          weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`,
+          storeId, personId: sellerId, payload: { forum },
+        }));
+      }
+    }
+
+    await withDbTransaction(async client => {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS weekly_projection_results (
+          week_start date NOT NULL,
+          cutoff_date date NOT NULL,
+          environment text NOT NULL CHECK (environment IN ('staging','production')),
+          dimension text NOT NULL CHECK (dimension IN ('COMPANY','STORE','SELLER')),
+          scope_key text NOT NULL,
+          sucursal_id bigint,
+          persona_id bigint,
+          payload jsonb NOT NULL,
+          updated_at timestamptz NOT NULL DEFAULT now(),
+          PRIMARY KEY (week_start, cutoff_date, environment, scope_key)
+        )
+      `);
+      await client.query(
+        'DELETE FROM weekly_projection_results WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3',
+        [weekStart, cutoffDate, env],
+      );
+      for (const row of rows) {
+        await client.query(
+          `INSERT INTO weekly_projection_results
+            (week_start,cutoff_date,environment,dimension,scope_key,sucursal_id,persona_id,payload,updated_at)
+           VALUES ($1::date,$2::date,$3,$4,$5,$6::bigint,$7::bigint,$8::jsonb,now())`,
+          [row.weekStart, row.cutoffDate, row.env, row.dimension, row.scopeKey, row.storeId, row.personId, JSON.stringify(row.payload)],
+        );
+      }
+    });
+    const sql = db();
+    const updated = await sql`
+      SELECT max(updated_at)::text updated_at FROM weekly_projection_results
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+    `;
+    return NextResponse.json({ ok: true, week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: updated[0].updated_at });
+  } catch (error) {
+    console.error(error);
+    return bad(error?.message || 'Internal server error', 500);
+  }
+}
