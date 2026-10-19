@@ -3,82 +3,152 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-const DEFINITIONS = [
-  { id: "sales", name: "Ventas", note: "VIN facturados · SALES P1" },
-  { id: "quotations", name: "Cotizaciones", note: "FORUM · fecha de cotización" },
-  { id: "precurse", name: "Precurse", note: "Stock de operaciones · último snapshot" },
-  { id: "ufis", name: "UFIs ejecutadas", note: "Unidades financiadas · fecha Curse" },
-  { id: "rvm_units", name: "Inscripciones RVM", note: "Unidades inscritas · snapshot RVM" },
-  { id: "rvm_share", name: "Participación RVM", note: "Porcentaje · universo comparable P1/P2" }
+const SOURCES = [
+  { id: "sales", title: "Ventas", source: "SALES", subtitle: "VIN facturados · corte diario", unit: "units" },
+  { id: "quotations", title: "Cotizaciones", source: "FORUM", subtitle: "Cotizaciones registradas", unit: "units" },
+  { id: "precurse", title: "Precurse", source: "FORUM", subtitle: "Stock del último snapshot", unit: "units", snapshot: true },
+  { id: "ufis", title: "UFIs ejecutadas", source: "FORUM", subtitle: "Unidades financiadas · fecha Curse", unit: "units" },
+  { id: "rvm_units", title: "Inscripciones", source: "RVM", subtitle: "Unidades inscritas · corte RVM", unit: "units" },
+  { id: "rvm_share", title: "Participación de mercado", source: "RVM / P2", subtitle: "Porcentaje sobre universo comparable", unit: "percent" }
 ];
 
-function safeMeasure(response, id) {
+function certified(response, id) {
   const item = response?.indicators?.find?.(entry => entry?.id === id);
-  if (!item || item.certified !== true || !item.cutoff || !item.source || !item.evidence_id) return null;
-  return item;
+  return item?.certified === true && item?.cutoff && item?.source && item?.evidence_id ? item : null;
 }
 
-function fmt(value, kind) {
-  if (value == null || typeof value !== "number" || !Number.isFinite(value)) return "—";
-  return new Intl.NumberFormat("es-CL", { maximumFractionDigits: kind === "percent" ? 2 : 0 }).format(value) + (kind === "percent" ? " %" : "");
+function number(value, unit) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat("es-CL", { maximumFractionDigits: unit === "percent" ? 2 : 0 }).format(value) + (unit === "percent" ? " %" : "");
 }
 
-function KPI({ definition, item, loading }) {
-  const values = item?.values || {};
-  const points = Array.isArray(item?.series) ? item.series.filter(p => p && typeof p.period === "string") : [];
-  return <article className="cv-kpi" aria-label={definition.name}>
-    <div className="cv-kpi-header"><h2>{definition.name}</h2><span className={item ? "cv-state cv-state-ready" : "cv-state"}>{item ? "Certificado" : loading ? "Consultando" : "Sin evidencia"}</span></div>
-    <p className="cv-metric-note">{definition.note}</p>
-    <div className="cv-total"><span>Compañía</span><strong>{fmt(values.company, item?.unit)}</strong></div>
-    <div className="cv-brand-row"><div><span>FOTON</span><strong>{fmt(values.foton, item?.unit)}</strong></div><div><span>DONGFENG</span><strong>{fmt(values.dongfeng, item?.unit)}</strong></div></div>
-    <div className="cv-history">
-      <div className="cv-history-header"><strong>Trayectoria mensual</strong><span>{points.length ? points.length + " períodos" : "Pendiente"}</span></div>
-      {points.length ? <div className="cv-history-values">{points.map(p => <div key={p.period}><span>{p.period}</span><strong>{fmt(p.company, item?.unit)}</strong></div>)}</div>
-        : <p>Serie certificada no disponible.</p>}
-    </div>
-    <div className="cv-source"><span>Corte: {item?.cutoff || "No disponible"}</span><span>Fuente: {item?.source || "Sin verificar"}</span></div>
+function Metric({ label, value, unit, major }) {
+  return <div className={major ? "cv2-number cv2-number-major" : "cv2-number"}>
+    <span>{label}</span><strong>{number(value, unit)}</strong>
+  </div>;
+}
+
+function Provenance({ item, snapshot }) {
+  return <div className="cv2-provenance">
+    <span>{snapshot ? "Último snapshot" : "Corte de fuente"}: <strong>{item?.cutoff || "Pendiente"}</strong></span>
+    <span>{item?.source || "Sin evidencia publicada"}</span>
+  </div>;
+}
+
+function IndexedChart({ item, compact = false }) {
+  // Indexed P2 points only. Do not derive base-100 indices from P1 totals in the browser.
+  const series = Array.isArray(item?.indexed_series) ? item.indexed_series : [];
+  const valid = series.filter(point => point && typeof point.period === "string");
+  const min = 60, max = 160;
+  const keys = [{ id: "company", label: "Compañía", css: "cv2-line-company" }, { id: "own_stores", label: "Tiendas propias", css: "cv2-line-own" }, { id: "dealers", label: "Dealers", css: "cv2-line-dealers" }];
+  const bounded = (n) => Math.max(0, Math.min(100, (n - min) / (max - min) * 100));
+  const hasCertifiedIndex = item?.certification?.index_base === 100 && valid.length >= 2;
+  return <div className="cv2-chart">
+    <div className="cv2-chart-title"><strong>Evolución base 100</strong><span>6 meses · P2</span></div>
+    {hasCertifiedIndex ? <div className="cv2-chart-plot">
+      <svg viewBox="0 0 380 135" role="img" aria-label="Índices certificados para Compañía, Tiendas propias y Dealers" preserveAspectRatio="none">
+        {[100, 125, 150].map(v => <g key={v}><line x1="28" x2="376" y1={121-bounded(v)*1.02} y2={121-bounded(v)*1.02} stroke="#e5eaf1" strokeDasharray="3 5"/><text x="1" y={125-bounded(v)*1.02} fontSize="10" fill="#8492a5">{v}</text></g>)}
+        {keys.map(k => {
+          const entries = valid.map((p, i) => ({ i, v: p[k.id] })).filter(p => typeof p.v === "number" && Number.isFinite(p.v));
+          if (entries.length !== valid.length) return null;
+          const points = entries.map(p => `${28 + p.i * 348 / (valid.length - 1)},${121 - bounded(p.v) * 1.02}`).join(" ");
+          return <polyline key={k.id} points={points} className={k.css} fill="none" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round"/>;
+        })}
+      </svg>
+      <div className="cv2-chart-periods"><span>{valid[0]?.period}</span><span>{valid[valid.length-1]?.period}</span></div>
+    </div> : <div className={compact ? "cv2-chart-empty cv2-chart-empty-small" : "cv2-chart-empty"}>
+      <svg width="80" height="35" viewBox="0 0 80 35" aria-hidden="true"><path d="M3 27 21 20 37 23 52 9 76 5" fill="none" stroke="#a8b7c8" strokeWidth="2.5" strokeLinecap="round"/><path d="M3 27 21 20 37 23 52 9 76 5" fill="none" stroke="#a8b7c8" strokeDasharray="1 7" strokeWidth="4"/></svg>
+      <span>Esperando serie indexada certificada</span>
+    </div>}
+    <div className="cv2-legend"><span><i className="cv2-key-company"/>Compañía</span><span><i className="cv2-key-own"/>Tiendas propias</span><span><i className="cv2-key-dealers"/>Dealers</span></div>
+  </div>;
+}
+
+function Channels({ item, unit }) {
+  const channels = item?.channels;
+  return <div className="cv2-channel-table">
+    <div className="cv2-table-head"><span>Canal</span><span>FOTON</span><span>DONGFENG</span><span>Total</span></div>
+    {[["own_stores", "Tiendas propias"], ["dealers", "Dealers"]].map(([key, label]) => <div className="cv2-table-row" key={key}>
+      <strong>{label}</strong><span>{number(channels?.[key]?.foton, unit)}</span><span>{number(channels?.[key]?.dongfeng, unit)}</span><span>{number(channels?.[key]?.company, unit)}</span>
+    </div>)}
+  </div>;
+}
+
+function Summary({ item, unit }) {
+  return <div className="cv2-summary">
+    <Metric label="Total Compañía" value={item?.values?.company} unit={unit} major/>
+    <div className="cv2-brand-totals"><Metric label="FOTON" value={item?.values?.foton} unit={unit}/><Metric label="DONGFENG" value={item?.values?.dongfeng} unit={unit}/></div>
+  </div>;
+}
+
+function SourceCard({ def, item, loading, rvm = false }) {
+  return <article className="cv2-card">
+    <header className="cv2-card-head">
+      <div><span className="cv2-source-tag">{def.source}</span><h3>{def.title}</h3><p>{def.subtitle}</p></div>
+      <span className={item ? "cv2-certified" : "cv2-unavailable"}>{item ? "Certificado" : loading ? "Consultando" : "Pendiente"}</span>
+    </header>
+    <Summary item={item} unit={def.unit}/>
+    {def.snapshot ? <div className="cv2-snapshot"><strong>Stock vigente</strong><p>Fotografía del último snapshot disponible, independiente del mes seleccionado. No corresponde a una serie mensual.</p></div>
+      : <IndexedChart item={item} compact/>}
+    {!rvm && <div className="cv2-channel-detail"><span>Canales</span><Channels item={item} unit={def.unit}/></div>}
+    {rvm && <p className="cv2-rvm-note">Universo RVM. No se presenta apertura por canal comercial sin contrato certificado.</p>}
+    <Provenance item={item} snapshot={def.snapshot}/>
   </article>;
 }
 
+function SectionTitle({ count, title, subtitle, badge }) {
+  return <div className="cv2-section-title"><div className="cv2-section-number">{count}</div><div><h2>{title}</h2><p>{subtitle}</p></div><span>{badge}</span></div>;
+}
+
 export default function ComoVamos() {
-  const [period, setPeriod] = useState(() => new Date().toLocaleDateString("en-CA", { timeZone: "America/Santiago" }).slice(0, 7));
+  const [period, setPeriod] = useState(() => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", year: "numeric", month: "2-digit" }).format(new Date()));
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const refresh = useCallback(async (signal) => {
-    setLoading(true);
-    setError("");
-    setData(null);
+    setLoading(true); setError(""); setData(null);
     try {
       const response = await fetch("/api/como-vamos?period=" + encodeURIComponent(period), { cache: "no-store", signal });
-      if (!response.ok) throw new Error(response.status === 503 ? "La conexión con los motores certificados aún no está habilitada." : "No se pudieron consultar los motores (" + response.status + ").");
+      if (!response.ok) throw new Error(response.status === 503 ? "La API de indicadores certificados todavía no está conectada." : "Consulta no disponible (" + response.status + ").");
       const payload = await response.json();
-      if (!payload || payload.period !== period || !Array.isArray(payload.indicators)) throw new Error("Respuesta no válida de los motores.");
+      if (payload?.period !== period || !Array.isArray(payload?.indicators)) throw new Error("Respuesta de indicadores no válida.");
       setData(payload);
-    } catch (err) {
-      if (err.name !== "AbortError") setError(err.message || "No se pudo obtener la información.");
-    } finally {
-      if (!signal?.aborted) setLoading(false);
-    }
+    } catch (e) {
+      if (e.name !== "AbortError") setError(e.message || "No se pudieron recuperar los datos.");
+    } finally { if (!signal?.aborted) setLoading(false); }
   }, [period]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    refresh(controller.signal);
-    return () => controller.abort();
-  }, [refresh]);
+  useEffect(() => { const c = new AbortController(); refresh(c.signal); return () => c.abort(); }, [refresh]);
+  const pick = id => certified(data, id);
 
-  return <main className="shell cv-page">
-    <header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">MES ABIERTO</span></header>
-    <section className="cv-heading">
-      <div><span className="eyebrow">SEGUIMIENTO COMERCIAL</span><h1>¿Cómo vamos?</h1><p>Indicadores consultados al abrir la vista. Cada fuente conserva su propio corte certificado.</p></div>
-      <div className="cv-controls"><label htmlFor="cv-period">Período</label><input id="cv-period" type="month" value={period} onChange={event => setPeriod(event.target.value)} /><button type="button" onClick={() => refresh()} disabled={loading}>{loading ? "Consultando…" : "Actualizar"}</button></div>
+  return <main className="shell cv2-page">
+    <header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">SEGUIMIENTO VIVO</span></header>
+    <div className="cv2-heading"><div><div className="eyebrow">INTELIGENCIA COMERCIAL · COMPAÑÍA</div><h1>¿Cómo vamos?</h1><p>Tres miradas independientes al negocio, con el corte certificado de cada fuente.</p></div>
+      <div className="cv2-controls"><label htmlFor="cv2-period">Período</label><input id="cv2-period" type="month" value={period} onChange={event => setPeriod(event.target.value)} aria-label="Período de consulta"/><button disabled={loading} onClick={() => refresh()}>{loading ? "Consultando…" : "Actualizar"}</button></div></div>
+    {error && <p className="cv2-alert" role="status">{error} Los indicadores sin evidencia permanecen vacíos.</p>}
+    <section className="cv2-section" aria-labelledby="cv2-sales">
+      <SectionTitle count="01" title="Ventas" subtitle="¿Cómo estamos vendiendo?" badge="SALES · CORTE DIARIO"/>
+      <div className="cv2-sales-layout">
+        <div className="cv2-sales-main">
+          <h3 id="cv2-sales" className="cv2-block-label">VIN FACTURADOS</h3>
+          <Summary item={pick("sales")} unit="units"/>
+          <Channels item={pick("sales")} unit="units"/>
+          <Provenance item={pick("sales")}/>
+        </div>
+        <div className="cv2-sales-chart"><IndexedChart item={pick("sales")}/></div>
+      </div>
     </section>
-    {error && <div role="status" className="cv-notice">{error} No se mostrarán cifras sin evidencia certificada.</div>}
-    <section className="cv-grid" aria-label="Indicadores de Compañía">
-      {DEFINITIONS.map(definition => <KPI key={definition.id} definition={definition} item={safeMeasure(data, definition.id)} loading={loading} />)}
+    <section className="cv2-section" aria-labelledby="cv2-forum">
+      <SectionTitle count="02" title="FORUM" subtitle="¿Cómo avanza el financiamiento?" badge="CORTES FORUM"/>
+      <h3 id="cv2-forum" className="cv2-sr-only">Indicadores FORUM</h3>
+      <div className="cv2-three-cols">{SOURCES.slice(1,4).map(d => <SourceCard key={d.id} def={d} item={pick(d.id)} loading={loading}/>)}</div>
     </section>
-    <p className="cv-footer-note">Las cifras provendrán exclusivamente de contratos P1/P2 con trazabilidad P3 cuando aplique. Precurse es stock al snapshot; no representa un flujo mensual. RVM mantiene su propio período de publicación.</p>
+    <section className="cv2-section" aria-labelledby="cv2-rvm">
+      <SectionTitle count="03" title="RVM" subtitle="¿Cómo nos comportamos frente al mercado?" badge="SNAPSHOT RVM"/>
+      <h3 id="cv2-rvm" className="cv2-sr-only">Indicadores RVM</h3>
+      <div className="cv2-two-cols">{SOURCES.slice(4).map(d => <SourceCard key={d.id} def={d} item={pick(d.id)} loading={loading} rvm/>)}</div>
+    </section>
+    <p className="cv2-footer-note">Las fuentes no comparten necesariamente fechas ni universos. Los índices base 100 requieren resultados certificados de P2; no se calculan en esta página.</p>
   </main>;
 }
