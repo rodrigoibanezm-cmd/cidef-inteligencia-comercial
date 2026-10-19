@@ -151,15 +151,23 @@ async function calculate(request) {
     const p1 = await withP1Mcp(async client => {
       // SALES P1's bundled STORE_FINANCIAL_ENTITY observation returns the same certified
       // VIN-by-financier split without triggering separate temporal-fingerprint queries.
-      const financeEvidence = [];
-      for (const period of periods) {
-        currentStep='SALES P1 STORE_FINANCIAL_ENTITY '+period.month;
-        financeEvidence.push(await callP1(client,'sales_observe_many',{
-          run_id:`${runId}-${period.label}`,period:period.month,cutoff:period.cutoff_date,
-          commercial_universe:'OWN_STORES',
-          operations:[...(period.label==='CURRENT'&&!storeId?[{kind:'STORE'}]:[]),{kind:'STORE_FINANCIAL_ENTITY'}]
-        }));
-      }
+      // Each period is an independent certified P1 slice. Run the four cold
+      // slices concurrently so the first calculation finishes before the
+      // Container Apps response stream expires.
+      const financeEvidence = await Promise.all(periods.map(async period => {
+        const stage='SALES P1 STORE_FINANCIAL_ENTITY '+period.month;
+        currentStep=stage;
+        try {
+          return await callP1(client,'sales_observe_many',{
+            run_id:`${runId}-${period.label}`,period:period.month,cutoff:period.cutoff_date,
+            commercial_universe:'OWN_STORES',
+            operations:[...(period.label==='CURRENT'&&!storeId?[{kind:'STORE'}]:[]),{kind:'STORE_FINANCIAL_ENTITY'}]
+          });
+        } catch(error) {
+          currentStep=stage;
+          throw new Error(stage+': '+(error?.message||'P1 request failed'));
+        }
+      }));
       const storeEvidence = storeId ? null : financeEvidence[financeEvidence.length-1];
       const observePrecurse=(runSuffix,filters,dimension)=>callP1(client,'data_observe',{
         run_id:`${runId}-precurse-${runSuffix}`,source:'FORUM',measure:'PRECURSE',
