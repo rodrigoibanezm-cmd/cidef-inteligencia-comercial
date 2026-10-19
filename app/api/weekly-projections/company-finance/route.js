@@ -269,6 +269,7 @@ export async function GET(request) {
         if (!labels.every((label,index)=>payload.periods[index]?.label === label)) return false;
         if (!payload.periods.every(period=>['cotizaciones','aprobados','ufi','otros'].every(field=>typeof period[field] === 'number' && Number.isFinite(period[field])))) return false;
         if (!Array.isArray(payload.stores)) return false;
+        if (!payload.stores.every(store=>['ventas','cotizaciones','aprobados','ufi','otros'].every(field=>typeof store[field] === 'number' && Number.isFinite(store[field])))) return false;
         if (payload.sucursal_id == null && (payload.precurse?.available !== true || typeof payload.precurse?.value !== 'number' || !Number.isFinite(payload.precurse.value))) return false;
         return true;
       },
