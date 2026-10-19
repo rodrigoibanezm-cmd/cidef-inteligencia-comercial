@@ -38,6 +38,7 @@ function memberId(row, dimension) {
 }
 
 async function calculate(request) {
+  let currentStep='request validation';
   try {
     const params = new URL(request.url).searchParams;
     const cutoff = params.get('cutoff_date');
@@ -53,6 +54,7 @@ async function calculate(request) {
         date_from:periodCutoff.slice(0,7)+'-01'};
     });
     const sql = db();
+    currentStep='Azure PostgreSQL store aliases';
     const storeAliasRows = await sql`
       WITH candidates AS (
         SELECT upper(trim(a.valor_raw)) alias,s.sucursal_id::text store_id
@@ -73,6 +75,7 @@ async function calculate(request) {
     const forumFilters = storeAliases.length
       ? { network:'OWN_STORES', store:storeAliases.map(row=>row.alias) }
       : { network:'OWN_STORES' };
+    currentStep='Azure PostgreSQL Forum quotation aggregates';
     const [forum, storeForum] = await Promise.all([
       sql`
         WITH matched_stores AS (
@@ -118,6 +121,7 @@ async function calculate(request) {
       ` : []
     ]);
     const runId=`proyecciones-finanzas-${cutoff}-${Date.now()}`;
+    currentStep='Azure PostgreSQL seller aliases';
     const sellerAliasRows=storeId?await sql`
       WITH active AS (
         SELECT persona_id FROM weekly_projection_sellers
@@ -137,6 +141,7 @@ async function calculate(request) {
       // VIN-by-financier split without triggering separate temporal-fingerprint queries.
       const financeEvidence = [];
       for (const period of periods) {
+        currentStep='SALES P1 STORE_FINANCIAL_ENTITY '+period.month;
         financeEvidence.push(await callP1(client,'sales_observe_many',{
           run_id:`${runId}-${period.label}`,period:period.month,cutoff:period.cutoff_date,
           commercial_universe:'OWN_STORES',
@@ -151,11 +156,13 @@ async function calculate(request) {
       });
       // P1 dimensional PRECURSE is the certified source for the same latest snapshot.
       // One STORE/SELLER observation replaces one database observation per store/seller.
+      currentStep=storeId?'FORUM P1 PRECURSE store snapshot':'FORUM P1 PRECURSE by STORE';
       const precurse = !storeId
         ? await observePrecurse('stores',forumFilters,'STORE')
         : storeAliases.length ? await observePrecurse('store',forumFilters) : null;
       const storePrecurse = !storeId ? new Map((precurse?.payload?.members||[])
         .map(row=>[String(row.member_id),Number(row.value||0)])) : new Map();
+      currentStep='FORUM P1 PRECURSE by SELLER';
       const sellerPrecurse = storeId && storeAliases.length && sellerAliasRows.length
         ? await observePrecurse('sellers',forumFilters,'SELLER') : null;
       const sellerPrecurseById = new Map((sellerPrecurse?.payload?.members||[])
@@ -209,7 +216,7 @@ async function calculate(request) {
       periods:financialPeriods});
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:500});
+    return NextResponse.json({ok:false,error:currentStep+': '+(error?.message||'Internal server error')},{status:500});
   }
 }
 
