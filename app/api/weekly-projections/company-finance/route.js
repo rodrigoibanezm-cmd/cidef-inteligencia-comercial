@@ -33,8 +33,8 @@ async function calculate(request) {
     const params = new URL(request.url).searchParams;
     const cutoff = params.get('cutoff_date');
     const storeId = params.get('sucursal_id') || null;
-    if (storeId && !/^\\d+$/.test(storeId)) return NextResponse.json({ok:false,error:'Invalid sucursal_id'},{status:400});
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(cutoff || '') ||
+    if (storeId && !/^\d+$/.test(storeId)) return NextResponse.json({ok:false,error:'Invalid sucursal_id'},{status:400});
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoff || '') ||
         Number.isNaN(Date.parse(cutoff)) || new Date(cutoff).toISOString().slice(0,10)!==cutoff) {
       return NextResponse.json({ok:false,error:'Invalid cutoff_date'}, {status:400});
     }
