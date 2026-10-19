@@ -24,6 +24,16 @@ function plusDays(date,n){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.g
 function monthStart(date){return `${date.slice(0,7)}-01`}
 const ratio=(n,d)=>d? n/d:null;
 function normalizeDate(v){return v ? String(v).slice(0,10) : null}
+function financeCounts(evidence) {
+  const counts={ufi:0,otros:0,unresolved:0};
+  for(const member of evidence?.payload?.members||[]){
+    const entity=String(member.member_id??'').trim().toUpperCase(),value=Number(member.value||0);
+    if(entity==='UNRESOLVED'||!entity)counts.unresolved+=value;
+    else if(entity==='FORUM')counts.ufi+=value;
+    else counts.otros+=value;
+  }
+  return counts;
+}
 function periodSnapshot(all, cutoff, label, storeId) {
   const from=monthStart(cutoff), weekFrom=minusDays(cutoff,6);
   const rows=all.filter(r=>(!storeId||String(r.sucursal_id)===String(storeId)) && r.fecha_venta>=from && r.fecha_venta<=cutoff);
@@ -44,16 +54,28 @@ async function calculate(request) {
     const salesFilters={commercial_universe:'OWN_STORES',date_from:historyFrom,date_to:cutoffDate,...(storeId?{store_id:storeId}:{})};
     const salesEvidence=await withP1Mcp(async client=>callP1(client,'data_fetch',{
       run_id:p1RunId,source:'SALES',filters:salesFilters,
-      fields:['vin','sale_date','invoice','brand_id','model_id','version_id','store_id','store_label','seller_id','financial_entity']
+      fields:['vin','sale_date','invoice','brand_id','model_id','version_id','store_id','store_label','seller_id']
     }));
-    let sellerLabels=new Map();
+    let sellerLabels=new Map(),sellerFinance=[];
     if(storeId){
       const sellers=await withP1Mcp(async client=>callP1(client,'data_observe',{
         run_id:p1RunId+'-sellers',source:'SALES',measure:'VIN_SALES',
         evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'SELLER',
         filters:{...salesFilters,date_from:monthStart(cutoffDate),date_to:cutoffDate}
       }));
-      sellerLabels=new Map((sellers.payload?.members||[]).map(row=>[String(row.member_id),row.member_label]));
+      const sellerMembers=sellers.payload?.members||[];
+      sellerLabels=new Map(sellerMembers.map(row=>[String(row.member_id),row.member_label]));
+      sellerFinance=await withP1Mcp(async client=>Promise.all(sellerMembers
+        .filter(row=>row.member_id!=null&&String(row.member_id)!=='UNRESOLVED')
+        .map(async row=>{
+          const sellerId=String(row.member_id);
+          const evidence=await callP1(client,'data_observe',{
+            run_id:`${p1RunId}-finance-${sellerId}`,source:'SALES',measure:'VIN_SALES',
+            evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'FINANCIAL_ENTITY',
+            filters:{...salesFilters,date_from:monthStart(cutoffDate),date_to:cutoffDate,seller_id:sellerId}
+          });
+          return {persona_id:sellerId,...financeCounts(evidence)};
+        })));
     }
     const all=(salesEvidence.rows||[]).map(r=>{
       const sellerId=r.seller_id==null?null:String(r.seller_id);
@@ -62,7 +84,7 @@ async function calculate(request) {
         vin:r.vin,fecha_venta:normalizeDate(r.sale_date),sucursal_id:r.store_id==null?null:String(r.store_id),
         sucursal:r.store_label||'Tienda no resuelta',vendedor:sellerName||sellerId||'Usuario ERP sin nombre',
         persona_id:sellerId,vendedor_nombre:sellerName||'Usuario ERP sin nombre',
-        entidad_financiera:r.financial_entity,marca:r.brand_id||'Sin marca',modelo:r.model_id||'Sin modelo',
+        marca:r.brand_id||'Sin marca',modelo:r.model_id||'Sin modelo',
         factura:r.invoice
       };
     }).filter(r=>r.fecha_venta);
@@ -119,7 +141,7 @@ async function calculate(request) {
     const nextPrior=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(nextCut,delta),`M-${3-i}`,storeId));
     const nextAvg=nextPrior.reduce((s,p)=>s+p.mtd_units,0)/nextPrior.length;
     const nextCutContext={cutoff_date:nextCut,expected_units:expectedNext,prior_periods:nextPrior,prior_average:nextAvg,change_vs_prior_average:ratio(expectedNext-nextAvg,nextAvg)};
-    return NextResponse.json({ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections});
+    return NextResponse.json({ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails,seller_finance:sellerFinance},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections});
   } catch(error){console.error(error);return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:400});}
 }
 
