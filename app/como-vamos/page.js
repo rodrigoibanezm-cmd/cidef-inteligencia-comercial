@@ -101,7 +101,7 @@ function SectionTitle({ count, title, subtitle, badge }) {
 }
 
 export default function ComoVamos() {
-  const [period, setPeriod] = useState(() => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", year: "numeric", month: "2-digit" }).format(new Date()));
+  const [period, setPeriod] = useState(() => { const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Santiago", year: "numeric", month: "2-digit" }).formatToParts(new Date()); return parts.find(p => p.type === "year").value + "-" + parts.find(p => p.type === "month").value; });
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
