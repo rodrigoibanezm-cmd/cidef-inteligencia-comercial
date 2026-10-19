@@ -22,11 +22,16 @@ function financeCounts(evidence, storeId = null) {
   }
   const members = data.payload.members;
   for (const member of members) {
+    if (grouped && (!Array.isArray(member.members) ||
+      !member.members.some(item => item.dimension === 'FINANCIAL_ENTITY') ||
+      !member.members.some(item => item.dimension === 'STORE'))) {
+      throw new Error('SALES P1 STORE_FINANCIAL_ENTITY returned a member without required dimensions');
+    }
     const entityId = grouped
-      ? member.members?.find(item => item.dimension === 'FINANCIAL_ENTITY')?.member_id
+      ? member.members.find(item => item.dimension === 'FINANCIAL_ENTITY')?.member_id
       : member.member_id;
     const memberStore = grouped
-      ? member.members?.find(item => item.dimension === 'STORE')?.member_id
+      ? member.members.find(item => item.dimension === 'STORE')?.member_id
       : null;
     if (storeId && String(memberStore) !== String(storeId)) continue;
     const entity = String(entityId ?? '').trim().toUpperCase();
