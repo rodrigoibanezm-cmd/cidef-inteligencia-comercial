@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
+import { withDailyReportSnapshot } from '../../../../lib/daily-report-snapshot.js';
 import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,7 @@ function byStore(rows, field='units') {
   const m=new Map(); for(const r of rows){const k=String(r.sucursal_id??`name:${r.sucursal}`),c=m.get(k)||{sucursal_id:r.sucursal_id,sucursal:r.sucursal,units:0};c.units+=Number(r[field]??1);m.set(k,c)} return m;
 }
 
-export async function GET(request) {
+async function calculate(request) {
   try {
     const url=new URL(request.url), weekStart=parseMonday(url.searchParams.get('week_start')), requestedCutoff=url.searchParams.get('cutoff_date')||weekStart, storeId=url.searchParams.get('sucursal_id')||null, sql=db();
     if(!/^\d{4}-\d{2}-\d{2}$/.test(requestedCutoff)) throw new Error('cutoff_date must use YYYY-MM-DD');
@@ -120,4 +121,32 @@ export async function GET(request) {
     const nextCutContext={cutoff_date:nextCut,expected_units:expectedNext,prior_periods:nextPrior,prior_average:nextAvg,change_vs_prior_average:ratio(expectedNext-nextAvg,nextAvg)};
     return NextResponse.json({ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections});
   } catch(error){console.error(error);return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:400});}
+}
+
+export async function GET(request) {
+  try {
+    const params = new URL(request.url).searchParams;
+    const rawWeek = params.get('week_start') || '';
+    const rawCutoff = params.get('cutoff_date') || '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(rawWeek) || (rawCutoff && !/^\d{4}-\d{2}-\d{2}$/.test(rawCutoff))) return calculate(request);
+    const parsedWeek = new Date(`${rawWeek}T12:00:00Z`);
+    const parsedCutoff = rawCutoff ? new Date(`${rawCutoff}T00:00:00Z`) : null;
+    if (Number.isNaN(parsedWeek.getTime()) || parsedWeek.getUTCDay() !== 1 || (parsedCutoff && (Number.isNaN(parsedCutoff.getTime()) || parsedCutoff.toISOString().slice(0,10) !== rawCutoff))) return calculate(request);
+    const weekStart = rawWeek, requestedCutoff = rawCutoff || weekStart, storeId = params.get('sucursal_id') || null;
+    const cutoffDate = requestedCutoff.slice(0,7) === weekStart.slice(0,7) && requestedCutoff >= weekStart ? requestedCutoff : weekStart;
+    const result = await withDailyReportSnapshot({
+      reportKey: 'admin', periodStart: weekStart, cutoffDate: cutoffDate,
+      dimension: storeId ? 'store' : 'company', dimensionId: storeId || 'company',
+      force: new URL(request.url).searchParams.get('refresh') === '1',
+      calculate: async () => {
+        const response = await calculate(request);
+        return { status: response.status, payload: await response.json() };
+      },
+    });
+    if (result.status && result.status >= 400) return NextResponse.json(result.payload, { status: result.status });
+    return NextResponse.json({ ...result.payload, snapshot: { updated_at: result.updatedAt, cache_hit: result.cacheHit, calculation_ms: result.calculationMs ?? 0 } });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ ok:false, error:error?.message||'Internal server error' }, { status:500 });
+  }
 }

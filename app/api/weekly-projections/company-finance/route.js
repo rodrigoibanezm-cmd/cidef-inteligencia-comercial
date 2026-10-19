@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
+import { withDailyReportSnapshot } from '../../../../lib/daily-report-snapshot.js';
 import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +28,7 @@ function memberId(row, dimension) {
   return row.members?.find(member => member.dimension === dimension)?.member_id ?? null;
 }
 
-export async function GET(request) {
+async function calculate(request) {
   try {
     const params = new URL(request.url).searchParams;
     const cutoff = params.get('cutoff_date');
@@ -121,7 +122,7 @@ export async function GET(request) {
       )
       SELECT persona_id,array_agg(alias ORDER BY alias) aliases
       FROM unique_aliases GROUP BY persona_id
-    `:[]; 
+    `:[];
     const p1 = await withP1Mcp(async client => {
       const financeEvidence = await Promise.all(periods.map(period => callP1(client,'data_observe',{
         run_id:`${runId}-${period.label}`,source:'SALES',measure:'VIN_SALES',
@@ -188,5 +189,27 @@ export async function GET(request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:500});
+  }
+}
+
+export async function GET(request) {
+  try {
+    const params=new URL(request.url).searchParams, cutoff=params.get('cutoff_date'), storeId=params.get('sucursal_id')||null;
+    const parsedCutoff = new Date(`${cutoff || ''}T00:00:00Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoff||'') || Number.isNaN(parsedCutoff.getTime()) || parsedCutoff.toISOString().slice(0,10) !== cutoff || (storeId && !/^\d+$/.test(storeId))) return calculate(request);
+    const result = await withDailyReportSnapshot({
+      reportKey: 'company-finance', periodStart: `${cutoff.slice(0,7)}-01`, cutoffDate: cutoff,
+      dimension: storeId ? 'store' : 'company', dimensionId: storeId || 'company',
+      force: new URL(request.url).searchParams.get('refresh') === '1',
+      calculate: async () => {
+        const response = await calculate(request);
+        return { status: response.status, payload: await response.json() };
+      },
+    });
+    if (result.status && result.status >= 400) return NextResponse.json(result.payload, { status: result.status });
+    return NextResponse.json({ ...result.payload, snapshot: { updated_at: result.updatedAt, cache_hit: result.cacheHit, calculation_ms: result.calculationMs ?? 0 } });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ ok:false, error:error?.message||'Internal server error' }, { status:500 });
   }
 }
