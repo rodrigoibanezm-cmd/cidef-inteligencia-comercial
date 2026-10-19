@@ -33,7 +33,7 @@ export async function GET() {
             AND pp.vigente = true
             AND pp.organizacion = 'CIDEF'
         )
-        ORDER BY v.modelo_id, v.nombre_canonico
+        ORDER BY modelo_id, version
       `,
     ]);
 
