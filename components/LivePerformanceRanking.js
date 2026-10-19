@@ -16,7 +16,8 @@ const STATES = [
 ];
 const format = value => typeof value === "number" && Number.isFinite(value)
   ? new Intl.NumberFormat("es-CL", { maximumFractionDigits: 1 }).format(value) : "—";
-function VerifiedRank({ ranking }) {
+function VerifiedRank(payload) {
+  const ranking = payload?.ranking;
   return ranking?.certified === true && ranking?.cutoff && ranking?.evidence_id && ranking?.source && ranking?.categories
     ? ranking : null;
 }

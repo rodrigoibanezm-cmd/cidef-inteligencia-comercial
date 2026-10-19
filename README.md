@@ -27,7 +27,7 @@ La imagen se construye en el Azure Container Registry existente y se publica en 
 
 - Producción: https://cidef-inteligencia-comercial.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/
 - El runtime recibe `AZURE_DATABASE_URL`; no se configura fallback a otro proveedor.
-- Las páginas de proyecciones usan las tablas `weekly_projection_sellers`, `weekly_sales_projection` y `sales_sent_not_invoiced`, además de los maestros y fuentes comerciales existentes en PostgreSQL Azure.
+- Las páginas de proyecciones usan las tablas `weekly_projection_sellers`, `weekly_sales_projection` y `sales_sent_not_invoiced`, además de los maestros y fuentes comerciales existentes en PostgreSQL Azure. Cada vehículo se guarda como una fila independiente; un mismo CRM puede asociarse a varias filas. El despliegue aplica una migración de esquema acotada que retira solo reglas de unicidad basadas en `crm_opportunity_id`, sin modificar filas.
 
 ## Reglas de producto existentes
 
