@@ -13,10 +13,19 @@ function priorCutoff(cutoff, offset) {
   const monthEnd = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(Math.min(day, monthEnd)).padStart(2, '0')}`;
 }
-function financeCounts(evidence) {
+function financeCounts(evidence, storeId = null) {
   const counts = { ufi: 0, otros: 0, unresolved: 0 };
-  for (const member of evidence?.payload?.members || []) {
-    const entity = String(member.member_id ?? '').trim().toUpperCase();
+  const grouped = evidence?.results?.find(row => row.operation?.kind === 'STORE_FINANCIAL_ENTITY')?.evidence;
+  const members = grouped?.payload?.members || evidence?.payload?.members || [];
+  for (const member of members) {
+    const entityId = grouped
+      ? member.members?.find(item => item.dimension === 'FINANCIAL_ENTITY')?.member_id
+      : member.member_id;
+    const memberStore = grouped
+      ? member.members?.find(item => item.dimension === 'STORE')?.member_id
+      : null;
+    if (storeId && String(memberStore) !== String(storeId)) continue;
+    const entity = String(entityId ?? '').trim().toUpperCase();
     const value = Number(member.value || 0);
     if (entity === 'UNRESOLVED' || !entity) counts.unresolved += value;
     else if (entity === 'FORUM') counts.ufi += value;
@@ -124,15 +133,17 @@ async function calculate(request) {
       FROM unique_aliases GROUP BY persona_id
     `:[];
     const p1 = await withP1Mcp(async client => {
-      const financeEvidence = await Promise.all(periods.map(period => callP1(client,'data_observe',{
-        run_id:`${runId}-${period.label}`,source:'SALES',measure:'VIN_SALES',
-        evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'FINANCIAL_ENTITY',
-        filters:{commercial_universe:'OWN_STORES',date_from:period.date_from,date_to:period.cutoff_date,...(storeId?{store_id:storeId}:{})}
-      })));
-      const storeEvidence = storeId ? null : await callP1(client,'sales_observe_many',{
-        run_id:`${runId}-stores`,period:cutoff.slice(0,7),cutoff,commercial_universe:'OWN_STORES',
-        operations:[{kind:'STORE'},{kind:'STORE_FINANCIAL_ENTITY'}]
-      });
+      // SALES P1's bundled STORE_FINANCIAL_ENTITY observation returns the same certified
+      // VIN-by-financier split without triggering separate temporal-fingerprint queries.
+      const financeEvidence = [];
+      for (const period of periods) {
+        financeEvidence.push(await callP1(client,'sales_observe_many',{
+          run_id:`${runId}-${period.label}`,period:period.month,cutoff:period.cutoff_date,
+          commercial_universe:'OWN_STORES',
+          operations:[...(period.label==='CURRENT'&&!storeId?[{kind:'STORE'}]:[]),{kind:'STORE_FINANCIAL_ENTITY'}]
+        }));
+      }
+      const storeEvidence = storeId ? null : financeEvidence[financeEvidence.length-1];
       const observePrecurse=(runSuffix,filters,dimension)=>callP1(client,'data_observe',{
         run_id:`${runId}-precurse-${runSuffix}`,source:'FORUM',measure:'PRECURSE',
         evidence_shape:dimension?'DIMENSIONAL_QUANTITATIVE_DATASET':'QUANTITATIVE_OBSERVATION',
@@ -159,7 +170,7 @@ async function calculate(request) {
     });
     const forumMap=new Map(forum.map(row=>[row.period_month,row]));
     const financialPeriods=periods.map((period,index)=>{
-      const counts=financeCounts(p1.financeEvidence[index]);
+      const counts=financeCounts(p1.financeEvidence[index],storeId);
       const funnel=forumMap.get(period.month)||{};
       return {...period,cotizaciones:Number(funnel.cotizaciones||0),aprobados:Number(funnel.aprobados||0),
         ufi:counts.ufi,otros:counts.otros,financing_unresolved:counts.unresolved};
