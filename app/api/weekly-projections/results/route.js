@@ -163,7 +163,7 @@ export async function POST(request) {
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
     let nextStore = 0;
-    const storeWorkers = Array.from({ length: 4 }, async () => {
+    const storeWorkers = Array.from({ length: 2 }, async () => {
       while (nextStore < branches.sucursales.length) {
         const store = branches.sucursales[nextStore++];
         const storeId = String(store.sucursal_id);
