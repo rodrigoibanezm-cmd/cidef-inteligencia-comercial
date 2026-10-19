@@ -99,6 +99,7 @@ $('#status').classList.remove('show');
 const sequence=++loadSequence,selected=$('#week').value||ymd(new Date()),w=monday(selected),bid=$('#store').value,refresh=forceRefresh?'&refresh=1':'';
 localStorage.setItem('cidef_projection_date',selected);
 payload=null;storeSellers=[];forumSellerData={aliases:[],forum:[]};companyFinanceData=null;
+render();
 let painted=false;const errors=[],stamps=[];
 const stamp=data=>{if(data?.snapshot?.updated_at)stamps.push(new Date(data.snapshot.updated_at));const latest=stamps.sort((a,b)=>b-a)[0];$('#snapshotUpdated').textContent=latest?'Última actualización: '+new Intl.DateTimeFormat('es-CL',{dateStyle:'short',timeStyle:'short',timeZone:'America/Santiago'}).format(latest):'Última actualización: —'};
 const showErrors=()=>{if(sequence!==loadSequence)return;if(errors.length){$('#status').textContent=errors.join(' · ');$('#status').classList.add('show')}else $('#status').classList.remove('show')};
