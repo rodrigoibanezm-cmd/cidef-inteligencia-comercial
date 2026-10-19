@@ -49,7 +49,8 @@ function target(r){
   if(!sellers.has(key))sellers.set(key,emptySeller(key,r.vendedor_nombre||r.vendedor||'Usuario ERP no informado'));
   return sellers.get(key);
 }
-(payload.sales_mtd.details||[]).forEach(r=>{const seller=target(r);seller.sold++;const financier=sellerKey(r.entidad_financiera||'');if(financier==='FORUM')seller.forum.ufi++;else if(String(r.entidad_financiera||'').trim())seller.other++});
+(payload.sales_mtd.details||[]).forEach(r=>{target(r).sold++});
+(payload.sales_mtd.seller_finance||[]).forEach(r=>{const seller=sellers.get(String(r.persona_id));if(seller){seller.forum.ufi=Number(r.ufi||0);seller.other=Number(r.otros||0)}});
 (payload.projections||[]).forEach(r=>target(r).projected+=Number(r.projected_units||0));
 (payload.sent_not_invoiced||[]).forEach(r=>target(r).sent+=Number(r.units||0));
 const precurseBySeller=new Map((companyFinanceData?.precurse?.by_seller||[]).map(r=>[String(r.persona_id),Number(r.value||0)]));
