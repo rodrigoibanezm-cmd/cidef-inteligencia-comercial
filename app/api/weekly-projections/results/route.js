@@ -67,6 +67,7 @@ export async function GET(request) {
   try {
     const url = new URL(request.url), { weekStart, cutoffDate } = dates(url.searchParams);
     const env = environment(), storeId = url.searchParams.get('sucursal_id') || null;
+    if (url.searchParams.get('status') === '1') return NextResponse.json({ ok: true, ...(refreshJobs.get(refreshKey(weekStart, cutoffDate)) || { status: 'idle' }) });
     if (storeId && !/^\d+$/.test(storeId)) return bad('Invalid sucursal_id');
     const sql = db();
     const rows = await sql`
@@ -146,11 +147,11 @@ export async function GET(request) {
   }
 }
 
-export async function POST(request) {
-  try {
-    const body = await request.json();
-    const { weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' }));
-    const env = environment(), origin = new URL(request.url).origin;
+const refreshJobs = globalThis.__weeklyProjectionRefreshJobs || (globalThis.__weeklyProjectionRefreshJobs = new Map());
+function refreshKey(weekStart, cutoffDate) { return `${weekStart}:${cutoffDate}:staging`; }
+
+async function performRefresh(weekStart, cutoffDate, origin, job) {
+    const env = environment();
     const branches = await call(getBranches, `${origin}/api/weekly-projections/sucursales`);
     if (!Array.isArray(branches.sucursales) || !branches.sucursales.length) throw new Error('No se recibieron tiendas para calcular los resultados');
     const rows = [];
@@ -162,7 +163,7 @@ export async function POST(request) {
     companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
-    let nextStore = 0;
+    let nextStore = 0, completedStores = 0;
     const storeWorkers = Array.from({ length: 2 }, async () => {
       while (nextStore < branches.sucursales.length) {
         const store = branches.sucursales[nextStore++];
@@ -184,6 +185,8 @@ export async function POST(request) {
         admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
         const financePayload = { admin, companyFinance: companyFinanceByStore, aliases: sellerData.aliases };
         rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: financePayload }));
+        completedStores += 1;
+        job.completedStores = completedStores;
         const sellerIds = new Set(roster.vendedores.map(s => String(s.persona_id)).filter(id => id && id !== 'null'));
         for (const sellerId of sellerIds) {
           const forum = sellerData.forum.find(s => String(s.persona_id) === sellerId) || null;
@@ -229,9 +232,31 @@ export async function POST(request) {
       SELECT max(updated_at)::text updated_at FROM weekly_projection_results
       WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
     `;
-    return NextResponse.json({ ok: true, week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: updated[0].updated_at });
+    return { ok: true, week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: updated[0].updated_at };
+}
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const { weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' }));
+    const key = refreshKey(weekStart, cutoffDate);
+    const existing = refreshJobs.get(key);
+    if (existing?.status === 'running') return NextResponse.json({ ok: true, queued: true, ...existing }, { status: 202 });
+    const job = { status: 'running', week_start: weekStart, cutoff_date: cutoffDate, completedStores: 0, started_at: new Date().toISOString() };
+    refreshJobs.set(key, job);
+    const origin = new URL(request.url).origin;
+    setImmediate(async () => {
+      try {
+        const result = await performRefresh(weekStart, cutoffDate, origin, job);
+        Object.assign(job, result, { status: 'completed', finished_at: new Date().toISOString() });
+      } catch (error) {
+        console.error(error);
+        Object.assign(job, { status: 'failed', error: error?.message || 'No fue posible actualizar los resultados', finished_at: new Date().toISOString() });
+      }
+    });
+    return NextResponse.json({ ok: true, queued: true, ...job }, { status: 202 });
   } catch (error) {
     console.error(error);
-    return bad(error?.message || 'Internal server error', 500);
+    return bad(error?.message || 'Internal server error', 400);
   }
 }
