@@ -133,18 +133,28 @@ async function calculate(request) {
         run_id:`${runId}-stores`,period:cutoff.slice(0,7),cutoff,commercial_universe:'OWN_STORES',
         operations:[{kind:'STORE'},{kind:'STORE_FINANCIAL_ENTITY'}]
       });
-      const observePrecurse=(runSuffix,filters)=>callP1(client,'data_observe',{
+      const observePrecurse=(runSuffix,filters,dimension)=>callP1(client,'data_observe',{
         run_id:`${runId}-precurse-${runSuffix}`,source:'FORUM',measure:'PRECURSE',
-        evidence_shape:'QUANTITATIVE_OBSERVATION',filters
+        evidence_shape:dimension?'DIMENSIONAL_QUANTITATIVE_DATASET':'QUANTITATIVE_OBSERVATION',
+        ...(dimension?{dimension}:{}),filters
       });
-      const precurse = (!storeId || storeAliases.length) ? await observePrecurse(storeId||'company',forumFilters) : null;
-      const precurseByStore = !storeId ? await Promise.all([...aliasesByStore.entries()].map(async ([id,aliases])=>({
-        sucursal_id:id,value:Number((await observePrecurse(`store-${id}`,{network:'OWN_STORES',store:aliases}))?.payload?.value||0)
-      }))) : [];
-      const precurseBySeller = storeId && storeAliases.length ? await Promise.all(sellerAliasRows.map(async row=>({
-        persona_id:String(row.persona_id),
-        value:Number((await observePrecurse(`seller-${row.persona_id}`,{network:'OWN_STORES',store:storeAliases,seller:row.aliases}))?.payload?.value||0)
-      }))) : [];
+      // P1 dimensional PRECURSE is the certified source for the same latest snapshot.
+      // One STORE/SELLER observation replaces one database observation per store/seller.
+      const precurse = !storeId
+        ? await observePrecurse('stores',forumFilters,'STORE')
+        : storeAliases.length ? await observePrecurse('store',forumFilters) : null;
+      const storePrecurse = !storeId ? new Map((precurse?.payload?.members||[])
+        .map(row=>[String(row.member_id),Number(row.value||0)])) : new Map();
+      const sellerPrecurse = storeId && storeAliases.length && sellerAliasRows.length
+        ? await observePrecurse('sellers',forumFilters,'SELLER') : null;
+      const sellerPrecurseById = new Map((sellerPrecurse?.payload?.members||[])
+        .map(row=>[String(row.member_id),Number(row.value||0)]));
+      const precurseByStore = !storeId ? [...aliasesByStore.keys()].map(id=>({
+        sucursal_id:id,value:storePrecurse.get(id)||0
+      })) : [];
+      const precurseBySeller = storeId && storeAliases.length
+        ? sellerAliasRows.map(row=>({persona_id:String(row.persona_id),value:sellerPrecurseById.get(String(row.persona_id))||0}))
+        : [];
       return {financeEvidence,storeEvidence,precurse,precurseByStore,precurseBySeller};
     });
     const forumMap=new Map(forum.map(row=>[row.period_month,row]));
@@ -179,7 +189,7 @@ async function calculate(request) {
       const row=storeMap.get(item.sucursal_id)||{sucursal_id:item.sucursal_id,cotizaciones:0,aprobados:0,ventas:0,ufi:0,otros:0};
       row.precurse=item.value;storeMap.set(item.sucursal_id,row);
     }
-    const precurseValue=Number(p1.precurse?.payload?.value||0);
+    const precurseValue=Number(p1.precurse?.payload?.value??p1.precurse?.coverage?.total_value??0);
     return NextResponse.json({ok:true,cutoff_date:cutoff,sucursal_id:storeId,
       precurse:{available:Boolean(p1.precurse),value:p1.precurse?precurseValue:null,snapshot_date:p1.precurse?.temporal?.snapshot_date||null,
         scope:storeId?'STORE':'OWN_STORES',by_store:p1.precurseByStore,by_seller:p1.precurseBySeller,
