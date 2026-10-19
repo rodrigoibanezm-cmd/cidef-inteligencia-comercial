@@ -16,7 +16,11 @@ function priorCutoff(cutoff, offset) {
 function financeCounts(evidence, storeId = null) {
   const counts = { ufi: 0, otros: 0, unresolved: 0 };
   const grouped = evidence?.results?.find(row => row.operation?.kind === 'STORE_FINANCIAL_ENTITY')?.evidence;
-  const members = grouped?.payload?.members || evidence?.payload?.members || [];
+  const data = grouped || evidence;
+  if (!Array.isArray(data?.payload?.members)) {
+    throw new Error('SALES P1 STORE_FINANCIAL_ENTITY returned incomplete evidence');
+  }
+  const members = data.payload.members;
   for (const member of members) {
     const entityId = grouped
       ? member.members?.find(item => item.dimension === 'FINANCIAL_ENTITY')?.member_id
@@ -26,7 +30,10 @@ function financeCounts(evidence, storeId = null) {
       : null;
     if (storeId && String(memberStore) !== String(storeId)) continue;
     const entity = String(entityId ?? '').trim().toUpperCase();
-    const value = Number(member.value || 0);
+    if (member.value == null || !Number.isFinite(Number(member.value))) {
+      throw new Error('SALES P1 STORE_FINANCIAL_ENTITY returned a member without a numeric value');
+    }
+    const value = Number(member.value);
     if (entity === 'UNRESOLVED' || !entity) counts.unresolved += value;
     else if (entity === 'FORUM') counts.ufi += value;
     else counts.otros += value;
@@ -175,6 +182,27 @@ async function calculate(request) {
         : [];
       return {financeEvidence,storeEvidence,precurse,precurseByStore,precurseBySeller};
     });
+    for (let index=0; index<periods.length; index++) {
+      const evidence=p1.financeEvidence[index];
+      const grouped=evidence?.results?.find(row=>row.operation?.kind==='STORE_FINANCIAL_ENTITY')?.evidence;
+      const data=grouped||evidence;
+      if (!Array.isArray(data?.payload?.members)) {
+        throw new Error('SALES P1 STORE_FINANCIAL_ENTITY '+periods[index].month+' returned incomplete evidence');
+      }
+    }
+    if (!storeId) {
+      const storeResult=p1.storeEvidence?.results?.find(row=>row.operation?.kind==='STORE')?.evidence;
+      if (!Array.isArray(storeResult?.payload?.members)) {
+        throw new Error('SALES P1 STORE returned incomplete store evidence');
+      }
+    }
+    if (!storeId || storeAliases.length) {
+      const hasPrecurseMembers=Array.isArray(p1.precurse?.payload?.members);
+      const hasPrecurseValue=p1.precurse?.payload?.value!=null && Number.isFinite(Number(p1.precurse.payload.value));
+      if (!hasPrecurseMembers && !hasPrecurseValue) {
+        throw new Error('FORUM P1 PRECURSE returned incomplete evidence');
+      }
+    }
     const forumMap=new Map(forum.map(row=>[row.period_month,row]));
     const financialPeriods=periods.map((period,index)=>{
       const counts=financeCounts(p1.financeEvidence[index],storeId);
@@ -207,7 +235,8 @@ async function calculate(request) {
       const row=storeMap.get(item.sucursal_id)||{sucursal_id:item.sucursal_id,cotizaciones:0,aprobados:0,ventas:0,ufi:0,otros:0};
       row.precurse=item.value;storeMap.set(item.sucursal_id,row);
     }
-    const precurseValue=Number(p1.precurse?.payload?.value??p1.precurse?.coverage?.total_value??0);
+    const rawPrecurseValue=p1.precurse?.payload?.value??p1.precurse?.coverage?.total_value??null;
+    const precurseValue=rawPrecurseValue==null?null:Number(rawPrecurseValue);
     return NextResponse.json({ok:true,cutoff_date:cutoff,sucursal_id:storeId,
       precurse:{available:Boolean(p1.precurse),value:p1.precurse?precurseValue:null,snapshot_date:p1.precurse?.temporal?.snapshot_date||null,
         scope:storeId?'STORE':'OWN_STORES',by_store:p1.precurseByStore,by_seller:p1.precurseBySeller,
@@ -229,6 +258,15 @@ export async function GET(request) {
       reportKey: 'company-finance', periodStart: `${cutoff.slice(0,7)}-01`, cutoffDate: cutoff,
       dimension: storeId ? 'store' : 'company', dimensionId: storeId || 'company',
       force: new URL(request.url).searchParams.get('refresh') === '1',
+      validate: (payload) => {
+        const labels=['M-3','M-2','M-1','CURRENT'];
+        if (payload?.ok !== true || !Array.isArray(payload.periods) || payload.periods.length !== 4) return false;
+        if (!labels.every((label,index)=>payload.periods[index]?.label === label)) return false;
+        if (!payload.periods.every(period=>['cotizaciones','aprobados','ufi','otros'].every(field=>typeof period[field] === 'number' && Number.isFinite(period[field])))) return false;
+        if (!Array.isArray(payload.stores)) return false;
+        if (payload.sucursal_id == null && (payload.precurse?.available !== true || typeof payload.precurse?.value !== 'number' || !Number.isFinite(payload.precurse.value))) return false;
+        return true;
+      },
       calculate: async () => {
         const response = await calculate(request);
         return { status: response.status, payload: await response.json() };
