@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import LivePerformanceRanking from "../../components/LivePerformanceRanking";
 import { useCallback, useEffect, useState } from "react";
 
 const SOURCES = [
@@ -96,6 +97,24 @@ function SourceCard({ def, item, loading, rvm = false }) {
   </article>;
 }
 
+function SalesDrilldown({ item }) {
+  const [expanded, setExpanded] = useState(null);
+  const options = [["own_stores", "Tiendas propias"], ["dealers", "Dealers"]];
+  return <div className="cv3-sales-drilldown">
+    <div className="cv3-sales-actions">
+      {options.map(([id, label]) => <button type="button" key={id} aria-expanded={expanded === id} className={expanded === id ? "cv3-active" : ""} onClick={() => setExpanded(expanded === id ? null : id)}>
+        <strong>{label}</strong><span>{number(item?.channels?.[id]?.company, "units")} VIN</span><small>{expanded === id ? "Ocultar detalle ↑" : "Ver detalle ↓"}</small>
+      </button>)}
+    </div>
+    {expanded && <div className="cv3-drill-panel">
+      <h4>{expanded === "own_stores" ? "Ventas por tienda" : "Ventas por dealer"}</h4>
+      {item?.details?.certified === true && item?.details?.evidence_id && Array.isArray(item?.details?.[expanded]) ?
+        item.details[expanded].map(row => <div className="cv3-drill-line" key={String(row.id)}><span>{row.name}</span><strong>{number(row.vin, "units")} VIN</strong></div>)
+        : <p>Detalle pendiente de contrato certificado.</p>}
+    </div>}
+  </div>;
+}
+
 function SectionTitle({ count, title, subtitle, badge }) {
   return <div className="cv2-section-title"><div className="cv2-section-number">{count}</div><div><h2>{title}</h2><p>{subtitle}</p></div><span>{badge}</span></div>;
 }
@@ -134,10 +153,12 @@ export default function ComoVamos() {
           <h3 id="cv2-sales" className="cv2-block-label">VIN FACTURADOS</h3>
           <Summary item={pick("sales")} unit="units"/>
           <Channels item={pick("sales")} unit="units"/>
+          <SalesDrilldown item={pick("sales")}/>
           <Provenance item={pick("sales")}/>
         </div>
         <div className="cv2-sales-chart"><IndexedChart item={pick("sales")}/></div>
       </div>
+      <LivePerformanceRanking data={data?.rankings} loading={loading}/>
     </section>
     <section className="cv2-section" aria-labelledby="cv2-forum">
       <SectionTitle count="02" title="FORUM" subtitle="¿Cómo avanza el financiamiento?" badge="CORTES FORUM"/>
