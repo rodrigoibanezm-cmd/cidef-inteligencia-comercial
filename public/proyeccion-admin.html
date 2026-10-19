@@ -118,13 +118,15 @@ const request=async(label,url,apply)=>{
   }
 };
 const adminUrl=`${API}/admin?week_start=${w}&cutoff_date=${selected}${bid?'&sucursal_id='+encodeURIComponent(bid):''}${refresh}`;
-const jobs=[
-  request('Proyecciones',adminUrl,data=>{payload=data}),
-  bid?request('Vendedores',`${API}/vendedores?sucursal_id=${encodeURIComponent(bid)}`,data=>{storeSellers=data?.vendedores||[]}):Promise.resolve(null),
-  bid?request('FORUM vendedores',`${API}/forum-sellers?sucursal_id=${encodeURIComponent(bid)}&cutoff_date=${selected}${refresh}`,data=>{forumSellerData=data||{aliases:[],forum:[]}}):Promise.resolve(null),
-  request('Forum y créditos',`${API}/company-finance?cutoff_date=${selected}${bid?'&sucursal_id='+encodeURIComponent(bid):''}${refresh}`,data=>{companyFinanceData=data})
-];
-await Promise.all(jobs);
+await request('Proyecciones',adminUrl,data=>{payload=data});
+if(sequence!==loadSequence)return;
+if(bid){
+  await request('Vendedores',`${API}/vendedores?sucursal_id=${encodeURIComponent(bid)}`,data=>{storeSellers=data?.vendedores||[]});
+  if(sequence!==loadSequence)return;
+  await request('FORUM vendedores',`${API}/forum-sellers?sucursal_id=${encodeURIComponent(bid)}&cutoff_date=${selected}${refresh}`,data=>{forumSellerData=data||{aliases:[],forum:[]}});
+  if(sequence!==loadSequence)return;
+}
+await request('Forum y créditos',`${API}/company-finance?cutoff_date=${selected}${bid?'&sucursal_id='+encodeURIComponent(bid):''}${refresh}`,data=>{companyFinanceData=data});
 if(sequence!==loadSequence)return;
 stamp();showErrors();render();
 if(!painted)await finishLoading();
