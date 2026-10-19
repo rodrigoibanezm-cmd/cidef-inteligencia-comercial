@@ -162,34 +162,39 @@ export async function POST(request) {
     companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
-    for (const store of branches.sucursales) {
-      const storeId = String(store.sucursal_id);
-      const params = `week_start=${weekStart}&cutoff_date=${cutoffDate}&sucursal_id=${storeId}`;
-      const [admin, companyFinanceByStore, sellerData, roster] = await Promise.all([
-        call(getAdmin, `${origin}/api/weekly-projections/admin?${params}`),
-        call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&sucursal_id=${storeId}`),
-        call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?sucursal_id=${storeId}&cutoff_date=${cutoffDate}`),
-        call(getSellers, `${origin}/api/weekly-projections/vendedores?sucursal_id=${storeId}`),
-      ]);
-      requireAdmin(admin, `STORE:${storeId}`);
-      requireFinance(companyFinanceByStore, `STORE:${storeId}`);
-      requireArray(sellerData.aliases, `SELLER_ALIASES:${storeId}`);
-      requireArray(sellerData.forum, `SELLER_FORUM:${storeId}`);
-      requireArray(roster.vendedores, `SELLER_ROSTER:${storeId}`);
-      delete admin.projections;
-      delete admin.sent_not_invoiced;
-      admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
-      const financePayload = { admin, companyFinance: companyFinanceByStore, aliases: sellerData.aliases };
-      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: financePayload }));
-      const sellerIds = new Set((roster.vendedores || []).map(s => String(s.persona_id)).filter(id => id && id !== 'null'));
-      for (const sellerId of sellerIds) {
-        const forum = sellerData.forum.find(s => String(s.persona_id) === sellerId) || null;
-        rows.push(resultRow({
-          weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`,
-          storeId, personId: sellerId, payload: { forum },
-        }));
+    let nextStore = 0;
+    const storeWorkers = Array.from({ length: 2 }, async () => {
+      while (nextStore < branches.sucursales.length) {
+        const store = branches.sucursales[nextStore++];
+        const storeId = String(store.sucursal_id);
+        const params = `week_start=${weekStart}&cutoff_date=${cutoffDate}&sucursal_id=${storeId}`;
+        const [admin, companyFinanceByStore, sellerData, roster] = await Promise.all([
+          call(getAdmin, `${origin}/api/weekly-projections/admin?${params}`),
+          call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&sucursal_id=${storeId}`),
+          call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?sucursal_id=${storeId}&cutoff_date=${cutoffDate}`),
+          call(getSellers, `${origin}/api/weekly-projections/vendedores?sucursal_id=${storeId}`),
+        ]);
+        requireAdmin(admin, `STORE:${storeId}`);
+        requireFinance(companyFinanceByStore, `STORE:${storeId}`);
+        requireArray(sellerData.aliases, `SELLER_ALIASES:${storeId}`);
+        requireArray(sellerData.forum, `SELLER_FORUM:${storeId}`);
+        requireArray(roster.vendedores, `SELLER_ROSTER:${storeId}`);
+        delete admin.projections;
+        delete admin.sent_not_invoiced;
+        admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
+        const financePayload = { admin, companyFinance: companyFinanceByStore, aliases: sellerData.aliases };
+        rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: financePayload }));
+        const sellerIds = new Set(roster.vendedores.map(s => String(s.persona_id)).filter(id => id && id !== 'null'));
+        for (const sellerId of sellerIds) {
+          const forum = sellerData.forum.find(s => String(s.persona_id) === sellerId) || null;
+          rows.push(resultRow({
+            weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`,
+            storeId, personId: sellerId, payload: { forum },
+          }));
+        }
       }
-    }
+    });
+    await Promise.all(storeWorkers);
 
     await withDbTransaction(async client => {
       await client.query(`
