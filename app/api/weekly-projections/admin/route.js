@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
-import { withDailyReportSnapshot } from '../../../../lib/daily-report-snapshot.js';
-import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,16 +22,6 @@ function plusDays(date,n){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.g
 function monthStart(date){return `${date.slice(0,7)}-01`}
 const ratio=(n,d)=>d? n/d:null;
 function normalizeDate(v){return v ? String(v).slice(0,10) : null}
-function financeCounts(evidence) {
-  const counts={ufi:0,otros:0,unresolved:0};
-  for(const member of evidence?.payload?.members||[]){
-    const entity=String(member.member_id??'').trim().toUpperCase(),value=Number(member.value||0);
-    if(entity==='UNRESOLVED'||!entity)counts.unresolved+=value;
-    else if(entity==='FORUM')counts.ufi+=value;
-    else counts.otros+=value;
-  }
-  return counts;
-}
 function periodSnapshot(all, cutoff, label, storeId) {
   const from=monthStart(cutoff), weekFrom=minusDays(cutoff,6);
   const rows=all.filter(r=>(!storeId||String(r.sucursal_id)===String(storeId)) && r.fecha_venta>=from && r.fecha_venta<=cutoff);
@@ -44,50 +32,48 @@ function byStore(rows, field='units') {
   const m=new Map(); for(const r of rows){const k=String(r.sucursal_id??`name:${r.sucursal}`),c=m.get(k)||{sucursal_id:r.sucursal_id,sucursal:r.sucursal,units:0};c.units+=Number(r[field]??1);m.set(k,c)} return m;
 }
 
-async function calculate(request) {
+export async function GET(request) {
   try {
     const url=new URL(request.url), weekStart=parseMonday(url.searchParams.get('week_start')), requestedCutoff=url.searchParams.get('cutoff_date')||weekStart, storeId=url.searchParams.get('sucursal_id')||null, sql=db();
     if(!/^\d{4}-\d{2}-\d{2}$/.test(requestedCutoff)) throw new Error('cutoff_date must use YYYY-MM-DD');
     const cutoffDate=requestedCutoff.slice(0,7)===weekStart.slice(0,7)&&requestedCutoff>=weekStart?requestedCutoff:weekStart;
     const historyFrom=shiftYear(monthStart(cutoffDate),-1);
-    const p1RunId=`proyecciones-admin-${cutoffDate}-${Date.now()}`;
-    const salesFilters={commercial_universe:'OWN_STORES',date_from:historyFrom,date_to:cutoffDate,...(storeId?{store_id:storeId}:{})};
-    const salesEvidence=await withP1Mcp(async client=>callP1(client,'data_fetch',{
-      run_id:p1RunId,source:'SALES',filters:salesFilters,
-      fields:['vin','sale_date','invoice','brand_id','model_id','version_id','store_id','store_label','seller_id']
-    }));
-    let sellerLabels=new Map(),sellerFinance=[];
-    if(storeId){
-      const sellers=await withP1Mcp(async client=>callP1(client,'data_observe',{
-        run_id:p1RunId+'-sellers',source:'SALES',measure:'VIN_SALES',
-        evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'SELLER',
-        filters:{...salesFilters,date_from:monthStart(cutoffDate),date_to:cutoffDate}
-      }));
-      const sellerMembers=sellers.payload?.members||[];
-      sellerLabels=new Map(sellerMembers.map(row=>[String(row.member_id),row.member_label]));
-      sellerFinance=await withP1Mcp(async client=>Promise.all(sellerMembers
-        .filter(row=>row.member_id!=null&&String(row.member_id)!=='UNRESOLVED')
-        .map(async row=>{
-          const sellerId=String(row.member_id);
-          const evidence=await callP1(client,'data_observe',{
-            run_id:`${p1RunId}-finance-${sellerId}`,source:'SALES',measure:'VIN_SALES',
-            evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'FINANCIAL_ENTITY',
-            filters:{...salesFilters,date_from:monthStart(cutoffDate),date_to:cutoffDate,seller_id:sellerId}
-          });
-          return {persona_id:sellerId,...financeCounts(evidence)};
-        })));
-    }
-    const all=(salesEvidence.rows||[]).map(r=>{
-      const sellerId=r.seller_id==null?null:String(r.seller_id);
-      const sellerName=sellerId?sellerLabels.get(sellerId):null;
-      return {
-        vin:r.vin,fecha_venta:normalizeDate(r.sale_date),sucursal_id:r.store_id==null?null:String(r.store_id),
-        sucursal:r.store_label||'Tienda no resuelta',vendedor:sellerName||sellerId||'Usuario ERP sin nombre',
-        persona_id:sellerId,vendedor_nombre:sellerName||'Usuario ERP sin nombre',
-        marca:r.brand_id||'Sin marca',modelo:r.model_id||'Sin modelo',
-        factura:r.invoice
-      };
-    }).filter(r=>r.fecha_venta);
+    const salesRaw=await sql`
+      SELECT DISTINCT ON (upper(trim(v.nro_vin_chasis)))
+        upper(trim(v.nro_vin_chasis)) vin,
+        (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END)::text fecha_venta,
+        sm.sucursal_id::text sucursal_id,
+        sm.nombre_canonico sucursal,
+        v.nombre_usuario vendedor,
+        pe.persona_id::text persona_id,
+        coalesce(pe.nombre_canonico, nullif(trim(v.nombre_usuario),''), 'Usuario ERP sin nombre') vendedor_nombre,
+        v.entidad_financiera,
+        coalesce(ma.nombre_canonico,v.desc_mae_marca,'Sin marca') marca,
+        coalesce(mo.nombre_canonico,vc.modelo_raw,v.desc_articulo,'Sin modelo') modelo,
+        coalesce(v.nro_factura,v.factura) factura
+      FROM ventas_raw v
+      LEFT JOIN sucursales_master sm
+        ON lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+        OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
+        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
+        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
+        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
+        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
+        OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
+        OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
+      LEFT JOIN personas_master pe ON upper(trim(pe.usuario_canonico))=upper(trim(v.nombre_usuario))
+      LEFT JOIN vehiculo_canonico vc ON upper(trim(vc.vin))=upper(trim(v.nro_vin_chasis))
+      LEFT JOIN versiones_master_v01 ve ON ve.version_id=vc.version_id
+      LEFT JOIN modelos_master_v01 mo ON mo.modelo_id=ve.modelo_id
+      LEFT JOIN marcas_master_v01 ma ON ma.marca_id=mo.marca_id
+      WHERE btrim(v.categoria_cliente)='Cliente General'
+        AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
+        AND (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) BETWEEN ${historyFrom}::date AND ${cutoffDate}::date
+        AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
+      ORDER BY upper(trim(v.nro_vin_chasis)), (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) DESC
+    `;
+    const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
     const cuts=[['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
     const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId));
     const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-3','M-2','M-1'].includes(p.label));
@@ -141,34 +127,6 @@ async function calculate(request) {
     const nextPrior=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(nextCut,delta),`M-${3-i}`,storeId));
     const nextAvg=nextPrior.reduce((s,p)=>s+p.mtd_units,0)/nextPrior.length;
     const nextCutContext={cutoff_date:nextCut,expected_units:expectedNext,prior_periods:nextPrior,prior_average:nextAvg,change_vs_prior_average:ratio(expectedNext-nextAvg,nextAvg)};
-    return NextResponse.json({ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails,seller_finance:sellerFinance},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections});
+    return NextResponse.json({ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections});
   } catch(error){console.error(error);return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:400});}
-}
-
-export async function GET(request) {
-  try {
-    const params = new URL(request.url).searchParams;
-    const rawWeek = params.get('week_start') || '';
-    const rawCutoff = params.get('cutoff_date') || '';
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(rawWeek) || (rawCutoff && !/^\d{4}-\d{2}-\d{2}$/.test(rawCutoff))) return calculate(request);
-    const parsedWeek = new Date(`${rawWeek}T12:00:00Z`);
-    const parsedCutoff = rawCutoff ? new Date(`${rawCutoff}T00:00:00Z`) : null;
-    if (Number.isNaN(parsedWeek.getTime()) || parsedWeek.getUTCDay() !== 1 || (parsedCutoff && (Number.isNaN(parsedCutoff.getTime()) || parsedCutoff.toISOString().slice(0,10) !== rawCutoff))) return calculate(request);
-    const weekStart = rawWeek, requestedCutoff = rawCutoff || weekStart, storeId = params.get('sucursal_id') || null;
-    const cutoffDate = requestedCutoff.slice(0,7) === weekStart.slice(0,7) && requestedCutoff >= weekStart ? requestedCutoff : weekStart;
-    const result = await withDailyReportSnapshot({
-      reportKey: 'admin', periodStart: weekStart, cutoffDate: cutoffDate,
-      dimension: storeId ? 'store' : 'company', dimensionId: storeId || 'company',
-      force: new URL(request.url).searchParams.get('refresh') === '1',
-      calculate: async () => {
-        const response = await calculate(request);
-        return { status: response.status, payload: await response.json() };
-      },
-    });
-    if (result.status && result.status >= 400) return NextResponse.json(result.payload, { status: result.status });
-    return NextResponse.json({ ...result.payload, snapshot: { updated_at: result.updatedAt, cache_hit: result.cacheHit, calculation_ms: result.calculationMs ?? 0 } });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ ok:false, error:error?.message||'Internal server error' }, { status:500 });
-  }
 }

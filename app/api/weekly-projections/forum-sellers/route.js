@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
-import { withDailyReportSnapshot } from '../../../../lib/daily-report-snapshot.js';
 
 export const dynamic = 'force-dynamic';
 
-async function calculate(request) {
+export async function GET(request) {
   try {
     const url = new URL(request.url);
     const storeId = url.searchParams.get('sucursal_id');
@@ -57,37 +56,5 @@ async function calculate(request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:500});
-  }
-}
-
-export async function GET(request) {
-  try {
-    const params=new URL(request.url).searchParams, cutoff=params.get('cutoff_date'), storeId=params.get('sucursal_id');
-    const parsedCutoff = new Date(`${cutoff || ''}T00:00:00Z`);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoff||'') || Number.isNaN(parsedCutoff.getTime()) || parsedCutoff.toISOString().slice(0,10) !== cutoff || !/^\d+$/.test(storeId||'')) return calculate(request);
-    const result = await withDailyReportSnapshot({
-      reportKey: 'forum-sellers', periodStart: `${cutoff.slice(0,7)}-01`, cutoffDate: cutoff,
-      dimension: 'seller', dimensionId: `${storeId}:all`,
-      force: new URL(request.url).searchParams.get('refresh') === '1',
-      calculate: async () => {
-        const response = await calculate(request);
-        return { status: response.status, payload: await response.json() };
-      },
-      buildDimensions: (payload) => {
-        const ids = new Set([...(payload.aliases || []), ...(payload.forum || [])].map((row) => String(row.persona_id)));
-        return [...ids].filter((id) => id && id !== 'null').map((id) => ({
-          dimension: 'seller', dimensionId: `${storeId}:${id}`,
-          payload: {
-            aliases: (payload.aliases || []).filter((row) => String(row.persona_id) === id),
-            forum: (payload.forum || []).filter((row) => String(row.persona_id) === id),
-          },
-        }));
-      },
-    });
-    if (result.status && result.status >= 400) return NextResponse.json(result.payload, { status: result.status });
-    return NextResponse.json({ ...result.payload, snapshot: { updated_at: result.updatedAt, cache_hit: result.cacheHit, calculation_ms: result.calculationMs ?? 0 } });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ ok:false, error:error?.message||'Internal server error' }, { status:500 });
   }
 }
