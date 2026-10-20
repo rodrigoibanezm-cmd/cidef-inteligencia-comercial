@@ -345,20 +345,44 @@ export async function GET(request) {
     const scopeStores = storeId ? branches.sucursales.filter(s => String(s.sucursal_id) === storeId) : branches.sucursales;
     if (!scopeStores.length) throw new Error('No fue posible resolver la tienda del resultado');
 
-    // Projections and sent-not-invoiced remain live reads from their current tables.
-    const liveByStore = await Promise.all(scopeStores.map(async (store) => {
-      const sid = String(store.sucursal_id);
-      const [projectionData, sentData] = await Promise.all([
-        call(getProjections, `${url.origin}/api/weekly-projections/projections?sucursal_id=${sid}&week_start=${weekStart}`),
-        call(getNotInvoiced, `${url.origin}/api/weekly-projections/not-invoiced?sucursal_id=${sid}&week_start=${weekStart}`),
-      ]);
-      return {
-        projections: projectionData.projections.map(row => ({ ...row, sucursal_id: sid, sucursal: store.nombre_canonico })),
-        sent: sentData.items.map(row => ({ ...row, sucursal_id: sid, sucursal: store.nombre_canonico })),
-      };
-    }));
-    const projections = liveByStore.flatMap(x => x.projections);
-    const sent = liveByStore.flatMap(x => x.sent);
+    // Three live reads for the whole selected scope instead of N requests per store.
+    const scopeNames = new Map(scopeStores.map(store => [String(store.sucursal_id), store.nombre_canonico]));
+    const previousCut = cached.payload.admin.evolution?.previous_cut || null;
+    const [currentProjections, sentRows, previousProjections] = await Promise.all([
+      sql`SELECT wsp.projection_id::text,wsp.week_start::text,wsp.sucursal_id::text,wsp.persona_id::text,
+        COALESCE(p.nombre_canonico,p.usuario_canonico,wsp.source_vendedor_raw,'Sin vendedor') vendedor,
+        wsp.modelo_id::text,wsp.version_id::text,vm.nombre_canonico version,
+        COALESCE(ma.nombre_canonico,wsp.source_brand_raw,'Sin marca') marca,
+        COALESCE(m.nombre_canonico,wsp.source_model_raw,'Sin modelo') modelo,
+        wsp.projected_units,wsp.expected_close_date::text,wsp.crm_opportunity_id,wsp.crm_link_method,wsp.updated_at
+        FROM weekly_sales_projection wsp
+        LEFT JOIN personas_master p ON p.persona_id=wsp.persona_id
+        LEFT JOIN modelos_master_v01 m ON m.modelo_id=wsp.modelo_id
+        LEFT JOIN versiones_master_v01 vm ON vm.version_id=wsp.version_id
+        LEFT JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
+        WHERE wsp.week_start=${weekStart}::date ${storeId ? sql`AND wsp.sucursal_id=${storeId}::bigint` : sql``}
+        ORDER BY vendedor,expected_close_date,marca,modelo,wsp.projection_id`,
+      sql`SELECT x.sent_not_invoiced_id::text,x.sucursal_id::text,x.persona_id::text,
+        COALESCE(p.nombre_canonico,wps.nombre,'Sin vendedor') vendedor,
+        x.units,x.status,x.sent_at,x.resolved_at,x.modelo_id::text,x.crm_opportunity_id,x.crm_link_method,
+        COALESCE(ma.nombre_canonico,'Sin marca') marca,COALESCE(mm.nombre_canonico,'Sin modelo') modelo
+        FROM sales_sent_not_invoiced x
+        LEFT JOIN personas_master p ON p.persona_id=x.persona_id
+        LEFT JOIN weekly_projection_sellers wps ON wps.persona_id=x.persona_id AND wps.sucursal_id=x.sucursal_id
+        LEFT JOIN modelos_master_v01 mm ON mm.modelo_id=x.modelo_id
+        LEFT JOIN marcas_master_v01 ma ON ma.marca_id=mm.marca_id
+        WHERE x.status='PENDING'
+          AND COALESCE(x.week_start,date_trunc('week',x.sent_at AT TIME ZONE 'America/Santiago')::date)=${weekStart}::date
+          ${storeId ? sql`AND x.sucursal_id=${storeId}::bigint` : sql``}
+        ORDER BY x.sent_at DESC,x.sent_not_invoiced_id DESC`,
+      previousCut ? sql`SELECT sucursal_id::text AS sucursal_id, projected_units
+        FROM weekly_sales_projection WHERE week_start=${previousCut}::date
+        ${storeId ? sql`AND sucursal_id=${storeId}::bigint` : sql``}` : Promise.resolve([]),
+    ]);
+    const projections = currentProjections.filter(row => scopeNames.has(String(row.sucursal_id)))
+      .map(row => ({ ...row, sucursal: scopeNames.get(String(row.sucursal_id)) }));
+    const sent = sentRows.filter(row => scopeNames.has(String(row.sucursal_id)))
+      .map(row => ({ ...row, sucursal: scopeNames.get(String(row.sucursal_id)) }));
     const payload = cached.payload.admin;
     payload.projections = projections;
     payload.sent_not_invoiced = sent;
@@ -368,15 +392,15 @@ export async function GET(request) {
 
     // The current cut's live projections also feed the previous-cut comparison.
     if (payload.evolution?.previous_cut) {
-      const previousByStore = await Promise.all(scopeStores.map(async (store) => {
-        const data = await call(getProjections, `${url.origin}/api/weekly-projections/projections?sucursal_id=${store.sucursal_id}&week_start=${payload.evolution.previous_cut}`);
-        return { store, units: sum(data.projections, 'projected_units') };
-      }));
-      const previousTotal = sum(previousByStore, 'units');
+      const old = new Map();
+      for (const row of previousProjections) {
+        const sid = String(row.sucursal_id);
+        if (scopeNames.has(sid)) old.set(sid, (old.get(sid) || 0) + Number(row.projected_units || 0));
+      }
+      const previousTotal = [...old.values()].reduce((total, units) => total + units, 0);
       payload.evolution.previous_projection = previousTotal;
       payload.evolution.expected_current = Number(payload.evolution.previous_sales_mtd || 0) + previousTotal;
       if (payload.evolution.stores?.length) {
-        const old = new Map(previousByStore.map(x => [String(x.store.sucursal_id), x.units]));
         for (const row of payload.evolution.stores) {
           const projected = old.get(String(row.sucursal_id)) || 0;
           row.previous_projection = projected;
