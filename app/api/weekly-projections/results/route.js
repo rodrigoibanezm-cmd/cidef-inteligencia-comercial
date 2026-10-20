@@ -83,6 +83,39 @@ function requirePrecurseBundle(value) {
   return value;
 }
 
+async function getP1BrandIndicators(period) {
+  const endpoint = process.env.P1_BRAND_INDICATORS_ENDPOINT ||
+    'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/como-vamos';
+  const url = new URL(endpoint);
+  url.searchParams.set('period', period);
+  const response = await fetch(url, {
+    cache: 'no-store',
+    signal: AbortSignal.timeout(120000),
+  });
+  const value = await response.json();
+  if (!response.ok || !Array.isArray(value?.indicators)) {
+    throw new Error(value?.error || 'P1 brand indicators request failed (' + response.status + ')');
+  }
+  const indicators = {};
+  for (const item of value.indicators) {
+    const values = item?.values;
+    if (item?.certified === true && ['company', 'foton', 'dongfeng'].every(key => Number.isFinite(Number(values?.[key])))) {
+      indicators[item.id] = {
+        company: Number(values.company),
+        foton: Number(values.foton),
+        dongfeng: Number(values.dongfeng),
+        cutoff: item.cutoff || null,
+        evidence_ids: item.evidence_ids || (item.evidence_id ? [item.evidence_id] : []),
+        source: item.source || null,
+      };
+    }
+  }
+  for (const id of ['sales', 'quotations', 'ufis', 'precurse']) {
+    if (!indicators[id]) throw new Error('Missing certified P1 brand indicator: ' + id);
+  }
+  return indicators;
+}
+
 async function getPrecurseBundle() {
   const endpoint = process.env.FORUM_P1_PRECURSE_ENDPOINT ||
     'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/precurse-snapshot';
@@ -255,7 +288,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     const rows = [];
     const scopeIds = branches.sucursales.map(store => String(store.sucursal_id));
     const scopeQuery = encodeURIComponent(scopeIds.join(','));
-    const [companyAdmin, companyFinance, sellerData, precurseBundle] = await Promise.all([
+    const period = cutoffDate.slice(0, 7);\n    const [companyAdmin, companyFinance, sellerData, precurseBundle, brandIndicators] = await Promise.all([
       call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${weekStart}&cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
@@ -268,7 +301,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     requireArray(sellerData.sellers, 'SELLER_ROSTER');
     if (!companyAdmin.scopes || !companyFinance.scopes) throw new Error('Incomplete grouped store results');
 
-    const precurseCompany = precurseBundle.company;
+    companyAdmin.brand_indicators = brandIndicators;\n    companyFinance.brand_indicators = brandIndicators;\n\n    const precurseCompany = precurseBundle.company;
     const precurseStoreMembers = new Map(
       precurseBundle.dimensions.STORE.payload.members.map(member => [String(member.member_id), member]),
     );
