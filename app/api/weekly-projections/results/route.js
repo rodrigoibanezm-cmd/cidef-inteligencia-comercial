@@ -83,39 +83,94 @@ function requirePrecurseBundle(value) {
   return value;
 }
 
-async function getP1BrandIndicators(period) {
+async function callP1Tool(runId, name, args) {
   const endpoint = process.env.P1_BRAND_INDICATORS_ENDPOINT ||
     'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/como-vamos';
-  const url = new URL(endpoint);
-  url.searchParams.set('period', period);
+  const url = new URL('/api/mcp', endpoint);
   const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: { run_id: runId, ...args } } }),
     cache: 'no-store',
     signal: AbortSignal.timeout(120000),
   });
-  const value = await response.json();
-  if (!response.ok || !Array.isArray(value?.indicators)) {
-    throw new Error(value?.error || 'P1 brand indicators request failed (' + response.status + ')');
+  const body = await response.text();
+  if (!response.ok) throw new Error('P1 brand observation failed (' + response.status + ')');
+  const dataLine = body.split(/\\r?\\n/).find(line => line.startsWith('data:'));
+  if (!dataLine) throw new Error('P1 brand observation returned no data');
+  const envelope = JSON.parse(dataLine.slice(5).trim());
+  if (envelope.error || envelope.result?.isError) {
+    throw new Error(envelope.error?.message || envelope.result?.content?.[0]?.text || 'P1 brand observation failed');
   }
-  const indicators = {};
-  for (const item of value.indicators) {
-    const values = item?.values;
-    if (item?.certified === true && ['company', 'foton', 'dongfeng'].every(key => Number.isFinite(Number(values?.[key])))) {
-      indicators[item.id] = {
-        company: Number(values.company),
-        foton: Number(values.foton),
-        dongfeng: Number(values.dongfeng),
-        cutoff: item.cutoff || null,
-        evidence_ids: item.evidence_ids || (item.evidence_id ? [item.evidence_id] : []),
-        source: item.source || null,
-      };
-    }
-  }
-  for (const id of ['sales', 'quotations', 'ufis', 'precurse']) {
-    if (!indicators[id]) throw new Error('Missing certified P1 brand indicator: ' + id);
-  }
-  return indicators;
+  const result = envelope.result?.structuredContent;
+  if (result) return result;
+  const text = envelope.result?.content?.find(item => item.type === 'text')?.text;
+  if (text) return JSON.parse(text);
+  throw new Error('P1 brand observation returned no structured result');
 }
 
+function p1BrandIndicator(id, evidence, source, companyValue) {
+  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
+      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
+    throw new Error('P1 brand evidence is not certified: ' + id);
+  }
+  const values = { foton: 0, dongfeng: 0 };
+  for (const member of evidence.payload.members) {
+    const grouped = Array.isArray(member.members) ? member.members : [];
+    const network = grouped.find(item => item.dimension === 'NETWORK')?.member_label;
+    if (network && network !== 'TIENDA_PROPIA') continue;
+    const brand = grouped.find(item => item.dimension === 'BRAND')?.member_label ??
+      String(member.member_label ?? '').trim().toUpperCase();
+    const amount = Number(member.value);
+    if (!Number.isFinite(amount)) continue;
+    if (brand === 'FOTON') values.foton += amount;
+    if (['DONGFENG', 'DFM'].includes(brand)) values.dongfeng += amount;
+  }
+  const company = Number(companyValue ?? evidence.coverage?.total_value ?? evidence.coverage?.filtered_n);
+  if (!Number.isFinite(company)) throw new Error('P1 total is missing for ' + id);
+  return {
+    company,
+    foton: values.foton,
+    dongfeng: values.dongfeng,
+    cutoff: evidence.temporal?.snapshot_date || evidence.temporal?.cutoff || evidence.temporal?.to || null,
+    evidence_ids: [evidence.evidence_id],
+    source: source + ' P1',
+  };
+}
+
+async function getP1BrandIndicators(period, cutoffDate) {
+  const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
+  const network = { network: ['OWN_STORES'] };
+  const [salesResult, quotesEvidence, ufisEvidence, precurseEvidence] = await Promise.all([
+    callP1Tool(runId, 'sales_observe_many', {
+      measure: 'VIN_SALES',
+      period,
+      cutoff: cutoffDate,
+      commercial_universe: 'OWN_STORES',
+      operations: [{ kind: 'BRAND_NETWORK' }],
+    }),
+    callP1Tool(runId, 'data_observe', {
+      source: 'FORUM', measure: 'QUOTATIONS', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
+    }),
+    callP1Tool(runId, 'data_observe', {
+      source: 'FORUM', measure: 'UFIS', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
+    }),
+    callP1Tool(runId, 'data_observe', {
+      source: 'FORUM', measure: 'PRECURSE', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      dimension: 'BRAND', filters: network,
+    }),
+  ]);
+  const salesEvidence = salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
+  if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
+  return {
+    sales: p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
+    quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
+    ufis: p1BrandIndicator('ufis', ufisEvidence, 'FORUM', ufisEvidence.coverage?.total_value),
+    precurse: p1BrandIndicator('precurse', precurseEvidence, 'FORUM', precurseEvidence.coverage?.total_value),
+  };
+}
 async function getPrecurseBundle() {
   const endpoint = process.env.FORUM_P1_PRECURSE_ENDPOINT ||
     'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/precurse-snapshot';
@@ -294,7 +349,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
       getPrecurseBundle(),
-      getP1BrandIndicators(period),
+      getP1BrandIndicators(period, cutoffDate),
     ]);
     requireAdmin(companyAdmin, 'COMPANY');
     requireFinance(companyFinance, 'COMPANY');
