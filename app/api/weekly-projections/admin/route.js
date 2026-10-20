@@ -54,15 +54,29 @@ export async function GET(request) {
       FROM ventas_raw v
       LEFT JOIN LATERAL (
 
-        SELECT a.sucursal_id
+        SELECT candidate.sucursal_id
 
-        FROM sucursal_aliases a
+        FROM (
 
-        WHERE a.validated = true
+          SELECT sm_erp.sucursal_id, 0 AS priority
 
-          AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+          FROM sucursales_master sm_erp
 
-        ORDER BY a.sucursal_alias_id
+          WHERE sm_erp.id_sucursal_vta::text = nullif(trim(v.id_sucursal_vta::text), '')
+
+          UNION ALL
+
+          SELECT a.sucursal_id, 1 AS priority
+
+          FROM sucursal_aliases a
+
+          WHERE a.validated = true
+
+            AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+
+        ) candidate
+
+        ORDER BY candidate.priority, candidate.sucursal_id
 
         LIMIT 1
 
