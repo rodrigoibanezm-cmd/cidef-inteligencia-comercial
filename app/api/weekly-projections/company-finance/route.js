@@ -114,6 +114,60 @@ export async function GET(request) {
           AND extract(day from sold_at) <= ${Number(cutoff.slice(8,10))}
         GROUP BY 1
       `;
+    const scopeResultsRequested = !storeId && params.get('include_scopes') === '1';
+    const scopeForum = scopeResultsRequested ? await sql`
+      WITH matched_stores AS (
+        SELECT DISTINCT upper(trim(a.valor_raw)) alias,s.sucursal_id::text store_id
+        FROM sucursal_aliases a JOIN sucursales_master s ON s.sucursal_id=a.sucursal_id
+        WHERE a.validated=true AND s.tipo_canal='CIDEF'
+          AND lower(trim(s.nombre_canonico)) <> 'casa matriz'
+      )
+      SELECT ms.store_id,to_char(u.fecha_cotizacion,'YYYY-MM') period_month,
+        count(distinct u.numero_operacion)::int cotizaciones,
+        count(distinct u.numero_operacion) FILTER (WHERE u.estado_actual='APROBADA')::int aprobados
+      FROM forum_funnel_universe_v01 u
+      JOIN matched_stores ms ON upper(trim(u.sucursal))=ms.alias
+      WHERE upper(trim(u.distribuidor))='CIDEF'
+        AND u.fecha_cotizacion::date >= ${from}::date AND u.fecha_cotizacion::date <= ${cutoff}::date
+        AND extract(day from u.fecha_cotizacion::date) <= ${Number(cutoff.slice(8,10))}
+      GROUP BY ms.store_id,period_month
+    ` : [];
+    const scopeSales = scopeResultsRequested ? await sql`
+      WITH sales AS (
+        SELECT sm.sucursal_id::text store_id,upper(trim(v.nro_vin_chasis)) vin,
+          (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$'
+            THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
+            ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at,
+          upper(trim(v.entidad_financiera)) finance
+        FROM ventas_raw v
+        LEFT JOIN sucursales_master sm ON (
+          lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+          OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+          OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
+          OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
+          OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
+          OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
+          OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
+          OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
+          OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
+        )
+        WHERE btrim(v.categoria_cliente)='Cliente General'
+          AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
+          AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
+          AND nullif(trim(v.entidad_financiera),'') IS NOT NULL
+          AND (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$'
+            THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
+            ELSE nullif(trim(v.fecha_factura::text),'')::date END) BETWEEN ${from}::date AND ${cutoff}::date
+          AND extract(day from (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$'
+            THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
+            ELSE nullif(trim(v.fecha_factura::text),'')::date END)) <= ${Number(cutoff.slice(8,10))}
+      )
+      SELECT store_id,to_char(sold_at,'YYYY-MM') period_month,
+        count(distinct vin) FILTER (WHERE finance='FORUM')::int ufi,
+        count(distinct vin) FILTER (WHERE finance<>'FORUM')::int otros
+      FROM sales WHERE store_id IS NOT NULL
+      GROUP BY store_id,period_month
+    ` : [];
     const storeForum = !storeId ? await sql`
         WITH matched_stores AS (
           SELECT upper(trim(a.valor_raw)) alias,min(s.sucursal_id)::text store_id
@@ -140,13 +194,26 @@ export async function GET(request) {
     const storeMap=new Map();
     for(const r of storeForum)storeMap.set(r.store_id,{sucursal_id:r.store_id,cotizaciones:Number(r.cotizaciones),aprobados:Number(r.aprobados),ufi:Number(r.ufi),otros:0});
     const fm=new Map(forum.map(r=>[r.period_month,r])),um=new Map(ufis.map(r=>[r.period_month,r])),om=new Map(others.map(r=>[r.period_month,r]));
-    return NextResponse.json({ok:true,cutoff_date:cutoff,sucursal_id:storeId,stores:[...storeMap.values()],periods:periods.map(p=>({
+    const response={ok:true,cutoff_date:cutoff,sucursal_id:storeId,stores:[...storeMap.values()],periods:periods.map(p=>({
       ...p,
       cotizaciones:Number(fm.get(p.month)?.cotizaciones||0),
       aprobados:Number(fm.get(p.month)?.aprobados||0),
       ufi:Number(um.get(p.month)?.ufi||0),
       otros:Number(om.get(p.month)?.other_credits||0)
-    }))});
+    }))};
+    if(scopeResultsRequested){
+      const ids=new Set([...(params.get('scope_ids')||'').split(',').filter(id=>/^\d+$/.test(id)),...scopeForum.map(r=>String(r.store_id)),...scopeSales.map(r=>String(r.store_id))]);
+      response.scopes={};
+      for(const id of ids){
+        const f=new Map(scopeForum.filter(r=>String(r.store_id)===id).map(r=>[r.period_month,r]));
+        const s=new Map(scopeSales.filter(r=>String(r.store_id)===id).map(r=>[r.period_month,r]));
+        response.scopes[id]={ok:true,cutoff_date:cutoff,sucursal_id:id,stores:[],periods:periods.map(p=>{
+          const forumRow=f.get(p.month),salesRow=s.get(p.month);
+          return {...p,cotizaciones:Number(forumRow?.cotizaciones||0),aprobados:Number(forumRow?.aprobados||0),ufi:Number(salesRow?.ufi||0),otros:Number(salesRow?.otros||0)};
+        })};
+      }
+    }
+    return NextResponse.json(response);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:500});

@@ -4,7 +4,6 @@ import { GET as getAdmin } from '../admin/route.js';
 import { GET as getCompanyFinance } from '../company-finance/route.js';
 import { GET as getForumSellers } from '../forum-sellers/route.js';
 import { GET as getBranches } from '../sucursales/route.js';
-import { GET as getSellers } from '../vendedores/route.js';
 import { GET as getProjections } from '../projections/route.js';
 import { GET as getNotInvoiced } from '../not-invoiced/route.js';
 
@@ -150,23 +149,6 @@ export async function GET(request) {
 const REFRESH_STATUS_SCOPE = 'REFRESH_STATUS';
 function refreshKey(weekStart, cutoffDate) { return `${weekStart}:${cutoffDate}:staging`; }
 
-async function ensureResultsTable() {
-  const sql = db();
-  await sql.query(`
-    CREATE TABLE IF NOT EXISTS weekly_projection_results (
-      week_start date NOT NULL,
-      cutoff_date date NOT NULL,
-      environment text NOT NULL CHECK (environment IN ('staging','production')),
-      dimension text NOT NULL CHECK (dimension IN ('COMPANY','STORE','SELLER')),
-      scope_key text NOT NULL,
-      sucursal_id bigint,
-      persona_id bigint,
-      payload jsonb NOT NULL,
-      updated_at timestamptz NOT NULL DEFAULT now(),
-      PRIMARY KEY (week_start, cutoff_date, environment, scope_key)
-    )
-  `);
-}
 
 async function readRefreshStatus(weekStart, cutoffDate) {
   try {
@@ -211,52 +193,49 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
     const branches = await call(getBranches, `${origin}/api/weekly-projections/sucursales`);
     if (!Array.isArray(branches.sucursales) || !branches.sucursales.length) throw new Error('No se recibieron tiendas para calcular los resultados');
     const rows = [];
-    const companyParams = `week_start=${weekStart}&cutoff_date=${cutoffDate}`;
-    const companyAdmin = requireAdmin(await call(getAdmin, `${origin}/api/weekly-projections/admin?${companyParams}`), 'COMPANY');
-    const companyFinance = requireFinance(await call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}`), 'COMPANY');
+    const scopeIds = branches.sucursales.map(store => String(store.sucursal_id));
+    const scopeQuery = encodeURIComponent(scopeIds.join(','));
+    const [companyAdmin, companyFinance, sellerData] = await Promise.all([
+      call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${weekStart}&cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
+      call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
+      call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
+    ]);
+    requireAdmin(companyAdmin, 'COMPANY');
+    requireFinance(companyFinance, 'COMPANY');
+    requireArray(sellerData.aliases, 'SELLER_ALIASES');
+    requireArray(sellerData.forum, 'SELLER_FORUM');
+    requireArray(sellerData.sellers, 'SELLER_ROSTER');
+    if (!companyAdmin.scopes || !companyFinance.scopes) throw new Error('Incomplete grouped store results');
+
+    const storeAdminScopes = companyAdmin.scopes, storeFinanceScopes = companyFinance.scopes;
+    delete companyAdmin.scopes;
+    delete companyFinance.scopes;
     delete companyAdmin.projections;
     delete companyAdmin.sent_not_invoiced;
     companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
-    let nextStore = 0, completedStores = 0;
-    const storeWorkers = Array.from({ length: 2 }, async () => {
-      while (nextStore < branches.sucursales.length) {
-        const store = branches.sucursales[nextStore++];
-        const storeId = String(store.sucursal_id);
-        const params = `week_start=${weekStart}&cutoff_date=${cutoffDate}&sucursal_id=${storeId}`;
-        const [admin, companyFinanceByStore, sellerData, roster] = await Promise.all([
-          call(getAdmin, `${origin}/api/weekly-projections/admin?${params}`),
-          call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&sucursal_id=${storeId}`),
-          call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?sucursal_id=${storeId}&cutoff_date=${cutoffDate}`),
-          call(getSellers, `${origin}/api/weekly-projections/vendedores?sucursal_id=${storeId}`),
-        ]);
-        requireAdmin(admin, `STORE:${storeId}`);
-        requireFinance(companyFinanceByStore, `STORE:${storeId}`);
-        requireArray(sellerData.aliases, `SELLER_ALIASES:${storeId}`);
-        requireArray(sellerData.forum, `SELLER_FORUM:${storeId}`);
-        requireArray(roster.vendedores, `SELLER_ROSTER:${storeId}`);
-        delete admin.projections;
-        delete admin.sent_not_invoiced;
-        admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
-        const financePayload = { admin, companyFinance: companyFinanceByStore, aliases: sellerData.aliases };
-        rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: financePayload }));
-        completedStores += 1;
-        job.completedStores = completedStores;
-        await writeRefreshStatus(weekStart, cutoffDate, job, false, true);
-        const sellerIds = new Set(roster.vendedores.map(s => String(s.persona_id)).filter(id => id && id !== 'null'));
-        for (const sellerId of sellerIds) {
-          const forum = sellerData.forum.find(s => String(s.persona_id) === sellerId) || null;
-          rows.push(resultRow({
-            weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`,
-            storeId, personId: sellerId, payload: { forum },
-          }));
-        }
-      }
-    });
     job.totalStores = branches.sucursales.length;
     await writeRefreshStatus(weekStart, cutoffDate, job);
-    await Promise.all(storeWorkers);
+    let completedStores = 0;
+    for (const store of branches.sucursales) {
+      const storeId = String(store.sucursal_id);
+      const admin = storeAdminScopes[storeId], finance = storeFinanceScopes[storeId];
+      if (!admin || !finance) throw new Error(`Missing grouped result for store ${storeId}`);
+      delete admin.projections;
+      delete admin.sent_not_invoiced;
+      admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
+      const aliases = sellerData.aliases.filter(a => String(a.sucursal_id) === storeId);
+      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin, companyFinance: finance, aliases } }));
+      const sellerIds = new Set(sellerData.sellers.filter(s => String(s.sucursal_id) === storeId).map(s => String(s.persona_id)));
+      for (const sellerId of sellerIds) {
+        const forum = sellerData.forum.find(s => String(s.sucursal_id) === storeId && String(s.persona_id) === sellerId) || null;
+        rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`, storeId, personId: sellerId, payload: { forum } }));
+      }
+      completedStores += 1;
+      job.completedStores = completedStores;
+      await writeRefreshStatus(weekStart, cutoffDate, job, false, true);
+    }
 
     const finishedAt = new Date().toISOString();
     const completedJob = { ...job, status: 'completed', finished_at: finishedAt, duration_ms: Date.now() - Date.parse(job.started_at) };
@@ -288,7 +267,6 @@ export async function POST(request) {
   try {
     const body = await request.json();
     ({ weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' })));
-    await ensureResultsTable();
     job = { status: 'running', week_start: weekStart, cutoff_date: cutoffDate, completedStores: 0, totalStores: 0, started_at: new Date().toISOString() };
     const claimed = await writeRefreshStatus(weekStart, cutoffDate, job, true);
     if (!claimed) {
