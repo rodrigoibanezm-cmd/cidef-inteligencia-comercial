@@ -138,17 +138,19 @@ function p1BrandIndicator(id, evidence, source, companyValue) {
   };
 }
 
-function p1OtherCreditsByBrand(id, evidence) {
+function p1FinanceByBrand(id, evidence) {
   if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
       !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
     throw new Error('P1 financial-entity evidence is not certified: ' + id);
   }
-  const total = evidence.payload.members.reduce((value, member) => {
+  let ufi = 0, other = 0;
+  for (const member of evidence.payload.members) {
     const entity = String(member.member_id ?? member.member_label ?? '').trim().toUpperCase();
-    if (!entity || entity === 'FORUM' || entity === 'UNRESOLVED' || entity.includes('NO RESUELTO')) return value;
-    return value + Number(member.value || 0);
-  }, 0);
-  return { total, evidence_id: evidence.evidence_id };
+    const amount = Number(member.value || 0);
+    if (entity === 'FORUM') ufi += amount;
+    else if (entity && entity !== 'UNRESOLVED' && !entity.includes('NO RESUELTO')) other += amount;
+  }
+  return { ufi, other, evidence_id: evidence.evidence_id };
 }
 
 function p1WeeklySalesByBrand(id, evidence) {
@@ -177,7 +179,7 @@ async function getP1BrandIndicators(period, cutoffDate) {
     dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to },
     cutoff: to,
   });
-  const [salesResult, quotesEvidence, approvedEvidence, ufisEvidence, precurseEvidence] = await Promise.all([
+  const [salesResult, quotesEvidence, approvedEvidence, precurseEvidence] = await Promise.all([
     callP1Tool(runId, 'sales_observe_many', {
       measure: 'VIN_SALES',
       period,
@@ -191,10 +193,6 @@ async function getP1BrandIndicators(period, cutoffDate) {
     }),
     callP1Tool(runId, 'data_observe', {
       source: 'FORUM', measure: 'COHORT_APPROVED', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
-    }),
-    callP1Tool(runId, 'data_observe', {
-      source: 'FORUM', measure: 'UFIS', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
     }),
     callP1Tool(runId, 'data_observe', {
@@ -222,15 +220,17 @@ async function getP1BrandIndicators(period, cutoffDate) {
   if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
   const fotonWeekly = p1WeeklySalesByBrand('FOTON', fotonWeek);
   const dongfengWeekly = p1WeeklySalesByBrand('DONGFENG', dongfengWeek);
+  const fotonFinance = p1FinanceByBrand('FOTON', fotonOther);
+  const dongfengFinance = p1FinanceByBrand('DONGFENG', dongfengOther);
   return {
     sales: p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
     quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
     approved: p1BrandIndicator('approved', approvedEvidence, 'FORUM', approvedEvidence.coverage?.total_value),
     other_credits: {
-      foton: p1OtherCreditsByBrand('FOTON', fotonOther).total,
-      dongfeng: p1OtherCreditsByBrand('DONGFENG', dongfengOther).total,
+      foton: fotonFinance.other,
+      dongfeng: dongfengFinance.other,
       source: 'SALES P1', cutoff: cutoffDate,
-      evidence_ids: [fotonOther.evidence_id, dongfengOther.evidence_id],
+      evidence_ids: [fotonFinance.evidence_id, dongfengFinance.evidence_id],
     },
     weekly_sales: {
       foton: fotonWeekly.total,
@@ -239,7 +239,13 @@ async function getP1BrandIndicators(period, cutoffDate) {
       source: 'SALES P1', cutoff: cutoffDate, date_from: weekFrom,
       evidence_ids: [fotonWeek.evidence_id, dongfengWeek.evidence_id],
     },
-    ufis: p1BrandIndicator('ufis', ufisEvidence, 'FORUM', ufisEvidence.coverage?.total_value),
+    ufis: {
+      foton: fotonFinance.ufi,
+      dongfeng: dongfengFinance.ufi,
+      company: fotonFinance.ufi + dongfengFinance.ufi,
+      source: 'SALES P1', cutoff: cutoffDate,
+      evidence_ids: [fotonFinance.evidence_id, dongfengFinance.evidence_id],
+    },
     precurse: p1BrandIndicator('precurse', precurseEvidence, 'FORUM', precurseEvidence.coverage?.total_value),
   };
 }
