@@ -232,7 +232,7 @@ async function writeRefreshStatus(weekStart, cutoffDate, env, job, claim = false
       (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
     VALUES ($1::date,$2::date,$3,'COMPANY',$4,$5::jsonb,now())
     ON CONFLICT (week_start,cutoff_date,environment,scope_key) DO UPDATE
-      SET payload = CASE WHEN $5::boolean THEN
+      SET payload = CASE WHEN $6::boolean THEN
         EXCLUDED.payload || jsonb_build_object(
           'completedStores',
           GREATEST(
