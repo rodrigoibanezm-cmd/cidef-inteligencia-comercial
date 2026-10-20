@@ -89,7 +89,7 @@ export async function GET(request) {
 
           LEFT JOIN sucursales_master sm ON (resolved_store.sucursal_id = sm.sucursal_id)
 
-            OR (
+            OR (resolved_store.sucursal_id IS NULL AND (
             lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -99,7 +99,7 @@ export async function GET(request) {
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
             OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
             OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-          )
+          ))
           WHERE btrim(v.categoria_cliente)='Cliente General'
             AND (${storeId}::text IS NULL OR sm.sucursal_id::text=${storeId}::text)
             AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
@@ -154,7 +154,7 @@ export async function GET(request) {
 
           LEFT JOIN sucursales_master sm ON (resolved_store.sucursal_id = sm.sucursal_id)
 
-            OR (
+            OR (resolved_store.sucursal_id IS NULL AND (
             lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -164,7 +164,7 @@ export async function GET(request) {
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
             OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
             OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-          )
+          ))
           WHERE btrim(v.categoria_cliente)='Cliente General'
             AND (${storeId}::text IS NULL OR sm.sucursal_id::text=${storeId}::text)
             AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
@@ -236,7 +236,7 @@ export async function GET(request) {
 
         LEFT JOIN sucursales_master sm ON (resolved_store.sucursal_id = sm.sucursal_id)
 
-          OR (
+          OR (resolved_store.sucursal_id IS NULL AND (
           lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
           OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
           OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -246,7 +246,7 @@ export async function GET(request) {
           OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
           OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
           OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-        )
+        ))
         WHERE btrim(v.categoria_cliente)='Cliente General'
           AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
           AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
