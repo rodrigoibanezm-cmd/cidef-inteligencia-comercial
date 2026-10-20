@@ -85,7 +85,8 @@ export async function GET(request) {
       LEFT JOIN sucursales_master sm
         ON (resolved_store.sucursal_id = sm.sucursal_id)
 
-        OR lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+        OR (resolved_store.sucursal_id IS NULL AND (
+        lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
         OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
@@ -93,7 +94,7 @@ export async function GET(request) {
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
-        OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
+        OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22))
       LEFT JOIN personas_master pe ON upper(trim(pe.usuario_canonico))=upper(trim(v.nombre_usuario))
       LEFT JOIN vehiculo_canonico vc ON upper(trim(vc.vin))=upper(trim(v.nro_vin_chasis))
       LEFT JOIN versiones_master_v01 ve ON ve.version_id=vc.version_id
