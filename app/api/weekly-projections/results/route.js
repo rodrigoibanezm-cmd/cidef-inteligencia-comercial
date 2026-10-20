@@ -55,6 +55,56 @@ function requireFinance(value, scope) {
   return value;
 }
 
+function requirePrecurseBundle(value) {
+  const company = value?.company, dimensions = value?.dimensions;
+  if (company?.authority !== 'P1_CERTIFIED' || company?.status !== 'COMPLETE' ||
+      company?.payload?.rule !== 'CERTIFIED_PRECURSE_STAGE_NO_CERTIFIED_CURSE' ||
+      !company?.temporal?.snapshot_date || value?.execution?.query_count !== 1) {
+    throw new Error('Incomplete or uncertified FORUM PRECURSE bundle');
+  }
+  for (const dimension of ['STORE', 'SELLER']) {
+    const evidence = dimensions?.[dimension];
+    if (evidence?.authority !== 'P1_CERTIFIED' || evidence?.status !== 'COMPLETE' ||
+        evidence?.temporal?.snapshot_date !== company.temporal.snapshot_date ||
+        !Array.isArray(evidence?.payload?.members)) {
+      throw new Error('Incomplete PRECURSE ' + dimension + ' evidence');
+    }
+    if (sum(evidence.payload.members, 'value') !== Number(company.payload.value)) {
+      throw new Error('PRECURSE ' + dimension + ' does not reconcile to company');
+    }
+  }
+  if (!value?.sellers_by_store || typeof value.sellers_by_store !== 'object') {
+    throw new Error('Missing PRECURSE seller-by-store groups');
+  }
+  return value;
+}
+
+async function getPrecurseBundle() {
+  const endpoint = process.env.FORUM_P1_PRECURSE_ENDPOINT ||
+    'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/precurse-snapshot';
+  const response = await fetch(endpoint, {
+    cache: 'no-store',
+    signal: AbortSignal.timeout(45000),
+  });
+  const value = await response.json();
+  if (!response.ok || value?.ok !== true) {
+    throw new Error(value?.error || 'FORUM PRECURSE P1 request failed (' + response.status + ')');
+  }
+  return requirePrecurseBundle(value);
+}
+
+function precurseSummary(evidence, unresolvedStoreValue = 0, unresolvedSellerValue = 0) {
+  return {
+    value: Number(evidence?.payload?.value || 0),
+    snapshot_date: evidence?.temporal?.snapshot_date || null,
+    evidence_id: evidence?.evidence_id || null,
+    evidence_version: evidence?.evidence_version || null,
+    authority: evidence?.authority || null,
+    unresolved_store_value: Number(unresolvedStoreValue || 0),
+    unresolved_seller_value: Number(unresolvedSellerValue || 0),
+  };
+}
+
 function resultRow({ weekStart, cutoffDate, env, dimension, scopeKey, storeId = null, personId = null, payload }) {
   if (!payload || typeof payload !== 'object') throw new Error(`Incomplete ${dimension} result: ${scopeKey}`);
   return { weekStart, cutoffDate, env, dimension, scopeKey, storeId, personId, payload };
@@ -202,10 +252,11 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
     const rows = [];
     const scopeIds = branches.sucursales.map(store => String(store.sucursal_id));
     const scopeQuery = encodeURIComponent(scopeIds.join(','));
-    const [companyAdmin, companyFinance, sellerData] = await Promise.all([
+    const [companyAdmin, companyFinance, sellerData, precurseBundle] = await Promise.all([
       call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${weekStart}&cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
+      getPrecurseBundle(),
     ]);
     requireAdmin(companyAdmin, 'COMPANY');
     requireFinance(companyFinance, 'COMPANY');
@@ -213,6 +264,23 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
     requireArray(sellerData.forum, 'SELLER_FORUM');
     requireArray(sellerData.sellers, 'SELLER_ROSTER');
     if (!companyAdmin.scopes || !companyFinance.scopes) throw new Error('Incomplete grouped store results');
+
+    const precurseCompany = precurseBundle.company;
+    const precurseStoreMembers = new Map(
+      precurseBundle.dimensions.STORE.payload.members.map(member => [String(member.member_id), member]),
+    );
+    const precurseSellersByStore = precurseBundle.sellers_by_store;
+    const precurseStoreEvidence = precurseBundle.dimensions.STORE;
+    const precurseSellerEvidence = precurseBundle.dimensions.SELLER;
+    companyFinance.precurse = precurseSummary(
+      precurseCompany,
+      precurseStoreEvidence.coverage.dimension_unresolved_value,
+      precurseSellerEvidence.coverage.dimension_unresolved_value,
+    );
+    companyFinance.stores = companyFinance.stores.map(store => ({
+      ...store,
+      precurse: Number(precurseStoreMembers.get(String(store.sucursal_id))?.value || 0),
+    }));
 
     const storeAdminScopes = companyAdmin.scopes, storeFinanceScopes = companyFinance.scopes;
     delete companyAdmin.scopes;
@@ -233,10 +301,33 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
       delete admin.sent_not_invoiced;
       admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
       const aliases = sellerData.aliases.filter(a => String(a.sucursal_id) === storeId);
+      const storeMember = precurseStoreMembers.get(storeId);
+      const sellerGroups = precurseSellersByStore[storeId]?.members || [];
+      const resolvedSellerGroups = sellerGroups.filter(member => /^\d+$/.test(String(member.member_id)));
+      const unresolvedSellerValue = sellerGroups
+        .filter(member => String(member.member_id) === 'UNRESOLVED' || String(member.member_id).startsWith('UNRESOLVED:'))
+        .reduce((total, member) => total + Number(member.value || 0), 0);
+      finance.precurse = {
+        ...precurseSummary(precurseCompany, 0, unresolvedSellerValue),
+        value: Number(storeMember?.value || 0),
+        evidence_id: precurseStoreEvidence.evidence_id,
+      };
       rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin, companyFinance: finance, aliases } }));
-      const sellerIds = new Set(sellerData.sellers.filter(s => String(s.sucursal_id) === storeId).map(s => String(s.persona_id)));
+      const sellerIds = new Set([
+        ...sellerData.sellers.filter(s => String(s.sucursal_id) === storeId).map(s => String(s.persona_id)),
+        ...resolvedSellerGroups.map(member => String(member.member_id)),
+      ]);
       for (const sellerId of sellerIds) {
-        const forum = sellerData.forum.find(s => String(s.sucursal_id) === storeId && String(s.persona_id) === sellerId) || null;
+        const existingForum = sellerData.forum.find(s => String(s.sucursal_id) === storeId && String(s.persona_id) === sellerId) || {};
+        const precurseMember = resolvedSellerGroups.find(member => String(member.member_id) === sellerId);
+        const forum = {
+          ...existingForum,
+          sucursal_id: storeId,
+          persona_id: sellerId,
+          nombre: precurseMember?.member_label || existingForum.nombre || null,
+          precurse: Number(precurseMember?.value || 0),
+          precurse_evidence_id: precurseSellerEvidence.evidence_id,
+        };
         rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`, storeId, personId: sellerId, payload: { forum } }));
       }
       completedStores += 1;
