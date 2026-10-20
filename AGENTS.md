@@ -11,6 +11,8 @@
 - Solo SALES, FORUM, RVM. Una tabla de snapshot por dominio en Azure backend; rankings pertenecen a SALES.
 - Front consume snapshots certificados P1/P2/P3 vía API servidor; sin cálculos comerciales ni consultas libres a RAW en el front.
 - Firmas por dominio/versión, actualización selectiva, histórico diario bajo demanda. Mes abierto sin recalcular al navegar si no cambia firma.
+- **Staging/producción Cómo vamos:** comparten las MISMAS tres tablas de snapshots en PostgreSQL Azure, los mismos motores P1/P2/P3, firmas y mecanismo de regeneración. Solo se separa el código/despliegue del frontend; NO duplicar tablas, DB, esquemas, motores, API, servicios ni crear una arquitectura staging paralela.
+- No crear ni montar ahora un staging nuevo para esta vista; esperar versión avanzada y autorización explícita. Si corresponde, reutilizar el staging existente del frontend. No iniciar regeneraciones de prueba que afecten datos comunes.
 - `/cierre-mensual` se conserva inmutable. Diseño del front se decide en este chat; no rediseñar sin instrucción.
 
 - Todo desarrollo nuevo de este repositorio se realiza sobre la rama `staging`.
