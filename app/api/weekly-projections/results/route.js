@@ -170,23 +170,27 @@ function shiftDate(date, days) {
   return value.toISOString().slice(0, 10);
 }
 
-async function getP1BrandIndicators(period, cutoffDate) {
-  const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
-  const network = { network: ['OWN_STORES'] };
+async function getP1BrandIndicators(period, cutoffDate, storeId = null) {
+  const scope = storeId ? '-store-' + storeId : '';
+  const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate + scope;
+  const network = { network: ['OWN_STORES'], ...(storeId ? { store_id: storeId } : {}) };
   const weekFrom = shiftDate(cutoffDate, -6);
   const salesBrandArgs = (brandId, from, to, dimension) => ({
     source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-    dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to },
+    dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to, ...(storeId ? { store_id: storeId } : {}) },
     cutoff: to,
   });
   const [salesResult, quotesEvidence, approvedEvidence, precurseEvidence] = await Promise.all([
-    callP1Tool(runId, 'sales_observe_many', {
-      measure: 'VIN_SALES',
-      period,
-      cutoff: cutoffDate,
-      commercial_universe: 'OWN_STORES',
-      operations: [{ kind: 'BRAND_NETWORK' }],
-    }),
+    storeId
+      ? callP1Tool(runId, 'data_observe', {
+        source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+        period, cutoff: cutoffDate, dimension: 'BRAND',
+        filters: { commercial_universe: 'OWN_STORES', store_id: storeId },
+      })
+      : callP1Tool(runId, 'sales_observe_many', {
+        measure: 'VIN_SALES', period, cutoff: cutoffDate, commercial_universe: 'OWN_STORES',
+        operations: [{ kind: 'BRAND_NETWORK' }],
+      }),
     callP1Tool(runId, 'data_observe', {
       source: 'FORUM', measure: 'QUOTATIONS', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
@@ -204,19 +208,21 @@ async function getP1BrandIndicators(period, cutoffDate) {
     callP1Tool(runId, 'data_observe', {
       source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
-      filters: { brand_id: '89', commercial_universe: 'OWN_STORES' },
+      filters: { brand_id: '89', commercial_universe: 'OWN_STORES', ...(storeId ? { store_id: storeId } : {}) },
     }),
     callP1Tool(runId, 'data_observe', {
       source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
-      filters: { brand_id: '71', commercial_universe: 'OWN_STORES' },
+      filters: { brand_id: '71', commercial_universe: 'OWN_STORES', ...(storeId ? { store_id: storeId } : {}) },
     }),
   ]);
   const [fotonWeek, dongfengWeek] = await Promise.all([
     callP1Tool(runId, 'data_observe', salesBrandArgs('89', weekFrom, cutoffDate, 'NETWORK')),
     callP1Tool(runId, 'data_observe', salesBrandArgs('71', weekFrom, cutoffDate, 'NETWORK')),
   ]);
-  const salesEvidence = salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
+  const salesEvidence = storeId
+    ? salesResult
+    : salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
   if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
   const fotonWeekly = p1WeeklySalesByBrand('FOTON', fotonWeek);
   const dongfengWeekly = p1WeeklySalesByBrand('DONGFENG', dongfengWeek);
@@ -471,6 +477,9 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       const storeId = String(store.sucursal_id);
       const admin = storeAdminScopes[storeId], finance = storeFinanceScopes[storeId];
       if (!admin || !finance) throw new Error(`Missing grouped result for store ${storeId}`);
+      const storeBrandIndicators = await getP1BrandIndicators(period, cutoffDate, storeId);
+      admin.brand_indicators = storeBrandIndicators;
+      finance.brand_indicators = storeBrandIndicators;
       delete admin.projections;
       delete admin.sent_not_invoiced;
       admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
