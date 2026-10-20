@@ -57,7 +57,14 @@ export async function GET(request) {
                    THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
                    ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at
           FROM ventas_raw v
-          LEFT JOIN sucursales_master sm ON (
+          LEFT JOIN LATERAL (
+        SELECT erp_store.sucursal_id
+        FROM sucursales_master erp_store
+        WHERE erp_store.id_sucursal_vta::text = nullif(trim(v.id_sucursal_vta::text), '')
+        ORDER BY erp_store.sucursal_id
+        LIMIT 1
+      ) certified_store ON true
+      LEFT JOIN sucursales_master sm ON sm.sucursal_id = certified_store.sucursal_id OR (certified_store.sucursal_id IS NULL AND (
             lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -67,7 +74,7 @@ export async function GET(request) {
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
             OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
             OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-          )
+          ))
           WHERE btrim(v.categoria_cliente)='Cliente General'
             AND (${storeId}::text IS NULL OR sm.sucursal_id::text=${storeId}::text)
             AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
@@ -90,7 +97,14 @@ export async function GET(request) {
                    THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
                    ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at
           FROM ventas_raw v
-          LEFT JOIN sucursales_master sm ON (
+          LEFT JOIN LATERAL (
+        SELECT erp_store.sucursal_id
+        FROM sucursales_master erp_store
+        WHERE erp_store.id_sucursal_vta::text = nullif(trim(v.id_sucursal_vta::text), '')
+        ORDER BY erp_store.sucursal_id
+        LIMIT 1
+      ) certified_store ON true
+      LEFT JOIN sucursales_master sm ON sm.sucursal_id = certified_store.sucursal_id OR (certified_store.sucursal_id IS NULL AND (
             lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -100,7 +114,7 @@ export async function GET(request) {
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
             OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
             OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)
-          )
+          ))
           WHERE btrim(v.categoria_cliente)='Cliente General'
             AND (${storeId}::text IS NULL OR sm.sucursal_id::text=${storeId}::text)
             AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
