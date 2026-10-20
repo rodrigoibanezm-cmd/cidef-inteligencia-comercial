@@ -1,4 +1,5 @@
 # Deploy only staging on pushes to the frontend staging branch.
+# Validate Azure OIDC and database secret configuration on this staging push.
 name: Deploy Inteligencia Comercial staging to Azure
 
 on:
