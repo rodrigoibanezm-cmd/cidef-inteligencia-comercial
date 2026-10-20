@@ -57,7 +57,25 @@ export async function GET(request) {
                    THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
                    ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at
           FROM ventas_raw v
-          LEFT JOIN sucursales_master sm ON (
+          LEFT JOIN LATERAL (
+
+            SELECT a.sucursal_id
+
+            FROM sucursal_aliases a
+
+            WHERE a.validated = true
+
+              AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+
+            ORDER BY a.sucursal_alias_id
+
+            LIMIT 1
+
+          ) resolved_store ON true
+
+          LEFT JOIN sucursales_master sm ON (resolved_store.sucursal_id = sm.sucursal_id)
+
+            OR (
             lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -90,7 +108,25 @@ export async function GET(request) {
                    THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer
                    ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at
           FROM ventas_raw v
-          LEFT JOIN sucursales_master sm ON (
+          LEFT JOIN LATERAL (
+
+            SELECT a.sucursal_id
+
+            FROM sucursal_aliases a
+
+            WHERE a.validated = true
+
+              AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+
+            ORDER BY a.sucursal_alias_id
+
+            LIMIT 1
+
+          ) resolved_store ON true
+
+          LEFT JOIN sucursales_master sm ON (resolved_store.sucursal_id = sm.sucursal_id)
+
+            OR (
             lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
             OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
@@ -140,7 +176,25 @@ export async function GET(request) {
             ELSE nullif(trim(v.fecha_factura::text),'')::date END) sold_at,
           upper(trim(v.entidad_financiera)) finance
         FROM ventas_raw v
-        LEFT JOIN sucursales_master sm ON (
+        LEFT JOIN LATERAL (
+
+          SELECT a.sucursal_id
+
+          FROM sucursal_aliases a
+
+          WHERE a.validated = true
+
+            AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+
+          ORDER BY a.sucursal_alias_id
+
+          LIMIT 1
+
+        ) resolved_store ON true
+
+        LEFT JOIN sucursales_master sm ON (resolved_store.sucursal_id = sm.sucursal_id)
+
+          OR (
           lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
           OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
           OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
