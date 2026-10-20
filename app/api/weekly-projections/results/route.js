@@ -302,7 +302,10 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     requireArray(sellerData.sellers, 'SELLER_ROSTER');
     if (!companyAdmin.scopes || !companyFinance.scopes) throw new Error('Incomplete grouped store results');
 
-    companyAdmin.brand_indicators = brandIndicators;\n    companyFinance.brand_indicators = brandIndicators;\n\n    const precurseCompany = precurseBundle.company;
+    companyAdmin.brand_indicators = brandIndicators;
+    companyFinance.brand_indicators = brandIndicators;
+
+    const precurseCompany = precurseBundle.company;
     const precurseStoreMembers = new Map(
       precurseBundle.dimensions.STORE.payload.members.map(member => [String(member.member_id), member]),
     );
