@@ -24,7 +24,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "$DEPLOY_TOKEN" ]]; then
-            echo "::error::Configure CIDEF_AZURE_PLATFORM_DISPATCH_TOKEN (fine-grained GitHub token with Actions:write on cidef-azure-platform)"
+            echo "::error::Configure CIDEF_AZURE_PLATFORM_DISPATCH_TOKEN (fine-grained GitHub token with Contents:read and Contents:write on cidef-azure-platform)"
             exit 1
           fi
           curl --fail-with-body --silent --show-error --request POST \
