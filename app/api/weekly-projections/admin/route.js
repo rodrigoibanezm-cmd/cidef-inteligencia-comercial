@@ -52,10 +52,27 @@ export async function GET(request) {
         coalesce(mo.nombre_canonico,vc.modelo_raw,v.desc_articulo,'Sin modelo') modelo,
         coalesce(v.nro_factura,v.factura) factura
       FROM ventas_raw v
+      LEFT JOIN LATERAL (
+
+        SELECT a.sucursal_id
+
+        FROM sucursal_aliases a
+
+        WHERE a.validated = true
+
+          AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+
+        ORDER BY a.sucursal_alias_id
+
+        LIMIT 1
+
+      ) resolved_store ON true
+
       LEFT JOIN sucursales_master sm
-        ON lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+        ON (resolved_store.sucursal_id = sm.sucursal_id)
+
+        OR lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
         OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal cenco florida' AND sm.sucursal_id=44)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
