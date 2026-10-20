@@ -77,6 +77,12 @@ export async function GET(request) {
     `;
     if (!rows.length) return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
     const cached = rows[0];
+    const storeSales = !storeId ? await sql`
+      SELECT sucursal_id::text AS sucursal_id, payload->'admin'->'sales_mtd'->>'total_units' AS total_units
+      FROM weekly_projection_results
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+        AND dimension='STORE'
+    ` : [];
     const branches = await call(getBranches, `${url.origin}/api/weekly-projections/sucursales`);
     const scopeStores = storeId ? branches.sucursales.filter(s => String(s.sucursal_id) === storeId) : branches.sucursales;
     if (!scopeStores.length) throw new Error('No fue posible resolver la tienda del resultado');
@@ -133,6 +139,7 @@ export async function GET(request) {
     return NextResponse.json({
       ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
       admin: payload, companyFinance: cached.payload.companyFinance,
+      storeSales: storeSales.map(r => ({ sucursal_id: r.sucursal_id, total_units: Number(r.total_units || 0) })),
       forumSellerData: storeId ? {
         aliases: cached.payload.aliases,
         forum: sellerPayloads.map(x => x.forum).filter(Boolean),
