@@ -360,7 +360,7 @@ export async function GET(request) {
         LEFT JOIN modelos_master_v01 m ON m.modelo_id=wsp.modelo_id
         LEFT JOIN versiones_master_v01 vm ON vm.version_id=wsp.version_id
         LEFT JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
-        WHERE wsp.week_start=${weekStart}::date ${storeId ? sql`AND wsp.sucursal_id=${storeId}::bigint` : sql``}
+        WHERE wsp.week_start=${weekStart}::date AND (${storeId}::bigint IS NULL OR wsp.sucursal_id=${storeId}::bigint)
         ORDER BY vendedor,expected_close_date,marca,modelo,wsp.projection_id`,
       sql`SELECT x.sent_not_invoiced_id::text,x.sucursal_id::text,x.persona_id::text,
         COALESCE(p.nombre_canonico,wps.nombre,'Sin vendedor') vendedor,
@@ -373,11 +373,11 @@ export async function GET(request) {
         LEFT JOIN marcas_master_v01 ma ON ma.marca_id=mm.marca_id
         WHERE x.status='PENDING'
           AND COALESCE(x.week_start,date_trunc('week',x.sent_at AT TIME ZONE 'America/Santiago')::date)=${weekStart}::date
-          ${storeId ? sql`AND x.sucursal_id=${storeId}::bigint` : sql``}
+          AND (${storeId}::bigint IS NULL OR x.sucursal_id=${storeId}::bigint)
         ORDER BY x.sent_at DESC,x.sent_not_invoiced_id DESC`,
       previousCut ? sql`SELECT sucursal_id::text AS sucursal_id, projected_units
         FROM weekly_sales_projection WHERE week_start=${previousCut}::date
-        ${storeId ? sql`AND sucursal_id=${storeId}::bigint` : sql``}` : Promise.resolve([]),
+        AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)` : Promise.resolve([]),
     ]);
     const projections = currentProjections.filter(row => scopeNames.has(String(row.sucursal_id)))
       .map(row => ({ ...row, sucursal: scopeNames.get(String(row.sucursal_id)) }));
