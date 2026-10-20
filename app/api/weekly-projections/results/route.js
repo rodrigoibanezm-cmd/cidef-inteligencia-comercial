@@ -172,12 +172,12 @@ async function getP1BrandIndicators(period, cutoffDate) {
   const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
   const network = { network: ['OWN_STORES'] };
   const weekFrom = shiftDate(cutoffDate, -6);
-  const brandSalesArgs = (brandId, from, to, dimension) => ({
+  const salesBrandArgs = (brandId, from, to, dimension) => ({
     source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
     dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to },
     cutoff: to,
   });
-  const [salesResult, quotesEvidence, approvedEvidence, ufisEvidence, precurseEvidence, fotonOther, dongfengOther, fotonWeek, dongfengWeek] = await Promise.all([
+  const [salesResult, quotesEvidence, approvedEvidence, ufisEvidence, precurseEvidence] = await Promise.all([
     callP1Tool(runId, 'sales_observe_many', {
       measure: 'VIN_SALES',
       period,
@@ -201,6 +201,8 @@ async function getP1BrandIndicators(period, cutoffDate) {
       source: 'FORUM', measure: 'PRECURSE', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'BRAND', filters: network,
     }),
+  ]);
+  const [fotonOther, dongfengOther] = await Promise.all([
     callP1Tool(runId, 'data_observe', {
       source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
@@ -211,11 +213,15 @@ async function getP1BrandIndicators(period, cutoffDate) {
       dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
       filters: { brand_id: '71', commercial_universe: 'OWN_STORES' },
     }),
-    callP1Tool(runId, 'data_observe', { ...brandSalesArgs('89', weekFrom, cutoffDate, 'NETWORK') }),
-    callP1Tool(runId, 'data_observe', { ...brandSalesArgs('71', weekFrom, cutoffDate, 'NETWORK') }),
+  ]);
+  const [fotonWeek, dongfengWeek] = await Promise.all([
+    callP1Tool(runId, 'data_observe', salesBrandArgs('89', weekFrom, cutoffDate, 'NETWORK')),
+    callP1Tool(runId, 'data_observe', salesBrandArgs('71', weekFrom, cutoffDate, 'NETWORK')),
   ]);
   const salesEvidence = salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
   if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
+  const fotonWeekly = p1WeeklySalesByBrand('FOTON', fotonWeek);
+  const dongfengWeekly = p1WeeklySalesByBrand('DONGFENG', dongfengWeek);
   return {
     sales: p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
     quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
@@ -227,9 +233,9 @@ async function getP1BrandIndicators(period, cutoffDate) {
       evidence_ids: [fotonOther.evidence_id, dongfengOther.evidence_id],
     },
     weekly_sales: {
-      foton: p1WeeklySalesByBrand('FOTON', fotonWeek).total,
-      dongfeng: p1WeeklySalesByBrand('DONGFENG', dongfengWeek).total,
-      company: p1WeeklySalesByBrand('FOTON', fotonWeek).total + p1WeeklySalesByBrand('DONGFENG', dongfengWeek).total,
+      foton: fotonWeekly.total,
+      dongfeng: dongfengWeekly.total,
+      company: fotonWeekly.total + dongfengWeekly.total,
       source: 'SALES P1', cutoff: cutoffDate, date_from: weekFrom,
       evidence_ids: [fotonWeek.evidence_id, dongfengWeek.evidence_id],
     },
