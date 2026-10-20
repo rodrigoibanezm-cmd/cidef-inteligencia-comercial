@@ -288,7 +288,8 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     const rows = [];
     const scopeIds = branches.sucursales.map(store => String(store.sucursal_id));
     const scopeQuery = encodeURIComponent(scopeIds.join(','));
-    const period = cutoffDate.slice(0, 7);\n    const [companyAdmin, companyFinance, sellerData, precurseBundle, brandIndicators] = await Promise.all([
+    const period = cutoffDate.slice(0, 7);
+    const [companyAdmin, companyFinance, sellerData, precurseBundle, brandIndicators] = await Promise.all([
       call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${weekStart}&cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
