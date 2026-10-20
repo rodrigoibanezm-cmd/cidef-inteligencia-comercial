@@ -138,10 +138,46 @@ function p1BrandIndicator(id, evidence, source, companyValue) {
   };
 }
 
+function p1OtherCreditsByBrand(id, evidence) {
+  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
+      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
+    throw new Error('P1 financial-entity evidence is not certified: ' + id);
+  }
+  const total = evidence.payload.members.reduce((value, member) => {
+    const entity = String(member.member_id ?? member.member_label ?? '').trim().toUpperCase();
+    if (!entity || entity === 'FORUM' || entity === 'UNRESOLVED' || entity.includes('NO RESUELTO')) return value;
+    return value + Number(member.value || 0);
+  }, 0);
+  return { total, evidence_id: evidence.evidence_id };
+}
+
+function p1WeeklySalesByBrand(id, evidence) {
+  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
+      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
+    throw new Error('P1 weekly sales evidence is not certified: ' + id);
+  }
+  const ownStores = evidence.payload.members
+    .filter(member => String(member.member_id ?? member.member_label ?? '').trim().toUpperCase() === 'TIENDA_PROPIA')
+    .reduce((value, member) => value + Number(member.value || 0), 0);
+  return { total: ownStores, evidence_id: evidence.evidence_id };
+}
+
+function shiftDate(date, days) {
+  const value = new Date(date + 'T00:00:00Z');
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+}
+
 async function getP1BrandIndicators(period, cutoffDate) {
   const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
   const network = { network: ['OWN_STORES'] };
-  const [salesResult, quotesEvidence, approvedEvidence, ufisEvidence, precurseEvidence] = await Promise.all([
+  const weekFrom = shiftDate(cutoffDate, -6);
+  const brandSalesArgs = (brandId, from, to, dimension) => ({
+    source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+    dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to },
+    cutoff: to,
+  });
+  const [salesResult, quotesEvidence, approvedEvidence, ufisEvidence, precurseEvidence, fotonOther, dongfengOther, fotonWeek, dongfengWeek] = await Promise.all([
     callP1Tool(runId, 'sales_observe_many', {
       measure: 'VIN_SALES',
       period,
@@ -165,6 +201,18 @@ async function getP1BrandIndicators(period, cutoffDate) {
       source: 'FORUM', measure: 'PRECURSE', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'BRAND', filters: network,
     }),
+    callP1Tool(runId, 'data_observe', {
+      source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
+      filters: { brand_id: '89', commercial_universe: 'OWN_STORES' },
+    }),
+    callP1Tool(runId, 'data_observe', {
+      source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
+      filters: { brand_id: '71', commercial_universe: 'OWN_STORES' },
+    }),
+    callP1Tool(runId, 'data_observe', { ...brandSalesArgs('89', weekFrom, cutoffDate, 'NETWORK') }),
+    callP1Tool(runId, 'data_observe', { ...brandSalesArgs('71', weekFrom, cutoffDate, 'NETWORK') }),
   ]);
   const salesEvidence = salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
   if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
@@ -172,6 +220,19 @@ async function getP1BrandIndicators(period, cutoffDate) {
     sales: p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
     quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
     approved: p1BrandIndicator('approved', approvedEvidence, 'FORUM', approvedEvidence.coverage?.total_value),
+    other_credits: {
+      foton: p1OtherCreditsByBrand('FOTON', fotonOther).total,
+      dongfeng: p1OtherCreditsByBrand('DONGFENG', dongfengOther).total,
+      source: 'SALES P1', cutoff: cutoffDate,
+      evidence_ids: [fotonOther.evidence_id, dongfengOther.evidence_id],
+    },
+    weekly_sales: {
+      foton: p1WeeklySalesByBrand('FOTON', fotonWeek).total,
+      dongfeng: p1WeeklySalesByBrand('DONGFENG', dongfengWeek).total,
+      company: p1WeeklySalesByBrand('FOTON', fotonWeek).total + p1WeeklySalesByBrand('DONGFENG', dongfengWeek).total,
+      source: 'SALES P1', cutoff: cutoffDate, date_from: weekFrom,
+      evidence_ids: [fotonWeek.evidence_id, dongfengWeek.evidence_id],
+    },
     ufis: p1BrandIndicator('ufis', ufisEvidence, 'FORUM', ufisEvidence.coverage?.total_value),
     precurse: p1BrandIndicator('precurse', precurseEvidence, 'FORUM', precurseEvidence.coverage?.total_value),
   };
