@@ -153,10 +153,10 @@ function p1FinanceByBrand(id, evidence) {
   return { ufi, other, evidence_id: evidence.evidence_id };
 }
 
-function p1WeeklySalesByBrand(id, evidence) {
+function p1OwnStoreSales(id, evidence) {
   if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
       !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
-    throw new Error('P1 weekly sales evidence is not certified: ' + id);
+    throw new Error('P1 own-store sales evidence is not certified: ' + id);
   }
   const ownStores = evidence.payload.members
     .filter(member => String(member.member_id ?? member.member_label ?? '').trim().toUpperCase() === 'TIENDA_PROPIA')
@@ -188,7 +188,7 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumSto
     storeId
       ? callP1Tool(runId, 'data_observe', {
         source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-        period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND',
+        period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'NETWORK',
         filters: { commercial_universe: 'OWN_STORES', store_id: storeId },
       })
       : callP1Tool(runId, 'sales_observe_many', {
@@ -208,6 +208,13 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumSto
       dimension: 'BRAND', filters: network,
     }),
   ]);
+  const storeMonthlyBrandEvidence = storeId
+    ? await Promise.all(['89', '71'].map(brandId => callP1Tool(runId, 'data_observe', {
+      source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      period, cutoff: cutoffDate, dimension: 'NETWORK',
+      filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', store_id: storeId },
+    })))
+    : null;
   const [fotonOther, dongfengOther] = await Promise.all([
     callP1Tool(runId, 'data_observe', {
       source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
@@ -224,16 +231,37 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumSto
     callP1Tool(runId, 'data_observe', salesBrandArgs('89', weekFrom, cutoffDate, 'NETWORK')),
     callP1Tool(runId, 'data_observe', salesBrandArgs('71', weekFrom, cutoffDate, 'NETWORK')),
   ]);
-  const salesEvidence = storeId
+  const companySalesEvidence = storeId
     ? salesResult
     : salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
+  let salesEvidence = companySalesEvidence;
+  if (storeId) {
+    const [fotonMonthly, dongfengMonthly] = storeMonthlyBrandEvidence.map((evidence, index) =>
+      p1OwnStoreSales(index === 0 ? 'FOTON' : 'DONGFENG', evidence));
+    const companyMonthly = p1OwnStoreSales('store sales', companySalesEvidence);
+    salesEvidence = {
+      ...companySalesEvidence,
+      coverage: { ...companySalesEvidence.coverage, filtered_n: companyMonthly.total },
+      payload: {
+        ...companySalesEvidence.payload,
+        members: [
+          { member_label: 'FOTON', value: fotonMonthly.total },
+          { member_label: 'DONGFENG', value: dongfengMonthly.total },
+        ],
+      },
+      _brandEvidenceIds: [fotonMonthly.evidence_id, dongfengMonthly.evidence_id],
+    };
+  }
   if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
-  const fotonWeekly = p1WeeklySalesByBrand('FOTON', fotonWeek);
-  const dongfengWeekly = p1WeeklySalesByBrand('DONGFENG', dongfengWeek);
+  const fotonWeekly = p1OwnStoreSales('FOTON', fotonWeek);
+  const dongfengWeekly = p1OwnStoreSales('DONGFENG', dongfengWeek);
   const fotonFinance = p1FinanceByBrand('FOTON', fotonOther);
   const dongfengFinance = p1FinanceByBrand('DONGFENG', dongfengOther);
   return {
-    sales: p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
+    sales: {
+      ...p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
+      ...(storeId ? { evidence_ids: [salesEvidence.evidence_id, ...salesEvidence._brandEvidenceIds] } : {}),
+    },
     quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
     approved: p1BrandIndicator('approved', approvedEvidence, 'FORUM', approvedEvidence.coverage?.total_value),
     other_credits: {
