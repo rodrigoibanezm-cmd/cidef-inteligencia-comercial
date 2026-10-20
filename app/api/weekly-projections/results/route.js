@@ -96,7 +96,7 @@ async function callP1Tool(runId, name, args) {
   });
   const body = await response.text();
   if (!response.ok) throw new Error('P1 brand observation failed (' + response.status + ')');
-  const dataLine = body.split(/\\r?\\n/).find(line => line.startsWith('data:'));
+  const dataLine = body.split(/\r?\n/).find(line => line.startsWith('data:'));
   if (!dataLine) throw new Error('P1 brand observation returned no data');
   const envelope = JSON.parse(dataLine.slice(5).trim());
   if (envelope.error || envelope.result?.isError) {
