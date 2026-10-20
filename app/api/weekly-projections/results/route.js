@@ -182,18 +182,27 @@ async function readRefreshStatus(weekStart, cutoffDate) {
   }
 }
 
-async function writeRefreshStatus(weekStart, cutoffDate, job, claim = false) {
+async function writeRefreshStatus(weekStart, cutoffDate, job, claim = false, progress = false) {
   const sql = db();
   const query = `
     INSERT INTO weekly_projection_results
       (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
     VALUES ($1::date,$2::date,'staging','COMPANY',$3,$4::jsonb,now())
     ON CONFLICT (week_start,cutoff_date,environment,scope_key) DO UPDATE
-      SET payload=EXCLUDED.payload, updated_at=now()
+      SET payload = CASE WHEN $5::boolean THEN
+        EXCLUDED.payload || jsonb_build_object(
+          'completedStores',
+          GREATEST(
+            COALESCE((weekly_projection_results.payload->>'completedStores')::integer, 0),
+            COALESCE((EXCLUDED.payload->>'completedStores')::integer, 0)
+          )
+        )
+        ELSE EXCLUDED.payload END,
+        updated_at=now()
       ${claim ? "WHERE weekly_projection_results.payload->>'status' IS DISTINCT FROM 'running'" : ''}
     RETURNING payload
   `;
-  const rows = await sql.query(query, [weekStart, cutoffDate, REFRESH_STATUS_SCOPE, JSON.stringify(job)]);
+  const rows = await sql.query(query, [weekStart, cutoffDate, REFRESH_STATUS_SCOPE, JSON.stringify(job), progress]);
   return rows[0]?.payload || null;
 }
 
@@ -234,7 +243,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
         rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: financePayload }));
         completedStores += 1;
         job.completedStores = completedStores;
-        await writeRefreshStatus(weekStart, cutoffDate, job);
+        await writeRefreshStatus(weekStart, cutoffDate, job, false, true);
         const sellerIds = new Set(roster.vendedores.map(s => String(s.persona_id)).filter(id => id && id !== 'null'));
         for (const sellerId of sellerIds) {
           const forum = sellerData.forum.find(s => String(s.persona_id) === sellerId) || null;
@@ -249,6 +258,8 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
     await writeRefreshStatus(weekStart, cutoffDate, job);
     await Promise.all(storeWorkers);
 
+    const finishedAt = new Date().toISOString();
+    const completedJob = { ...job, status: 'completed', finished_at: finishedAt, duration_ms: Date.now() - Date.parse(job.started_at) };
     await withDbTransaction(async client => {
       await client.query(
         'DELETE FROM weekly_projection_results WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3',
@@ -262,19 +273,14 @@ async function performRefresh(weekStart, cutoffDate, origin, job) {
           [row.weekStart, row.cutoffDate, row.env, row.dimension, row.scopeKey, row.storeId, row.personId, JSON.stringify(row.payload)],
         );
       }
-      const completedAt = new Date().toISOString();
-      const completePayload = { ...job, status: 'completed', finished_at: completedAt };
       await client.query(
         `INSERT INTO weekly_projection_results
           (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
          VALUES ($1::date,$2::date,$3,'COMPANY',$4,$5::jsonb,now())`,
-        [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(completePayload)],
+        [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(completedJob)],
       );
     });
-    const sql = db();
-    const completed = await readRefreshStatus(weekStart, cutoffDate);
-    const finishedAt = completed.finished_at || new Date().toISOString();
-    return { ok: true, status: 'completed', week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: finishedAt, ...completed };
+    return { ok: true, week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: finishedAt, ...completedJob };
 }
 
 export async function POST(request) {
