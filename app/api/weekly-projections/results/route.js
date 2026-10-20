@@ -141,7 +141,7 @@ function p1BrandIndicator(id, evidence, source, companyValue) {
 async function getP1BrandIndicators(period, cutoffDate) {
   const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
   const network = { network: ['OWN_STORES'] };
-  const [salesResult, quotesEvidence, ufisEvidence, precurseEvidence] = await Promise.all([
+  const [salesResult, quotesEvidence, approvedEvidence, ufisEvidence, precurseEvidence] = await Promise.all([
     callP1Tool(runId, 'sales_observe_many', {
       measure: 'VIN_SALES',
       period,
@@ -151,6 +151,10 @@ async function getP1BrandIndicators(period, cutoffDate) {
     }),
     callP1Tool(runId, 'data_observe', {
       source: 'FORUM', measure: 'QUOTATIONS', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
+      period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
+    }),
+    callP1Tool(runId, 'data_observe', {
+      source: 'FORUM', measure: 'COHORT_APPROVED', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
     }),
     callP1Tool(runId, 'data_observe', {
@@ -167,6 +171,7 @@ async function getP1BrandIndicators(period, cutoffDate) {
   return {
     sales: p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
     quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
+    approved: p1BrandIndicator('approved', approvedEvidence, 'FORUM', approvedEvidence.coverage?.total_value),
     ufis: p1BrandIndicator('ufis', ufisEvidence, 'FORUM', ufisEvidence.coverage?.total_value),
     precurse: p1BrandIndicator('precurse', precurseEvidence, 'FORUM', precurseEvidence.coverage?.total_value),
   };
