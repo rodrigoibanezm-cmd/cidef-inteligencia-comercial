@@ -53,15 +53,40 @@ export async function GET(request) {
         coalesce(v.nro_factura,v.factura) factura
       FROM ventas_raw v
       LEFT JOIN LATERAL (
-        SELECT erp_store.sucursal_id
-        FROM sucursales_master erp_store
-        WHERE erp_store.id_sucursal_vta::text = nullif(trim(v.id_sucursal_vta::text), '')
-        ORDER BY erp_store.sucursal_id
+
+        SELECT candidate.sucursal_id
+
+        FROM (
+
+          SELECT sm_erp.sucursal_id, 0 AS priority
+
+          FROM sucursales_master sm_erp
+
+          WHERE sm_erp.id_sucursal_vta::text = nullif(trim(v.id_sucursal_vta::text), '')
+
+          UNION ALL
+
+          SELECT a.sucursal_id, 1 AS priority
+
+          FROM sucursal_aliases a
+
+          WHERE a.validated = true
+
+            AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
+
+        ) candidate
+
+        ORDER BY candidate.priority, candidate.sucursal_id
+
         LIMIT 1
-      ) certified_store ON true
+
+      ) resolved_store ON true
+
       LEFT JOIN sucursales_master sm
-        ON sm.sucursal_id = certified_store.sucursal_id
-        OR (certified_store.sucursal_id IS NULL AND (lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
+        ON (resolved_store.sucursal_id = sm.sucursal_id)
+
+        OR (resolved_store.sucursal_id IS NULL AND (
+        lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
         OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
         OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
@@ -135,6 +160,24 @@ export async function GET(request) {
     const nextPrior=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(nextCut,delta),`M-${3-i}`,storeId));
     const nextAvg=nextPrior.reduce((s,p)=>s+p.mtd_units,0)/nextPrior.length;
     const nextCutContext={cutoff_date:nextCut,expected_units:expectedNext,prior_periods:nextPrior,prior_average:nextAvg,change_vs_prior_average:ratio(expectedNext-nextAvg,nextAvg)};
-    return NextResponse.json({ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections});
+    const response={ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections};
+    if(url.searchParams.get('include_scopes')==='1'){
+      const ids=(url.searchParams.get('scope_ids')||'').split(',').filter(id=>/^\d+$/.test(id));
+      response.scopes={};
+      for(const id of ids){
+        const scopedPeriods=cuts.map(([label,date])=>periodSnapshot(all,date,label,id));
+        const scopedCurrent=scopedPeriods.find(p=>p.label==='CURRENT'), scopedYoy=scopedPeriods.find(p=>p.label==='YOY');
+        const scopedPrior=scopedPeriods.filter(p=>['M-3','M-2','M-1'].includes(p.label));
+        const scopedAvgMtd=scopedPrior.reduce((sum,p)=>sum+p.mtd_units,0)/3, scopedAvgWeek=scopedPrior.reduce((sum,p)=>sum+p.last_7d_units,0)/3;
+        const details=all.filter(r=>String(r.sucursal_id)===id&&r.fecha_venta>=scopedCurrent.date_from&&r.fecha_venta<=cutoffDate);
+        const previousDetails=previousCut?all.filter(r=>String(r.sucursal_id)===id&&r.fecha_venta>=monthStart(previousCut)&&r.fecha_venta<=previousCut):[];
+        const scopedProjection=previousProjectionRows.filter(r=>String(r.sucursal_id)===id).reduce((sum,r)=>sum+Number(r.projected_units||0),0);
+        const currentProjection=projections.filter(r=>String(r.sucursal_id)===id).reduce((sum,r)=>sum+Number(r.projected_units||0),0);
+        const nextDate=plusDays(weekStart,7), nextPeriods=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(nextDate,delta),`M-${3-i}`,id));
+        const nextAverage=nextPeriods.reduce((sum,p)=>sum+p.mtd_units,0)/nextPeriods.length, nextExpected=scopedCurrent.mtd_units+currentProjection;
+        response.scopes[id]={ok:true,week_start:weekStart,sucursal_id:id,summary:{total_units:0,sent_not_invoiced_units:0},sales_mtd:{month:cutoffDate.slice(0,7),date_from:scopedCurrent.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:scopedCurrent.mtd_units,rows:[...byStore(details).values()],details},historical_context:{periods:scopedPeriods,yoy:{mtd_change:ratio(scopedCurrent.mtd_units-scopedYoy.mtd_units,scopedYoy.mtd_units),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedYoy.last_7d_units,scopedYoy.last_7d_units),current_mtd:scopedCurrent.mtd_units,yoy_mtd:scopedYoy.mtd_units,current_last_7d:scopedCurrent.last_7d_units,yoy_last_7d:scopedYoy.last_7d_units},recent_3m:{mtd_average:scopedAvgMtd,last_7d_average:scopedAvgWeek,mtd_change:ratio(scopedCurrent.mtd_units-scopedAvgMtd,scopedAvgMtd),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedAvgWeek,scopedAvgWeek)}},next_cut_context:{cutoff_date:nextDate,expected_units:nextExpected,prior_periods:nextPeriods,prior_average:nextAverage,change_vs_prior_average:ratio(nextExpected-nextAverage,nextAverage)},evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:previousDetails.length,previous_projection:scopedProjection,expected_current:previousDetails.length+scopedProjection,current_sales_mtd:scopedCurrent.mtd_units,new_sales:scopedCurrent.mtd_units-previousDetails.length,projection_fulfillment:ratio(scopedCurrent.mtd_units-previousDetails.length,scopedProjection),expected_fulfillment:ratio(scopedCurrent.mtd_units,previousDetails.length+scopedProjection),stores:[]}:null,projections:[]};
+      }
+    }
+    return NextResponse.json(response);
   } catch(error){console.error(error);return NextResponse.json({ok:false,error:error?.message||'Internal server error'},{status:400});}
 }
