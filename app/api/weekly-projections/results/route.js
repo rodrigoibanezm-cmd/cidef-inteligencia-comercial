@@ -170,10 +170,14 @@ function shiftDate(date, days) {
   return value.toISOString().slice(0, 10);
 }
 
-async function getP1BrandIndicators(period, cutoffDate, storeId = null) {
+async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumStoreAliases = []) {
+  if (storeId && !forumStoreAliases.length) throw new Error('P1_FORUM_STORE_ALIAS_MISSING: ' + storeId);
   const scope = storeId ? '-store-' + storeId : '';
   const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate + scope;
-  const network = { network: ['OWN_STORES'], ...(storeId ? { store_id: storeId } : {}) };
+  const network = {
+    network: ['OWN_STORES'],
+    ...(storeId ? { store: forumStoreAliases } : {}),
+  };
   const weekFrom = shiftDate(cutoffDate, -6);
   const salesBrandArgs = (brandId, from, to, dimension) => ({
     source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
@@ -184,7 +188,7 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null) {
     storeId
       ? callP1Tool(runId, 'data_observe', {
         source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-        period, cutoff: cutoffDate, dimension: 'BRAND',
+        period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND',
         filters: { commercial_universe: 'OWN_STORES', store_id: storeId },
       })
       : callP1Tool(runId, 'sales_observe_many', {
@@ -477,7 +481,17 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       const storeId = String(store.sucursal_id);
       const admin = storeAdminScopes[storeId], finance = storeFinanceScopes[storeId];
       if (!admin || !finance) throw new Error(`Missing grouped result for store ${storeId}`);
-      const storeBrandIndicators = await getP1BrandIndicators(period, cutoffDate, storeId);
+      const forumAliasRows = await db()`
+        SELECT DISTINCT valor_raw
+        FROM sucursal_aliases
+        WHERE sucursal_id=${storeId}::bigint
+          AND fuente='forum_raw'
+          AND validated=true
+          AND valor_raw IS NOT NULL
+        ORDER BY valor_raw
+      `;
+      const forumStoreAliases = forumAliasRows.map(row => String(row.valor_raw).trim()).filter(Boolean);
+      const storeBrandIndicators = await getP1BrandIndicators(period, cutoffDate, storeId, forumStoreAliases);
       admin.brand_indicators = storeBrandIndicators;
       finance.brand_indicators = storeBrandIndicators;
       delete admin.projections;
