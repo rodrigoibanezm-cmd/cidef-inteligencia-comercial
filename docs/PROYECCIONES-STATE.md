@@ -70,3 +70,19 @@ Pendientes acordados:
 3. Definir e incorporar la columna de Pre-cursadas con una fuente FORUM certificada.
 
 No están autorizados cambios de diseño, indicadores o lógica hasta recibir instrucciones explícitas.
+
+## Snapshot diario automático — staging (22-10-2026)
+
+Este apartado reemplaza la descripción anterior del flujo de lectura, no sus reglas comerciales.
+
+- `GET /api/weekly-projections/results` lee el último corte completo de la semana consultada, hasta la fecha solicitada. Todas las dimensiones se obtienen en una sola sentencia para evitar mezclar publicaciones. Proyecciones y enviados no facturados continúan en vivo.
+- El navegador inicia con el día de `America/Santiago`, sin reutilizar una fecha de otro dispositivo. El botón solo vuelve a leer; abrir, navegar o recuperar el foco no ejecuta motores.
+- El Action **existente** `refresh-inteligencia-comercial-staging.yml` de Azure Platform comprueba metadatos cada diez minutos. Ambas cargas actuales de legacy terminan publicando atómicamente `forum_ventas_snapshot_v01 / STATE / ALL / STATUS = READY`; su `source_signature` y `generation_id` son la señal reutilizada. No se consulta GitHub privado desde el runner ni se requieren tokens nuevos.
+- El POST verifica esa señal en el servidor. Guarda ejecución procesada, cortes independientes y versión del coordinador en JSONB de la tabla existente; no acepta firmas del navegador. Repetir fuentes dentro de la misma semana registra la ejecución sin recalcular.
+- Una publicación nueva reemplaza solo el corte diario actual y el entorno `staging`. Los días anteriores se conservan. No se reconstruyen fotos diarias históricas con PRECURSE actual.
+- La coordinación está en `lib/weekly-projection-snapshot.js`; no contiene reglas comerciales. Reutiliza los tres generadores actuales y sus llamadas P1. Persisten sus consultas SQL previas; esta automatización no acredita una nueva certificación integral P1/P2.
+- Bloqueo global por entorno mediante advisory transaction lock, lease de cinco minutos, heartbeat cada treinta segundos y duración máxima de 110 minutos. Un sucesor puede recuperar un worker expirado; el anterior pierde el permiso de publicación.
+- Fallos de cálculo, escrituras o cambios de señal durante la generación conservan íntegro el snapshot publicado. La deduplicación se basa en resultados publicados, no en un intento fallido.
+- Alcance exclusivamente staging. Producción conserva código, despliegue y resultados propios. El dato compartido de Forum se consulta solo en lectura.
+- Validación local: `npm run test:projections` usa PostgreSQL en memoria (PGlite), sin conexiones a Azure, Neon ni otras fuentes.
+- Limitación: la detección depende del último publicador certificado que ya ejecutan las cargas. BUILDING/FAILED no autoriza regeneración; si SALES y FORUM terminan entre dos comprobaciones, se genera una única foto del estado completo más reciente. No se inventa una foto intermedia perdida.

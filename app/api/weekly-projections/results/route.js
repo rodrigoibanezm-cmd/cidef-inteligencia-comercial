@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, withDbTransaction } from '../../../../lib/db.js';
+import { createSnapshotStore, reportingDates, SNAPSHOT_VERSION } from '../../../../lib/weekly-projection-snapshot.js';
 import { GET as getAdmin } from '../admin/route.js';
 import { GET as getCompanyFinance } from '../company-finance/route.js';
 import { GET as getForumSellers } from '../forum-sellers/route.js';
@@ -8,6 +9,7 @@ import { GET as getProjections } from '../projections/route.js';
 import { GET as getNotInvoiced } from '../not-invoiced/route.js';
 
 export const dynamic = 'force-dynamic';
+const snapshots = createSnapshotStore({ db, withDbTransaction });
 
 const bad = (message, status = 400) => NextResponse.json({ ok: false, error: message }, { status });
 
@@ -322,25 +324,26 @@ function sum(rows, field) { return rows.reduce((total, row) => total + Number(ro
 
 export async function GET(request) {
   try {
-    const url = new URL(request.url), { weekStart, cutoffDate } = dates(url.searchParams);
+    const url = new URL(request.url);
+    const defaults = reportingDates();
+    if (!url.searchParams.has('week_start')) url.searchParams.set('week_start', defaults.weekStart);
+    if (!url.searchParams.has('cutoff_date')) url.searchParams.set('cutoff_date', defaults.cutoffDate);
+    const { weekStart, cutoffDate: requestedCutoff } = dates(url.searchParams);
     const env = environment(), storeId = url.searchParams.get('sucursal_id') || null;
-    if (url.searchParams.get('status') === '1') return NextResponse.json({ ok: true, environment: env, ...(await readRefreshStatus(weekStart, cutoffDate, env)) });
+    if (url.searchParams.get('status') === '1') {
+      const status = await snapshots.status(weekStart, requestedCutoff, env);
+      return NextResponse.json({ ok: true, environment: env, week_start: weekStart, cutoff_date: requestedCutoff,
+        ...status, snapshot_version: SNAPSHOT_VERSION,
+        ...(url.searchParams.get('sources') === '1' ? { source_state: await snapshots.sources() } : {}) });
+    }
     if (storeId && !/^\d+$/.test(storeId)) return bad('Invalid sucursal_id');
     const sql = db();
-    const rows = await sql`
-      SELECT dimension, scope_key, sucursal_id::text, persona_id::text, payload, updated_at::text
-      FROM weekly_projection_results
-      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
-        AND scope_key=${storeId ? `STORE:${storeId}` : 'COMPANY'}
-    `;
-    if (!rows.length) return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
-    const cached = rows[0];
-    const storeSales = !storeId ? await sql`
-      SELECT sucursal_id::text AS sucursal_id, payload->'admin'->'sales_mtd'->>'total_units' AS total_units
-      FROM weekly_projection_results
-      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
-        AND dimension='STORE'
-    ` : [];
+    const rows = await snapshots.latest(weekStart, requestedCutoff, env, storeId);
+    const cached = rows.find(row => row.scope_key === (storeId ? `STORE:${storeId}` : 'COMPANY'));
+    if (!cached) return bad('Aún no hay un snapshot completo para esta semana. Se publicará automáticamente después de la carga.', 404);
+    const cutoffDate = cached.cutoff_date;
+    const storeSales = storeId ? [] : rows.filter(row => row.dimension === 'STORE')
+      .map(row => ({ sucursal_id: row.sucursal_id, total_units: row.payload.admin.sales_mtd.total_units }));
     const branches = await call(getBranches, `${url.origin}/api/weekly-projections/sucursales`);
     const scopeStores = storeId ? branches.sucursales.filter(s => String(s.sucursal_id) === storeId) : branches.sucursales;
     if (!scopeStores.length) throw new Error('No fue posible resolver la tienda del resultado');
@@ -411,12 +414,7 @@ export async function GET(request) {
       }
     }
 
-    const sellers = storeId ? await sql`
-      SELECT payload FROM weekly_projection_results
-      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
-        AND dimension='SELLER' AND sucursal_id=${storeId}::bigint
-      ORDER BY persona_id
-    ` : [];
+    const sellers = storeId ? rows.filter(row => row.dimension === 'SELLER') : [];
     const sellerPayloads = sellers.map(r => r.payload);
     return NextResponse.json({
       ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
@@ -426,55 +424,14 @@ export async function GET(request) {
         aliases: cached.payload.aliases,
         forum: sellerPayloads.map(x => x.forum).filter(Boolean),
       } : { aliases: [], forum: [] },
-      updated_at: cached.updated_at,
+      updated_at: cached.updated_at, requested_cutoff_date: requestedCutoff,
+      snapshot: cached.payload.snapshot || { week_start: weekStart, cutoff_date: cutoffDate, generated_at: cached.updated_at },
     });
   } catch (error) {
     console.error(error);
-    if (error?.code === '42P01') return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
+    if (error?.code === '42P01') return bad('El snapshot automático aún no está disponible.', 404);
     return bad(error?.message || 'Internal server error', 500);
   }
-}
-
-const REFRESH_STATUS_SCOPE = 'REFRESH_STATUS';
-function refreshKey(weekStart, cutoffDate, env) { return `${weekStart}:${cutoffDate}:${env}`; }
-
-
-async function readRefreshStatus(weekStart, cutoffDate, env) {
-  try {
-    const sql = db();
-    const rows = await sql.query(`
-      SELECT payload FROM weekly_projection_results
-      WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3 AND scope_key=$4
-    `, [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE]);
-    return rows[0]?.payload || { status: 'idle' };
-  } catch (error) {
-    if (error?.code === '42P01') return { status: 'idle' };
-    throw error;
-  }
-}
-
-async function writeRefreshStatus(weekStart, cutoffDate, env, job, claim = false, progress = false) {
-  const sql = db();
-  const query = `
-    INSERT INTO weekly_projection_results
-      (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
-    VALUES ($1::date,$2::date,$3,'COMPANY',$4,$5::jsonb,now())
-    ON CONFLICT (week_start,cutoff_date,environment,scope_key) DO UPDATE
-      SET payload = CASE WHEN $6::boolean THEN
-        EXCLUDED.payload || jsonb_build_object(
-          'completedStores',
-          GREATEST(
-            COALESCE((weekly_projection_results.payload->>'completedStores')::integer, 0),
-            COALESCE((EXCLUDED.payload->>'completedStores')::integer, 0)
-          )
-        )
-        ELSE EXCLUDED.payload END,
-        updated_at=now()
-      ${claim ? "WHERE weekly_projection_results.payload->>'status' IS DISTINCT FROM 'running'" : ''}
-    RETURNING payload
-  `;
-  const rows = await sql.query(query, [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(job), progress]);
-  return rows[0]?.payload || null;
 }
 
 async function performRefresh(weekStart, cutoffDate, origin, job, env) {
@@ -527,12 +484,14 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
     job.totalStores = branches.sucursales.length;
-    await writeRefreshStatus(weekStart, cutoffDate, env, job);
+    await snapshots.update(weekStart, cutoffDate, env, job);
     let completedStores = 0;
     for (const store of branches.sucursales) {
       const storeId = String(store.sucursal_id);
       const admin = storeAdminScopes[storeId], finance = storeFinanceScopes[storeId];
       if (!admin || !finance) throw new Error(`Missing grouped result for store ${storeId}`);
+      requireAdmin(admin, storeId);
+      requireFinance(finance, storeId);
       const forumAliasRows = await db()`
         SELECT DISTINCT valor_raw
         FROM sucursal_aliases
@@ -581,55 +540,45 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       }
       completedStores += 1;
       job.completedStores = completedStores;
-      await writeRefreshStatus(weekStart, cutoffDate, env, job, false, true);
+      await snapshots.update(weekStart, cutoffDate, env, job);
     }
 
-    const finishedAt = new Date().toISOString();
-    const completedJob = { ...job, status: 'completed', finished_at: finishedAt, duration_ms: Date.now() - Date.parse(job.started_at) };
-    await withDbTransaction(async client => {
-      await client.query(
-        'DELETE FROM weekly_projection_results WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3',
-        [weekStart, cutoffDate, env],
-      );
-      for (const row of rows) {
-        await client.query(
-          `INSERT INTO weekly_projection_results
-            (week_start,cutoff_date,environment,dimension,scope_key,sucursal_id,persona_id,payload,updated_at)
-           VALUES ($1::date,$2::date,$3,$4,$5,$6::bigint,$7::bigint,$8::jsonb,now())`,
-          [row.weekStart, row.cutoffDate, row.env, row.dimension, row.scopeKey, row.storeId, row.personId, JSON.stringify(row.payload)],
-        );
-      }
-      await client.query(
-        `INSERT INTO weekly_projection_results
-          (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
-         VALUES ($1::date,$2::date,$3,'COMPANY',$4,$5::jsonb,now())`,
-        [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(completedJob)],
-      );
-    });
-    return { ok: true, week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: finishedAt, ...completedJob };
+    return snapshots.publish(weekStart, cutoffDate, env, job, rows);
 }
 
 export async function POST(request) {
-  let weekStart, cutoffDate, job, env;
+  let weekStart, cutoffDate, job, env, heartbeat;
   try {
     env = environment();
+    if (env !== 'staging') return bad('STAGING_ONLY', 403);
     const body = await request.json();
-    ({ weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' })));
-    job = { status: 'running', week_start: weekStart, cutoff_date: cutoffDate, completedStores: 0, totalStores: 0, started_at: new Date().toISOString() };
-    const claimed = await writeRefreshStatus(weekStart, cutoffDate, env, job, true);
-    if (!claimed) {
-      return NextResponse.json({ ok: true, queued: true, environment: env, ...(await readRefreshStatus(weekStart, cutoffDate, env)) }, { status: 202 });
-    }
-    const origin = new URL(request.url).origin;
-    const result = await performRefresh(weekStart, cutoffDate, origin, job, env);
-    return NextResponse.json(result);
+    const today = reportingDates();
+    ({ weekStart, cutoffDate } = dates(new URLSearchParams({
+      week_start: body.week_start || today.weekStart,
+      cutoff_date: body.cutoff_date || today.cutoffDate,
+    })));
+    // PRECURSE is the latest stock: never relabel it as a past daily photo.
+    if (weekStart !== today.weekStart || cutoffDate !== today.cutoffDate) return bad('Solo se genera el snapshot del día actual de Santiago');
+    const sources = await snapshots.sources();
+    if (sources.status !== 'READY') return bad('La última carga aún no tiene publicación completa certificada.', 409);
+    const claimed = await snapshots.claim(weekStart, cutoffDate, env, sources);
+    if (!claimed.claimed) return NextResponse.json({ ok: true, environment: env, ...claimed }, { status: claimed.status === 'running' ? 202 : 200 });
+    job = claimed;
+    // Renew only our lease. An expired/replaced worker cannot publish or overwrite its successor.
+    heartbeat = setInterval(() => {
+      snapshots.update(weekStart, cutoffDate, env, job).catch(error => console.error('Snapshot heartbeat:', error.message));
+    }, 30_000);
+    heartbeat.unref?.();
+    return NextResponse.json(await performRefresh(weekStart, cutoffDate, new URL(request.url).origin, job, env));
   } catch (error) {
     console.error(error);
-    if (job && weekStart && cutoffDate) {
+    if (job) {
       const failed = { ...job, status: 'failed', error: error?.message || 'No fue posible actualizar los resultados', finished_at: new Date().toISOString() };
-      try { if (env) await writeRefreshStatus(weekStart, cutoffDate, env, failed); } catch (statusError) { console.error(statusError); }
+      try { await snapshots.update(weekStart, cutoffDate, env, failed); } catch (statusError) { console.error(statusError.message); }
       return NextResponse.json({ ok: false, ...failed }, { status: 500 });
     }
     return bad(error?.message || 'Internal server error', 400);
+  } finally {
+    clearInterval(heartbeat);
   }
 }

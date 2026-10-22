@@ -205,3 +205,18 @@ jobs:
           PY
           echo "Staging frontend and read-only PostgreSQL checks passed. No projection writes were performed." >> "$GITHUB_STEP_SUMMARY"
           echo "Database connection deliberately reuses the existing Production AZURE_DATABASE_URL as requested." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify automatic snapshot coordination without writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 45 "$FRONT_URL/api/weekly-projections/results?status=1&sources=1" --output /tmp/projection-snapshot-state.json
+          python3 - <<'PYCODE'
+          import json
+          state=json.load(open('/tmp/projection-snapshot-state.json'))
+          assert state.get('ok') is True and state.get('environment') == 'staging', 'STAGING_ONLY'
+          assert state.get('snapshot_version') == 'daily-projections-v1', 'Wrong snapshot coordinator revision'
+          assert 'source_state' in state, 'Source metadata is missing'
+          print('Read-only snapshot coordination PASS; source status:',state['source_state'].get('status'))
+          PYCODE
+          echo "Read-only staging snapshot API passed. No refresh POST or data load executed." >> "$GITHUB_STEP_SUMMARY"

@@ -36,7 +36,7 @@ export async function GET(request) {
   try {
     const url=new URL(request.url), weekStart=parseMonday(url.searchParams.get('week_start')), requestedCutoff=url.searchParams.get('cutoff_date')||weekStart, storeId=url.searchParams.get('sucursal_id')||null, sql=db();
     if(!/^\d{4}-\d{2}-\d{2}$/.test(requestedCutoff)) throw new Error('cutoff_date must use YYYY-MM-DD');
-    const cutoffDate=requestedCutoff.slice(0,7)===weekStart.slice(0,7)&&requestedCutoff>=weekStart?requestedCutoff:weekStart;
+    const cutoffDate=requestedCutoff>=weekStart?requestedCutoff:weekStart;
     const historyFrom=shiftYear(monthStart(cutoffDate),-1);
     const salesRaw=await sql`
       SELECT DISTINCT ON (upper(trim(v.nro_vin_chasis)))
