@@ -1,95 +1,72 @@
 import Link from "next/link";
-import PerformanceRanking from "../../components/PerformanceRanking";
 import ForumClose from "../../components/ForumClose";
+import PerformanceRanking from "../../components/PerformanceRanking";
 import facts from "../../data/monthly-close/2026-09/facts.json";
 import analysis from "../../data/monthly-close/2026-09/analysis.json";
-import executive from "../../data/monthly-close/2026-09/executive-close.json";
-import financing from "../../data/monthly-close/2026-09/financing-sales-observed.json";
-import trendData from "../../data/monthly-close/2026-09/kpi-trends.json";
-import brandTrends from "../../data/monthly-close/2026-09/kpi-brand-trends.json";
 
-const f=facts.domains;
-const format=n=>new Intl.NumberFormat("es-CL",{maximumFractionDigits:1}).format(n);
-const pct=n=>(n>0?"+":"")+format(n)+"%";
-const monthName={"2026-06":"Junio","2026-07":"Julio","2026-08":"Agosto","2026-09":"Septiembre"};
-const insight=analysis.insights.filter(x=>["SALES","RVM","FORUM"].includes(x.domain)).slice(0,7);
-const palettes={COMPANY:"#244d7a",FOTON:"#20b34b",DFM:"#ed8726"};
-function TrendComparison({total,brands,label}) {
- const keys=["COMPANY","FOTON","DFM"];
- const sets={COMPANY:total?.points||[],FOTON:brands?.FOTON||[],DFM:brands?.DFM||[]};
- if(keys.some(k=>sets[k].length!==4||sets[k].some(p=>!Number.isFinite(p.value))))return <div className="mc-spark-empty">Trayectoria por marca pendiente</div>;
- const values=keys.flatMap(k=>sets[k].map(p=>sets[k][0].value>0?100*p.value/sets[k][0].value:100));
- const lo=Math.min(...values),hi=Math.max(...values),range=Math.max(hi-lo,1);
- const xs=[18,126,234,342];
- const y=v=>67-((v-lo)/range)*40;
- return <div className="mc-spark-wrap mc-brand-spark">
-  <div className="mc-trend-legend"><span><i style={{background:palettes.COMPANY}}/>CIDEF</span><div><span><i style={{background:palettes.FOTON}}/>Foton</span><span><i style={{background:palettes.DFM}}/>Dongfeng</span></div></div>
-  <svg viewBox="0 0 360 93" className="mc-spark" role="img" aria-label={"Trayectoria de "+label+" indexada a junio igual a 100; series de Compañía, Foton y Dongfeng"}>
-   {keys.map(k=><g key={k}><polyline points={sets[k].map((p,i)=>xs[i]+","+y(sets[k][0].value>0?100*p.value/sets[k][0].value:100)).join(" ")} fill="none" stroke={palettes[k]} strokeWidth={k==="COMPANY"?"3":"2.3"} strokeLinejoin="round" strokeLinecap="round"/>{sets[k].map((p,i)=><circle key={i} cx={xs[i]} cy={y(sets[k][0].value>0?100*p.value/sets[k][0].value:100)} r="3" fill={palettes[k]}/>)}</g>)}
-   {xs.map((x,i)=><text key={i} x={x} y="87" textAnchor="middle" fill="#748298" fontSize="11">{["Jun","Jul","Ago","Sep"][i]}</text>)}
-  </svg><small className="mc-index-note">Trayectorias comparables · junio = 100</small>
- </div>;
-}
-function Metric({label,value,sub,series,brands,unit="VIN",sourceNote}){
- const fmt=v=>unit==="PERCENT"?format(v)+"%":format(v);
- const fv=brands?.FOTON?.[3]?.value,dv=brands?.DFM?.[3]?.value;
- return <div className="mc-kpi"><span>{label}</span>
- <div className="mc-kpi-values"><strong>{value}</strong><div className="mc-kpi-brands"><div><span>Foton</span><b>{Number.isFinite(fv)?fmt(fv):"—"}</b></div><div><span>Dongfeng</span><b>{Number.isFinite(dv)?fmt(dv):"—"}</b></div></div></div>
- <small>{sub}</small><TrendComparison total={series} brands={brands} label={label}/>{sourceNote&&<small className="mc-source-note">{sourceNote}</small>}</div>;
-}
-export const metadata={title:"Septiembre 2026 · Cierre mensual | CIDEF"};
-export default function CierreMensual(){
-const sales=f.sales.metrics.vin_sales;
-const salesByPeriod=brandTrends.series.company.FOTON.map((p,i)=>({
- period:p.period,
- value:p.value+brandTrends.series.company.DFM[i].value
-}));
-const consistentSales={
- company:salesByPeriod.at(-1).value,
- own:brandTrends.series.own_stores.FOTON[3].value+brandTrends.series.own_stores.DFM[3].value,
- dealers:brandTrends.series.dealers.FOTON[3].value+brandTrends.series.dealers.DFM[3].value,
- foton:brandTrends.series.company.FOTON[3].value,
- dongfeng:brandTrends.series.company.DFM[3].value
+const format = value => Number.isFinite(value)
+  ? new Intl.NumberFormat("es-CL", { maximumFractionDigits: 2 }).format(value) : "—";
+const metric = id => facts.indicators[id];
+const display = id => {
+  const item = metric(id);
+  return item?.status === "CERTIFIED" ? format(item.value) + (item.unit === "PERCENT" ? "%" : "") : "—";
 };
-if(consistentSales.company!==consistentSales.own+consistentSales.dealers ||
-   consistentSales.company!==consistentSales.foton+consistentSales.dongfeng)
- throw new Error("SALES_RECONCILIATION_FAILED");
-const salesYoY=(consistentSales.company/924-1)*100;
-const rvm=f.rvm.metrics;
-const ytd=f.rvm.scopes.ytd.metrics;
-const pctFinance=n=>format(financing.sales_denominator?n/financing.sales_denominator*100:0)+"%";
-return <main className="shell mc">
-<header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">CIERRE HISTÓRICO · SEPTIEMBRE 2026</span></header>
-<section className="mc-intro"><span className="eyebrow">CIERRE MENSUAL · PRIMERA VERSIÓN</span><h1>Septiembre 2026</h1><p>Ventas como resultado. Mercado, CRM y Forum como explicación. Una lectura del mes, su trayectoria y las señales del negocio.</p></section>
-<div className="mc-warning"><strong>Base de ventas consistente · septiembre 2026.</strong> Los resultados de SALES de esta vista provienen del mismo corte de <code>ventas_raw</code>, con 1.041 VIN = 837 Foton + 204 Dongfeng = 375 propias + 666 dealers. El snapshot anterior (1.044 VIN) se mantiene archivado y está pendiente de conciliación. FORUM se muestra ahora con sus datos certificados de mes completo; el archivo histórico anterior no se utiliza para esas métricas.</div>
-<div className="mc-tabs"><span className="mc-active">Compañía</span><span>Tiendas propias</span><span>Dealers</span><span>Foton</span><span>Dongfeng</span></div>
-<section className="mc-kpis">
-<Metric label="Ventas · VIN" value={format(consistentSales.company)} sub={"YoY "+pct(salesYoY)+" · ventas_raw"} series={{points:salesByPeriod}} brands={brandTrends.series.company}/>
-<Metric label="Ventas propias" value={format(consistentSales.own)} sub="VIN · canal propio" series={{points:brandTrends.series.own_stores.FOTON.map((p,i)=>({period:p.period,value:p.value+brandTrends.series.own_stores.DFM[i].value}))}} brands={brandTrends.series.own_stores}/>
-<Metric label="Ventas dealers" value={format(consistentSales.dealers)} sub="VIN · canal dealer" series={{points:brandTrends.series.dealers.FOTON.map((p,i)=>({period:p.period,value:p.value+brandTrends.series.dealers.DFM[i].value}))}} brands={brandTrends.series.dealers}/>
-<Metric label="RVM · Share mensual" value={format(rvm.portfolio_share.value)+"%"} sub={format(rvm.portfolio_share.delta_pp)+" pp YoY"} series={trendData.series.rvm_monthly} brands={brandTrends.series.rvm_monthly} unit="PERCENT"/>
-<Metric label="RVM · Share YTD" value={format(ytd.portfolio_share.value)+"%"} sub="Acumulado enero–septiembre" series={trendData.series.rvm_ytd} brands={brandTrends.series.rvm_ytd} unit="PERCENT"/>
-<Metric label="Ventas financiadas" value={format(financing.with_financing)} sub={pctFinance(financing.with_financing)+" · propias"} series={trendData.series.financed} brands={brandTrends.series.financed} sourceNote="Financiamiento ERP; no equivale a UFIs Forum"/>
-</section>
-<ForumClose/>
-<PerformanceRanking/>
-<div className="mc-layout">
-<section className="mc-panel mc-finance-full">
-<div className="mc-panel-head"><h2>Créditos y financiamiento</h2><span>Tiendas propias · septiembre 2026</span></div>
-<div className="mc-finance-grid">
-<div className="mc-finance-block">
-<h3>Financiamiento en ventas</h3>
-<div className="mc-finance-headline"><div><strong>{format(financing.with_financing)}</strong><span>con financiamiento · {pctFinance(financing.with_financing)}</span></div><div><strong>{format(financing.without_financing)}</strong><span>sin financiamiento · {pctFinance(financing.without_financing)}</span></div></div>
-<p className="mc-footnote">Fuente: financiera registrada en SALES. Valores conservados de la captura del módulo /ventas; pendientes de conciliación con el cierre mensual.</p>
-</div>
-<div className="mc-finance-block"><h3>Participación por financiera</h3>
-{financing.entities.map(e=><div className="mc-finance-entity" key={e.entity}><span>{e.entity}</span><strong>{format(e.vins)} VIN</strong><span>{pctFinance(e.vins)}</span></div>)}
-<p className="mc-footnote">Porcentajes sobre {format(financing.sales_denominator)} VIN del corte observado de /ventas, no sobre UFIs.</p></div>
-</div>
-</section>
-<section className="mc-panel mc-crm-separate"><div className="mc-panel-head"><h2>CRM · Gestión comercial</h2><span>Leads y actividad · tiendas propias</span></div><div className="mc-row"><span>Leads creados</span><strong>{format(executive.company.crm.total_leads)}</strong></div><div className="mc-row"><span>Leads gestionados</span><strong>{format(executive.company.crm.total_managed)}</strong></div><div className="mc-row"><span>Cobertura de gestión</span><strong>{format(executive.company.crm.total_management_rate*100)}%</strong></div><p className="mc-footnote">CRM mide generación y gestión de prospectos. SOLD en CRM no sustituye las ventas VIN certificadas de SALES.</p></section>
-</div>
-<section className="mc-panel mc-insights"><div className="mc-panel-head"><h2>Lectura ejecutiva</h2><span>Hallazgos preservados del cierre anterior</span></div><div className="mc-insightgrid">{insight.map(x=><article key={x.id}><span className="eyebrow">{x.domain} · {x.type}</span><h3>{x.title}</h3><p>{x.summary}</p></article>)}</div><p className="mc-footnote">Los textos históricos pueden mencionar totales anteriores y no deben utilizarse para reconciliar cifras. La siguiente etapa actualizará la lectura con los contratos definitivos.</p></section>
-<div className="mc-next"><strong>Próxima incorporación:</strong> navegación por canal → tienda → vendedor y marca → línea → modelo → versión; CRM por vendedor, financiamiento por financiera, RVM acumulado de 12 meses y comparaciones YoY completas.</div>
-</main>
+const palettes = { COMPANY: "#244d7a", FOTON: "#20b34b", DONGFENG: "#ed8726" };
+
+function TrendComparison({ series, label }) {
+  const keys = Object.keys(palettes);
+  const sets = Object.fromEntries(keys.map(key => [key, facts.series[series?.[key]]?.points || []]));
+  if (keys.some(key => sets[key].length !== 4 || sets[key].some(point => !Number.isFinite(point.value)))) {
+    return <div className="mc-spark-empty">Trayectoria comparable pendiente de certificación</div>;
+  }
+  // Geometry only: certified values stay in their original unit; no business index is calculated here.
+  const maximum = Math.max(1, ...keys.flatMap(key => sets[key].map(point => point.value)));
+  const xs = [18, 126, 234, 342];
+  const y = value => 67 - value / maximum * 48;
+  return <div className="mc-spark-wrap mc-brand-spark">
+    <div className="mc-trend-legend"><span><i style={{ background: palettes.COMPANY }}/>CIDEF</span><div><span><i style={{ background: palettes.FOTON }}/>Foton</span><span><i style={{ background: palettes.DONGFENG }}/>Dongfeng</span></div></div>
+    <svg viewBox="0 0 360 93" className="mc-spark" role="img" aria-label={"Evolución mensual de " + label + " en su unidad original"}>
+      {keys.map(key => <g key={key}><polyline points={sets[key].map((point, index) => xs[index] + "," + y(point.value)).join(" ")} fill="none" stroke={palettes[key]} strokeWidth={key === "COMPANY" ? "3" : "2.3"} strokeLinejoin="round" strokeLinecap="round"/>{sets[key].map((point, index) => <circle key={point.period} cx={xs[index]} cy={y(point.value)} r="3" fill={palettes[key]}><title>{point.period + ": " + format(point.value)}</title></circle>)}</g>)}
+      {xs.map((x, index) => <text key={x} x={x} y="87" textAnchor="middle" fill="#748298" fontSize="11">{["Jun", "Jul", "Ago", "Sep"][index]}</text>)}
+    </svg><small className="mc-index-note">Valores certificados · unidad original</small>
+  </div>;
 }
+
+function Metric({ id, label, brands, series, subtitle }) {
+  const item = metric(id);
+  return <div className="mc-kpi"><span>{label}</span>
+    <div className="mc-kpi-values"><strong>{display(id)}</strong><div className="mc-kpi-brands"><div><span>Foton</span><b>{display(brands?.FOTON)}</b></div><div><span>Dongfeng</span><b>{display(brands?.DONGFENG)}</b></div></div></div>
+    <small>{item?.status === "CERTIFIED" ? subtitle : item?.reason || "Pendiente de certificación"}</small>
+    <TrendComparison series={series} label={label}/>
+    <small className="mc-source-note">{item?.source || "Fuente pendiente"} · corte {item?.cutoff || "pendiente"}</small>
+  </div>;
+}
+
+export const metadata = { title: "Septiembre 2026 · Cierre mensual | CIDEF" };
+export default function CierreMensual() {
+  const finance = facts.breakdowns.financial_entities;
+  const text = template => template.replace(/\{([a-z0-9_]+)\}/g, (_, id) => display(id));
+  return <main className="shell mc">
+    <header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">CIERRE HISTÓRICO · SEPTIEMBRE 2026</span></header>
+    <section className="mc-intro"><span className="eyebrow">CIERRE MENSUAL</span><h1>Septiembre 2026</h1><p>Ventas, financiamiento y mercado. Cifras verificadas en Azure, con períodos y cortes explícitos.</p></section>
+    <div className="mc-warning"><strong>Conciliación de septiembre.</strong> SALES: {display("sales_company")} ventas = {display("sales_own")} propias + {display("sales_dealers")} dealers = {display("sales_foton")} Foton + {display("sales_dongfeng")} Dongfeng. Los datos sin certificación disponible se mantienen pendientes. Los eventos FORUM de septiembre se distinguen de la foto del 30/09.</div>
+    <div className="mc-tabs"><span className="mc-active">Compañía</span><span>Tiendas propias</span><span>Dealers</span><span>Foton</span><span>Dongfeng</span></div>
+    <section className="mc-kpis">{facts.cards.map(card => <Metric key={card.id} {...card}/>)}</section>
+    <ForumClose data={facts}/>
+    <PerformanceRanking certification={facts.rankings}/>
+    <div className="mc-layout"><section className="mc-panel mc-finance-full">
+      <div className="mc-panel-head"><h2>Créditos y financiamiento</h2><span>Tiendas propias · septiembre 2026</span></div>
+      <div className="mc-finance-grid"><div className="mc-finance-block"><h3>Financiera registrada en SALES</h3>
+        <div className="mc-finance-headline"><div><strong>{display("sales_finance_resolved")}</strong><span>con entidad identificada</span></div><div><strong>{display("sales_finance_unresolved")}</strong><span>sin entidad resuelta</span></div></div>
+        <p className="mc-footnote">La falta de entidad no acredita una venta al contado. Los VIN con financiera FORUM en SALES no equivalen a UFIs por fecha de curse.</p>
+      </div><div className="mc-finance-block"><h3>Detalle por financiera</h3>
+        {finance?.status === "CERTIFIED" ? finance.members.map(entity => <div className="mc-finance-entity" key={entity.member_id}><span>{entity.member_label || entity.member_id}</span><strong>{format(entity.value)} VIN</strong></div>) : <p>Pendiente de certificación.</p>}
+        <p className="mc-footnote">SALES P1 · misma base de {display("sales_own")} ventas propias · corte 30/09/2026.</p>
+      </div></div>
+    </section></div>
+    <section className="mc-panel mc-insights"><div className="mc-panel-head"><h2>Lectura ejecutiva</h2><span>SALES · FORUM · RVM</span></div><div className="mc-insightgrid">{analysis.insights.map(insight => <article key={insight.id}><span className="eyebrow">{insight.domain}</span><h3>{insight.title}</h3><p>{text(insight.summary)}</p></article>)}</div></section>
+    <section className="mc-panel"><div className="mc-panel-head"><h2>Datos pendientes de certificación</h2><span>Sin estimaciones</span></div>{facts.pending.map(item => <p className="mc-footnote" key={item.id}><strong>{item.label}:</strong> {item.reason}</p>)}</section>
+    <details className="mc-panel"><summary>Fuentes y cortes de los indicadores</summary>{Object.entries(facts.indicators).map(([id, item]) => <div key={id} className="mc-row"><span>{item.label}</span><span>{item.source} · {item.period} · {item.cutoff || "sin corte certificado"} · {item.status === "CERTIFIED" ? "Verificado" : "Pendiente"}</span></div>)}</details>
+  </main>;
+}
+

@@ -1,152 +1,18 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "period": "2026-09",
-  "notes": [
-    "Four-month chronological trajectories; sources and limitations attached per KPI.",
-    "Historical SALES channel series June-Aug from monthly_close_metrics_v01 (certifier 0.13), Sep from frozen close facts; classification and total reconciliation pending.",
-    "Financed VIN June-Sep recalculated read-only from ventas_raw by latest invoice per VIN through September, category Cliente General; Sep 198/375.",
-    "RVM monthly share and cumulative YTD derived from rvm_raw CONSOLIDATED quantities (Jan-Sep 2026); YTD weights registrations, never average of monthly shares. Sep cross-check: 7,271 / 237,181 = 3.0656%."
-  ],
-  "series": {
-    "company": {
-      "unit": "VIN",
-      "authority": "historical_closing_snapshot",
-      "points": [
-        {
-          "period": "2026-06",
-          "value": 878
-        },
-        {
-          "period": "2026-07",
-          "value": 930
-        },
-        {
-          "period": "2026-08",
-          "value": 1201
-        },
-        {
-          "period": "2026-09",
-          "value": 1044
-        }
-      ]
-    },
-    "own_stores": {
-      "unit": "VIN",
-      "authority": "mixed_historical_sources_reconciliation_pending",
-      "points": [
-        {
-          "period": "2026-06",
-          "value": 386
-        },
-        {
-          "period": "2026-07",
-          "value": 432
-        },
-        {
-          "period": "2026-08",
-          "value": 588
-        },
-        {
-          "period": "2026-09",
-          "value": 377
-        }
-      ]
-    },
-    "dealers": {
-      "unit": "VIN",
-      "authority": "mixed_historical_sources_reconciliation_pending",
-      "points": [
-        {
-          "period": "2026-06",
-          "value": 492
-        },
-        {
-          "period": "2026-07",
-          "value": 504
-        },
-        {
-          "period": "2026-08",
-          "value": 615
-        },
-        {
-          "period": "2026-09",
-          "value": 667
-        }
-      ]
-    },
-    "rvm_monthly": {
-      "unit": "PERCENT",
-      "authority": "derived_monthly_rvm_snapshots",
-      "points": [
-        {
-          "period": "2026-06",
-          "value": 3.5558398555087294
-        },
-        {
-          "period": "2026-07",
-          "value": 3.365423509424804
-        },
-        {
-          "period": "2026-08",
-          "value": 3.7137940923429884
-        },
-        {
-          "period": "2026-09",
-          "value": 3.346348704378973
-        }
-      ]
-    },
-    "rvm_ytd": {
-      "unit": "PERCENT",
-      "authority": "rvm_raw_consolidated_ytd_weighted_sum",
-      "points": [
-        {
-          "period": "2026-06",
-          "value": 2.842929141651582,
-          "market_ytd": 153574,
-          "portfolio_ytd": 4366
-        },
-        {
-          "period": "2026-07",
-          "value": 2.9153766769865843,
-          "market_ytd": 178296,
-          "portfolio_ytd": 5198
-        },
-        {
-          "period": "2026-08",
-          "value": 3.0233956700550944,
-          "market_ytd": 206192,
-          "portfolio_ytd": 6234
-        },
-        {
-          "period": "2026-09",
-          "value": 3.0655912573098183,
-          "market_ytd": 237181,
-          "portfolio_ytd": 7271
-        }
-      ]
-    },
-    "financed": {
-      "unit": "VIN",
-      "authority": "ventas_raw_latest_invoice_through_2026_09_30",
-      "points": [
-        {
-          "period": "2026-06",
-          "value": 212
-        },
-        {
-          "period": "2026-07",
-          "value": 237
-        },
-        {
-          "period": "2026-08",
-          "value": 350
-        },
-        {
-          "period": "2026-09",
-          "value": 198
-        }
-      ]
-    }
+  "status": "REFERENCE_ONLY",
+  "source_file": "facts.json",
+  "series_refs": {
+    "sales_company": "series.sales_company",
+    "sales_own": "series.sales_own",
+    "sales_dealers": "series.sales_dealers",
+    "sales_foton": "series.sales_foton",
+    "sales_dongfeng": "series.sales_dongfeng",
+    "rvm_market": "series.rvm_market",
+    "rvm_portfolio": "series.rvm_portfolio",
+    "rvm_foton": "series.rvm_foton",
+    "rvm_share": "series.rvm_share",
+    "rvm_foton_share": "series.rvm_foton_share"
   }
 }

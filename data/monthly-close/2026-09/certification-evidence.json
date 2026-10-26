@@ -1,0 +1,3317 @@
+{
+  "run_id": "reconcile-cierre-202609-20261026",
+  "retrieved_at": "2026-10-26T19:24:08.397Z",
+  "records": {
+    "sales_total": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.c33c8f63933371710dbb01f3",
+        "evidence_contract": "p1.quantitative_observation",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {},
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura"
+        },
+        "coverage": {
+          "source_n": 45948,
+          "filtered_n": 1034,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 45948,
+                "excluded_other_universe": 0,
+                "unresolved_channel": 0,
+                "unresolved_destination": 661,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "total": 45948
+                },
+                "store": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "seller": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "vendedor_cidef": {
+                  "eligible": 9937,
+                  "not_eligible": 36011,
+                  "total": 45948
+                },
+                "product_model": {
+                  "resolved": 45947,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "product_version": {
+                  "resolved": 30487,
+                  "unresolved": 15461,
+                  "total": 45948
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "value": 1034
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "COMPANY",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          }
+        }
+      }
+    },
+    "sales_network": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.026278ffeed5788b5322615a",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {},
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 45948,
+          "filtered_n": 1034,
+          "dimension_resolved_n": 1034,
+          "dimension_unresolved_n": 0,
+          "dimension_resolution_rate": 1,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 45948,
+                "excluded_other_universe": 0,
+                "unresolved_channel": 0,
+                "unresolved_destination": 661,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "total": 45948
+                },
+                "store": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "seller": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "vendedor_cidef": {
+                  "eligible": 9937,
+                  "not_eligible": 36011,
+                  "total": 45948
+                },
+                "product_model": {
+                  "resolved": 45947,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "product_version": {
+                  "resolved": 30487,
+                  "unresolved": 15461,
+                  "total": 45948
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "ventas_raw.categoria_cliente",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALER",
+              "member_label": "DEALER",
+              "value": 661
+            },
+            {
+              "member_id": "TIENDA_PROPIA",
+              "member_label": "TIENDA_PROPIA",
+              "value": 373
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "COMPANY",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "ventas_raw.categoria_cliente"
+        }
+      }
+    },
+    "sales_foton_network": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.5d38a9f52d0f687776e40301",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {
+          "brand_id": "89"
+        },
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 45948,
+          "filtered_n": 831,
+          "dimension_resolved_n": 831,
+          "dimension_unresolved_n": 0,
+          "dimension_resolution_rate": 1,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 45948,
+                "excluded_other_universe": 0,
+                "unresolved_channel": 0,
+                "unresolved_destination": 661,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "total": 45948
+                },
+                "store": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "seller": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "vendedor_cidef": {
+                  "eligible": 9937,
+                  "not_eligible": 36011,
+                  "total": 45948
+                },
+                "product_model": {
+                  "resolved": 45947,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "product_version": {
+                  "resolved": 30487,
+                  "unresolved": 15461,
+                  "total": 45948
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "ventas_raw.categoria_cliente",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALER",
+              "member_label": "DEALER",
+              "value": 575
+            },
+            {
+              "member_id": "TIENDA_PROPIA",
+              "member_label": "TIENDA_PROPIA",
+              "value": 256
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "COMPANY",
+            "brand_id": "89",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "ventas_raw.categoria_cliente"
+        }
+      }
+    },
+    "sales_dongfeng_network": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.20e16d22b0925adfa51319bc",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {
+          "brand_id": "71"
+        },
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 45948,
+          "filtered_n": 203,
+          "dimension_resolved_n": 203,
+          "dimension_unresolved_n": 0,
+          "dimension_resolution_rate": 1,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 45948,
+                "excluded_other_universe": 0,
+                "unresolved_channel": 0,
+                "unresolved_destination": 661,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "total": 45948
+                },
+                "store": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "seller": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "vendedor_cidef": {
+                  "eligible": 9937,
+                  "not_eligible": 36011,
+                  "total": 45948
+                },
+                "product_model": {
+                  "resolved": 45947,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "product_version": {
+                  "resolved": 30487,
+                  "unresolved": 15461,
+                  "total": 45948
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "ventas_raw.categoria_cliente",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALER",
+              "member_label": "DEALER",
+              "value": 86
+            },
+            {
+              "member_id": "TIENDA_PROPIA",
+              "member_label": "TIENDA_PROPIA",
+              "value": 117
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "COMPANY",
+            "brand_id": "71",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "ventas_raw.categoria_cliente"
+        }
+      }
+    },
+    "sales_stores": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.13dbe145a07500f1f8bab67b",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "OWN_STORES"
+        },
+        "dimensions": {},
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 24260,
+          "filtered_n": 373,
+          "dimension_resolved_n": 373,
+          "dimension_unresolved_n": 0,
+          "dimension_resolution_rate": 1,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 24260,
+                "excluded_other_universe": 21688,
+                "unresolved_channel": 0,
+                "unresolved_destination": 0,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "total": 24260
+                },
+                "store": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "seller": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "vendedor_cidef": {
+                  "eligible": 9880,
+                  "not_eligible": 14380,
+                  "total": 24260
+                },
+                "product_model": {
+                  "resolved": 24259,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "product_version": {
+                  "resolved": 14057,
+                  "unresolved": 10203,
+                  "total": 24260
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "STORE",
+            "identity_contract": "sucursales_master",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "3",
+              "member_label": "CIDEF Bellavista",
+              "value": 52
+            },
+            {
+              "member_id": "4",
+              "member_label": "CIDEF Pajaritos",
+              "value": 33
+            },
+            {
+              "member_id": "5",
+              "member_label": "CIDEF Antofagasta",
+              "value": 33
+            },
+            {
+              "member_id": "7",
+              "member_label": "CIDEF Mall Plaza Vespucio",
+              "value": 30
+            },
+            {
+              "member_id": "8",
+              "member_label": "CIDEF Mall Plaza Norte",
+              "value": 28
+            },
+            {
+              "member_id": "9",
+              "member_label": "CIDEF Mall Plaza Sur",
+              "value": 30
+            },
+            {
+              "member_id": "10",
+              "member_label": "CIDEF Mall Plaza Oeste",
+              "value": 37
+            },
+            {
+              "member_id": "11",
+              "member_label": "CIDEF Mall Plaza Egaña",
+              "value": 19
+            },
+            {
+              "member_id": "15",
+              "member_label": "Amunategui",
+              "value": 1
+            },
+            {
+              "member_id": "18",
+              "member_label": "CIDEF Concepcion",
+              "value": 28
+            },
+            {
+              "member_id": "19",
+              "member_label": "CIDEF Mall Alameda",
+              "value": 24
+            },
+            {
+              "member_id": "20",
+              "member_label": "CIDEF Vicuña Mackenna",
+              "value": 30
+            },
+            {
+              "member_id": "21",
+              "member_label": "CIDEF Mall Paseo Quilin",
+              "value": 5
+            },
+            {
+              "member_id": "22",
+              "member_label": "CIDEF Mall Cenco Costanera",
+              "value": 23
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "sucursales_master"
+        }
+      }
+    },
+    "sales_finance": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.ca57d7d14e2288b918e76aea",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "OWN_STORES"
+        },
+        "dimensions": {},
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 24260,
+          "filtered_n": 373,
+          "dimension_resolved_n": 196,
+          "dimension_unresolved_n": 177,
+          "dimension_resolution_rate": 0.5254691689008043,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 24260,
+                "excluded_other_universe": 21688,
+                "unresolved_channel": 0,
+                "unresolved_destination": 0,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "total": 24260
+                },
+                "store": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "seller": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "vendedor_cidef": {
+                  "eligible": 9880,
+                  "not_eligible": 14380,
+                  "total": 24260
+                },
+                "product_model": {
+                  "resolved": 24259,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "product_version": {
+                  "resolved": 14057,
+                  "unresolved": 10203,
+                  "total": 24260
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "FINANCIAL_ENTITY",
+            "identity_contract": "ventas_raw.entidad_financiera",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "AUTOFIN",
+              "member_label": null,
+              "value": 4
+            },
+            {
+              "member_id": "FORUM",
+              "member_label": null,
+              "value": 159
+            },
+            {
+              "member_id": "GLOBAL SOLUCIONES",
+              "member_label": null,
+              "value": 15
+            },
+            {
+              "member_id": "TANNER",
+              "member_label": null,
+              "value": 18
+            },
+            {
+              "member_id": "UNRESOLVED",
+              "member_label": "No resuelto",
+              "value": 177
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "ventas_raw.entidad_financiera"
+        }
+      }
+    },
+    "sales_sellers": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.5119da2bc3571274f3207d28",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "OWN_STORES"
+        },
+        "dimensions": {},
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 24260,
+          "filtered_n": 373,
+          "dimension_resolved_n": 373,
+          "dimension_unresolved_n": 0,
+          "dimension_resolution_rate": 1,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 24260,
+                "excluded_other_universe": 21688,
+                "unresolved_channel": 0,
+                "unresolved_destination": 0,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "total": 24260
+                },
+                "store": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "seller": {
+                  "resolved": 24260,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "vendedor_cidef": {
+                  "eligible": 9880,
+                  "not_eligible": 14380,
+                  "total": 24260
+                },
+                "product_model": {
+                  "resolved": 24259,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 24260
+                },
+                "product_version": {
+                  "resolved": 14057,
+                  "unresolved": 10203,
+                  "total": 24260
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "SELLER",
+            "identity_contract": "personas_master",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "1",
+              "member_label": "ALEXANDER JOHAN ALBORNOZ",
+              "value": 1
+            },
+            {
+              "member_id": "10",
+              "member_label": "ADA GONZALEZ",
+              "value": 3
+            },
+            {
+              "member_id": "16",
+              "member_label": "ANGELICA MARIA MORENO DE MATOS",
+              "value": 7
+            },
+            {
+              "member_id": "17",
+              "member_label": "ORTA MEDINA ADRIANA ALEJANDRA",
+              "value": 1
+            },
+            {
+              "member_id": "36",
+              "member_label": "CRISTIAN DIAZ",
+              "value": 7
+            },
+            {
+              "member_id": "37",
+              "member_label": "CONSTANZA GALARCE",
+              "value": 1
+            },
+            {
+              "member_id": "38",
+              "member_label": "GALLEGOS MIRANDA CARLA FERNARDA",
+              "value": 1
+            },
+            {
+              "member_id": "41",
+              "member_label": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
+              "value": 11
+            },
+            {
+              "member_id": "44",
+              "member_label": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
+              "value": 10
+            },
+            {
+              "member_id": "45",
+              "member_label": "MALUENDA LEIVA CLAUDIA VIVIANA",
+              "value": 12
+            },
+            {
+              "member_id": "47",
+              "member_label": "MORALES JIMENEZ CYNDI CAROLINA",
+              "value": 6
+            },
+            {
+              "member_id": "52",
+              "member_label": "VALENZUELA VERGARA CAROLINA EUGENIA",
+              "value": 6
+            },
+            {
+              "member_id": "56",
+              "member_label": "DIEGO LEANDRO ARAYA MONDACA",
+              "value": 7
+            },
+            {
+              "member_id": "57",
+              "member_label": "BASANTA GUEVARA DOUGLAS JOSE",
+              "value": 14
+            },
+            {
+              "member_id": "58",
+              "member_label": "CARO URREA DANILO ANDRES",
+              "value": 4
+            },
+            {
+              "member_id": "62",
+              "member_label": "JEREZ CORTEZ DIEGO ANDRES",
+              "value": 8
+            },
+            {
+              "member_id": "68",
+              "member_label": "EVELYN ASTUDILLO MENESES",
+              "value": 6
+            },
+            {
+              "member_id": "69",
+              "member_label": "EVELYN CONTRERAS",
+              "value": 3
+            },
+            {
+              "member_id": "71",
+              "member_label": "EDUARDO MESIAS",
+              "value": 6
+            },
+            {
+              "member_id": "76",
+              "member_label": "FELIX ACOSTA RODRIGUEZ",
+              "value": 11
+            },
+            {
+              "member_id": "77",
+              "member_label": "FRANCISCA JAVIERA FLORES FIGUEROA",
+              "value": 5
+            },
+            {
+              "member_id": "80",
+              "member_label": "FELIPE HERRERA TORRES",
+              "value": 6
+            },
+            {
+              "member_id": "86",
+              "member_label": "YOUNG GALLE FRANCISCO EDUARDO",
+              "value": 4
+            },
+            {
+              "member_id": "87",
+              "member_label": "GERALDINE ARIAS",
+              "value": 1
+            },
+            {
+              "member_id": "90",
+              "member_label": "GENESIS YORASLY CAMACHO PEÑA",
+              "value": 1
+            },
+            {
+              "member_id": "103",
+              "member_label": "VALENZUELA CERDA HECTOR ALEJANDRO",
+              "value": 6
+            },
+            {
+              "member_id": "104",
+              "member_label": "ALARCON PINILLA IVÁN ENRIQUE",
+              "value": 6
+            },
+            {
+              "member_id": "105",
+              "member_label": "ILEANA ALBURJAS SUAREZ",
+              "value": 1
+            },
+            {
+              "member_id": "106",
+              "member_label": "COVARRUBIAS DEE IVAN IGNACIO",
+              "value": 6
+            },
+            {
+              "member_id": "110",
+              "member_label": "BASTIAS GONZALEZ JUAN CARLOS",
+              "value": 5
+            },
+            {
+              "member_id": "129",
+              "member_label": "ROCA DE LA BARRA JUAN FRANCISCO",
+              "value": 4
+            },
+            {
+              "member_id": "131",
+              "member_label": "VALBUENA ZAMBRANO JOSE GABRIEL",
+              "value": 5
+            },
+            {
+              "member_id": "136",
+              "member_label": "KELVIN CEBALLOS",
+              "value": 2
+            },
+            {
+              "member_id": "137",
+              "member_label": "CORTEZ PEÑA KARIN DANIELA",
+              "value": 10
+            },
+            {
+              "member_id": "141",
+              "member_label": "KATHERINE MONARES",
+              "value": 3
+            },
+            {
+              "member_id": "144",
+              "member_label": "RIFFO OVIEDO KARIN MARCELA",
+              "value": 6
+            },
+            {
+              "member_id": "145",
+              "member_label": "ALAMOS PALMA LUISA FRANCISCA",
+              "value": 6
+            },
+            {
+              "member_id": "148",
+              "member_label": "CARDENAS SUAREZ LISMARY LISSETT",
+              "value": 1
+            },
+            {
+              "member_id": "150",
+              "member_label": "DURAN BLANCO LUIS RAUL",
+              "value": 6
+            },
+            {
+              "member_id": "155",
+              "member_label": "MAGLYS CARABALLO",
+              "value": 9
+            },
+            {
+              "member_id": "156",
+              "member_label": "CARDENAS ALVARADO MARIA CRISTINA",
+              "value": 6
+            },
+            {
+              "member_id": "157",
+              "member_label": "MANUEL ALEXANDER FORT BELMONTE",
+              "value": 2
+            },
+            {
+              "member_id": "159",
+              "member_label": "MARINA MARLENS GUTIERREZ GUTIERREZ",
+              "value": 7
+            },
+            {
+              "member_id": "161",
+              "member_label": "MARIN GRUSIC MAURICIO JAVIER",
+              "value": 6
+            },
+            {
+              "member_id": "170",
+              "member_label": "RIVERA RICON MAXIMO JAVIER",
+              "value": 5
+            },
+            {
+              "member_id": "180",
+              "member_label": "HERRERA FERNANDEZ NICOLAS ALEXIS",
+              "value": 4
+            },
+            {
+              "member_id": "181",
+              "member_label": "IBAÑEZ ARAVENA NADIA SCARLETTE",
+              "value": 7
+            },
+            {
+              "member_id": "188",
+              "member_label": "OSVALDO FARIAS",
+              "value": 8
+            },
+            {
+              "member_id": "189",
+              "member_label": "ORLANDO HERRERA",
+              "value": 5
+            },
+            {
+              "member_id": "193",
+              "member_label": "PEDRO IVO MILOVIC",
+              "value": 6
+            },
+            {
+              "member_id": "194",
+              "member_label": "ROSSE CARRIÓN PEREZ",
+              "value": 3
+            },
+            {
+              "member_id": "196",
+              "member_label": "DUQUE RODRIGUEZ RONNA NOHEMI",
+              "value": 1
+            },
+            {
+              "member_id": "200",
+              "member_label": "ROSSANA GONZALEZ",
+              "value": 6
+            },
+            {
+              "member_id": "205",
+              "member_label": "PALMA ORTA RICARDO ALEJANDRO",
+              "value": 7
+            },
+            {
+              "member_id": "211",
+              "member_label": "SOLANGEL NEWKEYNY HERNANDEZ PEREIRA",
+              "value": 1
+            },
+            {
+              "member_id": "214",
+              "member_label": "RAMIREZ OCHOA STHEFANY JHOJANA",
+              "value": 3
+            },
+            {
+              "member_id": "215",
+              "member_label": "RIQUELME VILLATORO SERGIO NICOLAS",
+              "value": 5
+            },
+            {
+              "member_id": "220",
+              "member_label": "USBALDINE OCTAVIO MEDINA TORREALBA",
+              "value": 2
+            },
+            {
+              "member_id": "223",
+              "member_label": "CABEZA ARCIA VIRGINIA CAROLINA",
+              "value": 4
+            },
+            {
+              "member_id": "226",
+              "member_label": "GONZALEZ NAVARRETE VALERIA IGNACIA",
+              "value": 3
+            },
+            {
+              "member_id": "229",
+              "member_label": "RIFFO PAILLAO VICTOR JOHN",
+              "value": 6
+            },
+            {
+              "member_id": "231",
+              "member_label": "SANCHEZ GALAVIS RAQUEL VICTORIA",
+              "value": 3
+            },
+            {
+              "member_id": "232",
+              "member_label": "TAMPOA GUANIPA VIRGINIA CENOBIA",
+              "value": 30
+            },
+            {
+              "member_id": "234",
+              "member_label": "YANINA GARCIA",
+              "value": 6
+            },
+            {
+              "member_id": "235",
+              "member_label": "YOSELIN GARCIA",
+              "value": 4
+            },
+            {
+              "member_id": "238",
+              "member_label": "DIETER ALEXANDER GUILLEN INFANTE",
+              "value": 3
+            },
+            {
+              "member_id": "239",
+              "member_label": "SEBASTIAN VELASQUEZ",
+              "value": 3
+            },
+            {
+              "member_id": "240",
+              "member_label": "JUAN ANTONIO DIAZ CARDENAS",
+              "value": 7
+            },
+            {
+              "member_id": "241",
+              "member_label": "MERIBETH SOTOMAYOR",
+              "value": 2
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "personas_master"
+        }
+      }
+    },
+    "sales_models": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.72d193110655569d84c3a9b6",
+        "evidence_contract": "p1.dimensional_quantitative_dataset",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_SALES_UNIVERSE",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {},
+        "temporal": {
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "date_semantics": "fecha_factura",
+          "period_identity": "2026-09",
+          "period_type": "COMMERCIAL_MONTH",
+          "cutoff": "2026-09-30",
+          "cutoff_resolution": "EXPLICIT"
+        },
+        "coverage": {
+          "source_n": 45948,
+          "filtered_n": 1034,
+          "dimension_resolved_n": 1034,
+          "dimension_unresolved_n": 0,
+          "dimension_resolution_rate": 1,
+          "quality": {
+            "coverage": {
+              "recognition": {
+                "source_rows": 46455,
+                "rows_inside_cutoff": 46136,
+                "rows_excluded_by_cutoff": 319,
+                "non_null_vin_rows": 45377,
+                "null_vin_rows": 759,
+                "parseable_fecha_factura_rows": 46136,
+                "null_fecha_factura_rows": 0,
+                "unparseable_fecha_factura_rows": 0,
+                "unassignable_null_vin_rows": 0,
+                "excluded_vins_with_date_errors": 0,
+                "assignable_non_null_vins": 45189,
+                "vins_single_occurrence": 45001,
+                "vins_multiple_occurrences": 188,
+                "cross_month_vins": 180,
+                "exact_last_tie_vins": 6,
+                "distinct_non_null_vins": 45189,
+                "duplicate_excess_rows": 188,
+                "assignable_null_vin_rows": 759
+              },
+              "commercial": {
+                "recognized_sales": 45948,
+                "included_sales": 45948,
+                "excluded_other_universe": 0,
+                "unresolved_channel": 0,
+                "unresolved_destination": 661,
+                "null_vin_sales": 759
+              },
+              "resolution": {
+                "commercial_channel": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "total": 45948
+                },
+                "store": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "seller": {
+                  "resolved": 45948,
+                  "unresolved": 0,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "vendedor_cidef": {
+                  "eligible": 9937,
+                  "not_eligible": 36011,
+                  "total": 45948
+                },
+                "product_model": {
+                  "resolved": 45947,
+                  "unresolved": 1,
+                  "ambiguous": 0,
+                  "not_applicable": 0,
+                  "total": 45948
+                },
+                "product_version": {
+                  "resolved": 30487,
+                  "unresolved": 15461,
+                  "total": 45948
+                }
+              }
+            },
+            "validation": {
+              "source_recognition_valid": true,
+              "commercial_scope_valid": true,
+              "commercial_counts_reconcile": true,
+              "analytical_event_count_reconciles": true,
+              "resolution_counts_reconcile": true,
+              "valid": true,
+              "violations": []
+            },
+            "warnings": [
+              "6 VINs have an exact LAST fecha_factura tie; lowest stable id was used"
+            ]
+          }
+        },
+        "payload": {
+          "dimension": {
+            "id": "MODEL",
+            "identity_contract": "modelos_master_v01",
+            "identity_version": "0.1",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "4",
+              "member_label": "T5 EVO",
+              "value": 3
+            },
+            {
+              "member_id": "17",
+              "member_label": "TM5",
+              "value": 177
+            },
+            {
+              "member_id": "23",
+              "member_label": "HUGE",
+              "value": 6
+            },
+            {
+              "member_id": "28",
+              "member_label": "G7",
+              "value": 185
+            },
+            {
+              "member_id": "84",
+              "member_label": "AEOLUS Y3",
+              "value": 34
+            },
+            {
+              "member_id": "176",
+              "member_label": "MIDI",
+              "value": 113
+            },
+            {
+              "member_id": "181",
+              "member_label": "DF6",
+              "value": 1
+            },
+            {
+              "member_id": "217",
+              "member_label": "SX6",
+              "value": 58
+            },
+            {
+              "member_id": "228",
+              "member_label": "V7",
+              "value": 30
+            },
+            {
+              "member_id": "396",
+              "member_label": "AEOLUS GS",
+              "value": 23
+            },
+            {
+              "member_id": "399",
+              "member_label": "T5 L",
+              "value": 12
+            },
+            {
+              "member_id": "409",
+              "member_label": "WONDER",
+              "value": 2
+            },
+            {
+              "member_id": "426",
+              "member_label": "V9",
+              "value": 63
+            },
+            {
+              "member_id": "435",
+              "member_label": "G9",
+              "value": 45
+            },
+            {
+              "member_id": "457",
+              "member_label": "RICH 6",
+              "value": 3
+            },
+            {
+              "member_id": "481",
+              "member_label": "MAGE",
+              "value": 54
+            },
+            {
+              "member_id": "501",
+              "member_label": "T5",
+              "value": 7
+            },
+            {
+              "member_id": "612",
+              "member_label": "VIEW GRAND",
+              "value": 44
+            },
+            {
+              "member_id": "765",
+              "member_label": "TM3",
+              "value": 172
+            },
+            {
+              "member_id": "811",
+              "member_label": "T5 HEV",
+              "value": 2
+            }
+          ]
+        },
+        "lineage": {
+          "recognition": "ventas_context_v01",
+          "commercial_scope": "ventas_commercial_context_v01",
+          "commercial_authority": "certified_recognized_sale",
+          "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+          "organizational_identity": "existing MASTER organizational resolvers",
+          "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver",
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "source_filters": {
+            "commercial_universe": "COMPANY",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "dimension_identity": "modelos_master_v01"
+        }
+      }
+    },
+    "sales_company_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.5a2308f169f1cf211341af40",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "COMMERCIAL_MONTH",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {},
+        "temporal": {
+          "period_type": "COMMERCIAL_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 878,
+              "evidence_id": "p1.sales.a26a45482b377e2d8119be1e"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 899,
+              "evidence_id": "p1.sales.b657b9e4476b8c7c504d5553"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 1200,
+              "evidence_id": "p1.sales.a98135e14707656aa865bcf4"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 1034,
+              "evidence_id": "p1.sales.c33c8f63933371710dbb01f3"
+            }
+          ]
+        },
+        "lineage": {
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "component_evidence_ids": [
+            "p1.sales.a26a45482b377e2d8119be1e",
+            "p1.sales.b657b9e4476b8c7c504d5553",
+            "p1.sales.a98135e14707656aa865bcf4",
+            "p1.sales.c33c8f63933371710dbb01f3"
+          ]
+        }
+      }
+    },
+    "sales_own_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.75b5dfb940d853d248c9b645",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "COMMERCIAL_MONTH",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "OWN_STORES"
+        },
+        "dimensions": {},
+        "temporal": {
+          "period_type": "COMMERCIAL_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 364,
+              "evidence_id": "p1.sales.d250b7c8bf8da9c7d17e71c8"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 409,
+              "evidence_id": "p1.sales.bccf4cfbd1a4a24da47ecf13"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 555,
+              "evidence_id": "p1.sales.4ebf8fb9260a1511a8c27c34"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 373,
+              "evidence_id": "p1.sales.b4c0de2f6e2cc0b0aff1ccab"
+            }
+          ]
+        },
+        "lineage": {
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "component_evidence_ids": [
+            "p1.sales.d250b7c8bf8da9c7d17e71c8",
+            "p1.sales.bccf4cfbd1a4a24da47ecf13",
+            "p1.sales.4ebf8fb9260a1511a8c27c34",
+            "p1.sales.b4c0de2f6e2cc0b0aff1ccab"
+          ]
+        }
+      }
+    },
+    "sales_dealers_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.fcbc24cd998ff94ea88aa078",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "COMMERCIAL_MONTH",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "DEALERS"
+        },
+        "dimensions": {},
+        "temporal": {
+          "period_type": "COMMERCIAL_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 514,
+              "evidence_id": "p1.sales.edf22680d6728318738e29e5"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 490,
+              "evidence_id": "p1.sales.ea9577dce5fa2eb4632a071f"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 645,
+              "evidence_id": "p1.sales.a7dc60df22c93cc379970c19"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 661,
+              "evidence_id": "p1.sales.9974c88c62da5d463181a616"
+            }
+          ]
+        },
+        "lineage": {
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "component_evidence_ids": [
+            "p1.sales.edf22680d6728318738e29e5",
+            "p1.sales.ea9577dce5fa2eb4632a071f",
+            "p1.sales.a7dc60df22c93cc379970c19",
+            "p1.sales.9974c88c62da5d463181a616"
+          ]
+        }
+      }
+    },
+    "sales_foton_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.35c75165714aa39e7a06da98",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "COMMERCIAL_MONTH",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {
+          "brand_id": "89"
+        },
+        "temporal": {
+          "period_type": "COMMERCIAL_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 703,
+              "evidence_id": "p1.sales.56b86e2fc05693cddaffb16c"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 720,
+              "evidence_id": "p1.sales.8284ebc694f1f2129ad749d9"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 858,
+              "evidence_id": "p1.sales.7c5f50588f75fb1e79d7c93f"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 831,
+              "evidence_id": "p1.sales.6e647065368be725af428d4d"
+            }
+          ]
+        },
+        "lineage": {
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "component_evidence_ids": [
+            "p1.sales.56b86e2fc05693cddaffb16c",
+            "p1.sales.8284ebc694f1f2129ad749d9",
+            "p1.sales.7c5f50588f75fb1e79d7c93f",
+            "p1.sales.6e647065368be725af428d4d"
+          ]
+        }
+      }
+    },
+    "sales_dongfeng_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.sales.7cf1ea385f4ac7b27d92f7f4",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "SALES",
+        "operation": "OBSERVE",
+        "grain": "COMMERCIAL_MONTH",
+        "measure": {
+          "id": "VIN_SALES",
+          "unit": "VIN",
+          "aggregation": "COUNT_RECOGNIZED_SALE"
+        },
+        "universe": {
+          "commercial_universe": "COMPANY"
+        },
+        "dimensions": {
+          "brand_id": "71"
+        },
+        "temporal": {
+          "period_type": "COMMERCIAL_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 175,
+              "evidence_id": "p1.sales.00c7d32939948a85edb840b5"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 179,
+              "evidence_id": "p1.sales.f097067bcfbcc2da084cc5d6"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 342,
+              "evidence_id": "p1.sales.4e33fc0ae44f3bcc49ccb923"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 203,
+              "evidence_id": "p1.sales.91b59f99fcd60671a8ca4988"
+            }
+          ]
+        },
+        "lineage": {
+          "certifier": "salesCertifier",
+          "certifier_version": "0.13",
+          "source_dataset": "SALES_WORK",
+          "component_evidence_ids": [
+            "p1.sales.00c7d32939948a85edb840b5",
+            "p1.sales.f097067bcfbcc2da084cc5d6",
+            "p1.sales.4e33fc0ae44f3bcc49ccb923",
+            "p1.sales.91b59f99fcd60671a8ca4988"
+          ]
+        }
+      }
+    },
+    "forum_QUOTATIONS": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "FORUM:QUOTATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634166",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "QUOTATIONS",
+          "unit": "OPERATION"
+        },
+        "universe": {},
+        "dimensions": {
+          "group_by": "NETWORK"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-09",
+          "period_to": "2026-09",
+          "from": "2026-09-01",
+          "to": "2026-09-30",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 5890,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "FORUM_SOURCE_LABEL",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALERS",
+              "member_label": "DEALERS",
+              "value": 3303
+            },
+            {
+              "member_id": "OWN_STORES",
+              "member_label": "OWN_STORES",
+              "value": 2587
+            }
+          ],
+          "rule": "ALL_COTIZACION_RECORDS"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_APPLICATIONS": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "FORUM:APPLICATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634199",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "APPLICATIONS",
+          "unit": "OPERATION"
+        },
+        "universe": {},
+        "dimensions": {
+          "group_by": "NETWORK"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-09",
+          "period_to": "2026-09",
+          "from": "2026-09-01",
+          "to": "2026-09-30",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 4847,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "FORUM_SOURCE_LABEL",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALERS",
+              "member_label": "DEALERS",
+              "value": 2739
+            },
+            {
+              "member_id": "OWN_STORES",
+              "member_label": "OWN_STORES",
+              "value": 2108
+            }
+          ],
+          "rule": "TIPO_PROCESO_NOT_COTIZACION"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_CURSES": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "FORUM:CURSES:NETWORK:2026-09:2026-09:2026-09-30:1793041634165",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "CURSES",
+          "unit": "OPERATION"
+        },
+        "universe": {},
+        "dimensions": {
+          "group_by": "NETWORK"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-09",
+          "period_to": "2026-09",
+          "from": "2026-09-01",
+          "to": "2026-09-30",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 381,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "FORUM_SOURCE_LABEL",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALERS",
+              "member_label": "DEALERS",
+              "value": 209
+            },
+            {
+              "member_id": "OWN_STORES",
+              "member_label": "OWN_STORES",
+              "value": 172
+            }
+          ],
+          "rule": "CURSE_OPERATION_BY_FECHA_CURSE"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_UFIS": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "FORUM:UFIS:NETWORK:2026-09:2026-09:2026-09-30:1793041634159",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "UFIS",
+          "unit": "VEHICLE_UNIT"
+        },
+        "universe": {},
+        "dimensions": {
+          "group_by": "NETWORK"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-09",
+          "period_to": "2026-09",
+          "from": "2026-09-01",
+          "to": "2026-09-30",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 383,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "NETWORK",
+            "identity_contract": "FORUM_SOURCE_LABEL",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "DEALERS",
+              "member_label": "DEALERS",
+              "value": 209
+            },
+            {
+              "member_id": "OWN_STORES",
+              "member_label": "OWN_STORES",
+              "value": 174
+            }
+          ],
+          "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_snapshot": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "FORUM:OPERATION_STATES:2026-09-30:1793041511120",
+        "evidence_contract": "P1_OPERATION_STATE_SNAPSHOT",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "OPERATION_STATES",
+          "unit": "OPERATION"
+        },
+        "universe": {},
+        "dimensions": {},
+        "temporal": {
+          "snapshot_date": "2026-09-30",
+          "observation_semantics": "EXACT_DAILY_COTIZACION_SNAPSHOT"
+        },
+        "coverage": {
+          "complete": true,
+          "operation_count": 5675,
+          "unique_operation_count": 5675
+        },
+        "payload": {
+          "rule": "DAILY_COTIZACION_SNAPSHOT_STATE",
+          "operations_omitted": true
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity",
+          "snapshot_source": "forum_funnel_raw DAILY_SNAPSHOT / COTIZACION"
+        }
+      }
+    },
+    "forum_latest_precurse": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "FORUM:PRECURSE:2026-10-21:1793041666688",
+        "evidence_contract": "P1_FACTUAL_OBSERVATION",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "PRECURSE",
+          "unit": "OPERATION"
+        },
+        "universe": {},
+        "temporal": {
+          "snapshot_date": "2026-10-21",
+          "cutoff": "2026-10-21",
+          "observation_semantics": "LATEST_AVAILABLE_CERTIFIED_SNAPSHOT"
+        },
+        "coverage": {
+          "complete": true
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity",
+          "precurse_snapshot_source": "forum_funnel_universe_v01",
+          "precurse_snapshot_date": "2026-10-21"
+        },
+        "dimensions": {},
+        "payload": {
+          "value": 118,
+          "rule": "CERTIFIED_PRECURSE_STAGE_NO_CERTIFIED_CURSE"
+        }
+      }
+    },
+    "forum_pre_state": {
+      "transport_error": true,
+      "result": {
+        "error_code": "INVALID_ARGUMENT"
+      }
+    },
+    "rvm_total": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.7634ace603346b11fa665773",
+        "evidence_contract": "p1.quantitative_observation",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_RVM_REGISTRATION_UNIVERSE",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null,
+          "cutoff": "2026-09-30"
+        },
+        "dimensions": {},
+        "temporal": {
+          "period_identity": "2026-09",
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "cutoff": "2026-09-30",
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "source_n": 2006507,
+          "filtered_n": 30989,
+          "units": 30989
+        },
+        "payload": {
+          "value": 30989
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          }
+        }
+      }
+    },
+    "rvm_portfolio_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.d3961ee4cddf7e38c42d0ee8",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "CALENDAR_MONTH",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null
+        },
+        "dimensions": {
+          "brand": [
+            "FOTON",
+            "DFM"
+          ]
+        },
+        "temporal": {
+          "period_type": "CALENDAR_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING",
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 945,
+              "evidence_id": "p1.rvm.ebb8fc997b6555606343e867"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 832,
+              "evidence_id": "p1.rvm.5cfaed75328f896da33f06c5"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 1036,
+              "evidence_id": "p1.rvm.1a878b500492dd6c0cafedc4"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 1037,
+              "evidence_id": "p1.rvm.b5b3696b2052d00d13ae7c9b"
+            }
+          ]
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED",
+            "brand": [
+              "FOTON",
+              "DFM"
+            ]
+          },
+          "component_evidence_ids": [
+            "p1.rvm.ebb8fc997b6555606343e867",
+            "p1.rvm.5cfaed75328f896da33f06c5",
+            "p1.rvm.1a878b500492dd6c0cafedc4",
+            "p1.rvm.b5b3696b2052d00d13ae7c9b"
+          ]
+        }
+      }
+    },
+    "rvm_market_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.59e829386e365af663f9a88e",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "CALENDAR_MONTH",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null
+        },
+        "dimensions": {},
+        "temporal": {
+          "period_type": "CALENDAR_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING",
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 26576,
+              "evidence_id": "p1.rvm.2e384a3d920ce31173f3e29e"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 24722,
+              "evidence_id": "p1.rvm.1d9802806b9cecb63774a166"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 27896,
+              "evidence_id": "p1.rvm.668ff1949d16418b5ea650dd"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 30989,
+              "evidence_id": "p1.rvm.7634ace603346b11fa665773"
+            }
+          ]
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED"
+          },
+          "component_evidence_ids": [
+            "p1.rvm.2e384a3d920ce31173f3e29e",
+            "p1.rvm.1d9802806b9cecb63774a166",
+            "p1.rvm.668ff1949d16418b5ea650dd",
+            "p1.rvm.7634ace603346b11fa665773"
+          ]
+        }
+      }
+    },
+    "rvm_foton_series": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.1543a013f1f229342a8ed9b9",
+        "evidence_contract": "p1.period_observation_series",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "CALENDAR_MONTH",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null
+        },
+        "dimensions": {
+          "brand": "FOTON"
+        },
+        "temporal": {
+          "period_type": "CALENDAR_MONTH",
+          "period_from": "2026-06",
+          "period_to": "2026-09",
+          "ordering": "ASCENDING",
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "requested_periods": 4,
+          "observed_periods": 4,
+          "gaps": []
+        },
+        "payload": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 728,
+              "evidence_id": "p1.rvm.055b4e96fb688a0d5eecbe38"
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 637,
+              "evidence_id": "p1.rvm.664ac94ad5e49ab2fa167767"
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 747,
+              "evidence_id": "p1.rvm.f6b64344ac75ba587e4cb5b9"
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 787,
+              "evidence_id": "p1.rvm.3db2fd5805924a09eda33213"
+            }
+          ]
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED",
+            "brand": "FOTON"
+          },
+          "component_evidence_ids": [
+            "p1.rvm.055b4e96fb688a0d5eecbe38",
+            "p1.rvm.664ac94ad5e49ab2fa167767",
+            "p1.rvm.f6b64344ac75ba587e4cb5b9",
+            "p1.rvm.3db2fd5805924a09eda33213"
+          ]
+        }
+      }
+    },
+    "rvm_dongfeng_series": {
+      "transport_error": true,
+      "result": {
+        "message": "tool call error: tool call failed for `codex_apps/motor_test_azure.data_observe`\n\nCaused by:\n    Mcp error: -32603: MCP request timed out"
+      }
+    },
+    "rvm_dongfeng_sep": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.a4f09ac6129afa0d71aa15a1",
+        "evidence_contract": "p1.quantitative_observation",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_RVM_REGISTRATION_UNIVERSE",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null,
+          "cutoff": "2026-09-30"
+        },
+        "dimensions": {
+          "brand": "DFM"
+        },
+        "temporal": {
+          "period_identity": "2026-09",
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30",
+          "cutoff": "2026-09-30",
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "source_n": 2006507,
+          "filtered_n": 250,
+          "units": 250
+        },
+        "payload": {
+          "value": 250
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED",
+            "brand": "DFM",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          }
+        }
+      }
+    },
+    "rvm_market_ytd": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.4f34599677cd71440d387b7d",
+        "evidence_contract": "p1.quantitative_observation",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_RVM_REGISTRATION_UNIVERSE",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null,
+          "cutoff": null
+        },
+        "dimensions": {},
+        "temporal": {
+          "period_identity": null,
+          "date_from": "2026-01-01",
+          "date_to": "2026-09-30",
+          "cutoff": null,
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "source_n": 2006507,
+          "filtered_n": 237229,
+          "units": 237181
+        },
+        "payload": {
+          "value": 237181
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED",
+            "date_from": "2026-01-01",
+            "date_to": "2026-09-30"
+          }
+        }
+      }
+    },
+    "rvm_portfolio_ytd": {
+      "transport_error": false,
+      "result": {
+        "evidence_id": "p1.rvm.1c38a6c71a16a0e073f575ef",
+        "evidence_contract": "p1.quantitative_observation",
+        "evidence_version": "0.1.0",
+        "authority": "P1_CERTIFIED",
+        "status": "CERTIFIED",
+        "source": "RVM",
+        "operation": "OBSERVE",
+        "grain": "FILTERED_RVM_REGISTRATION_UNIVERSE",
+        "measure": {
+          "id": "RVM_UNITS",
+          "unit": "VEHICLE",
+          "aggregation": "SUM_SOURCE_QUANTITY"
+        },
+        "universe": {
+          "data_status": "CONSOLIDATED",
+          "snapshot_date": null,
+          "cutoff": null
+        },
+        "dimensions": {
+          "brand": [
+            "FOTON",
+            "DFM"
+          ]
+        },
+        "temporal": {
+          "period_identity": null,
+          "date_from": "2026-01-01",
+          "date_to": "2026-09-30",
+          "cutoff": null,
+          "date_semantics": "rvm_raw.fecha"
+        },
+        "coverage": {
+          "source_n": 2006507,
+          "filtered_n": 7271,
+          "units": 7271
+        },
+        "payload": {
+          "value": 7271
+        },
+        "lineage": {
+          "universe": "rvm_raw",
+          "raw_source": "rvm_raw",
+          "registration_date_authority": "rvm_raw.fecha",
+          "status_rule": "CONSOLIDATED",
+          "snapshot_rule": "snapshot_date not applicable",
+          "certifier": "rvmCertifier",
+          "certifier_version": "0.6.4",
+          "source_dataset": "rvm_raw",
+          "source_filters": {
+            "data_status": "CONSOLIDATED",
+            "date_from": "2026-01-01",
+            "date_to": "2026-09-30",
+            "brand": [
+              "FOTON",
+              "DFM"
+            ]
+          }
+        }
+      }
+    },
+    "rvm_foton_ytd": {
+      "transport_error": true,
+      "result": {
+        "error": "McpServerError: Connection timed out.",
+        "error_code": "UNAVAILABLE",
+        "error_data": {
+          "type": "mcp_network_error",
+          "code": "network_error",
+          "message": "Connection timed out.",
+          "url": "https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/mcp?utm_source=chatgpt.com"
+        }
+      }
+    },
+    "rvm_dongfeng_ytd": {
+      "transport_error": true,
+      "result": {
+        "message": "tool call error: tool call failed for `codex_apps/motor_test_azure.data_observe`\n\nCaused by:\n    Mcp error: -32603: Internal error"
+      }
+    },
+    "p2_rvm_share_series": {
+      "transport_error": false,
+      "result": {
+        "status": "EXECUTED",
+        "result": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "part_value": 945,
+              "universe_value": 26576,
+              "ratio": 0.035558398555087294,
+              "percentage": 3.5558398555087294,
+              "ratio_status": "CALCULATED"
+            },
+            {
+              "period_identity": "2026-07",
+              "part_value": 832,
+              "universe_value": 24722,
+              "ratio": 0.03365423509424804,
+              "percentage": 3.365423509424804,
+              "ratio_status": "CALCULATED"
+            },
+            {
+              "period_identity": "2026-08",
+              "part_value": 1036,
+              "universe_value": 27896,
+              "ratio": 0.03713794092342988,
+              "percentage": 3.7137940923429884,
+              "ratio_status": "CALCULATED"
+            },
+            {
+              "period_identity": "2026-09",
+              "part_value": 1037,
+              "universe_value": 30989,
+              "ratio": 0.03346348704378973,
+              "percentage": 3.346348704378973,
+              "ratio_status": "CALCULATED"
+            }
+          ],
+          "coverage": {
+            "observation_count": 4,
+            "first_period": "2026-06",
+            "last_period": "2026-09",
+            "gap_count": 0,
+            "gaps": []
+          }
+        },
+        "limitations": [
+          "Causalidad.",
+          "Evaluación bueno/malo.",
+          "Proyección futura."
+        ],
+        "lineage": {
+          "run_id": "reconcile-cierre-202609-20261026",
+          "execution_id": "ff132c91-8939-4e8f-a7e0-120b20dcfd87",
+          "unit_id": "p2.proportion_across_periods",
+          "contract_version": "0.1.0",
+          "executor_id": "p2.proportion_across_periods",
+          "executor_version": "0.1.0",
+          "evidence_refs": [
+            {
+              "slot": "part_series",
+              "evidence_id": "p1.rvm.d3961ee4cddf7e38c42d0ee8",
+              "evidence_contract": "p1.period_observation_series",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "universe_series",
+              "evidence_id": "p1.rvm.59e829386e365af663f9a88e",
+              "evidence_contract": "p1.period_observation_series",
+              "evidence_version": "0.1.0"
+            }
+          ],
+          "parameters": {},
+          "executed_at": "2026-10-26T19:21:14.261Z"
+        }
+      }
+    },
+    "p2_rvm_foton_share_series": {
+      "transport_error": false,
+      "result": {
+        "status": "EXECUTED",
+        "result": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "part_value": 728,
+              "universe_value": 26576,
+              "ratio": 0.027393136664659843,
+              "percentage": 2.7393136664659843,
+              "ratio_status": "CALCULATED"
+            },
+            {
+              "period_identity": "2026-07",
+              "part_value": 637,
+              "universe_value": 24722,
+              "ratio": 0.025766523744033654,
+              "percentage": 2.5766523744033654,
+              "ratio_status": "CALCULATED"
+            },
+            {
+              "period_identity": "2026-08",
+              "part_value": 747,
+              "universe_value": 27896,
+              "ratio": 0.02677803269285919,
+              "percentage": 2.677803269285919,
+              "ratio_status": "CALCULATED"
+            },
+            {
+              "period_identity": "2026-09",
+              "part_value": 787,
+              "universe_value": 30989,
+              "ratio": 0.025396108296492304,
+              "percentage": 2.5396108296492304,
+              "ratio_status": "CALCULATED"
+            }
+          ],
+          "coverage": {
+            "observation_count": 4,
+            "first_period": "2026-06",
+            "last_period": "2026-09",
+            "gap_count": 0,
+            "gaps": []
+          }
+        },
+        "limitations": [
+          "Causalidad.",
+          "Evaluación bueno/malo.",
+          "Proyección futura."
+        ],
+        "lineage": {
+          "run_id": "reconcile-cierre-202609-20261026",
+          "execution_id": "94422c7b-2c23-412b-a39d-50e56d136dbd",
+          "unit_id": "p2.proportion_across_periods",
+          "contract_version": "0.1.0",
+          "executor_id": "p2.proportion_across_periods",
+          "executor_version": "0.1.0",
+          "evidence_refs": [
+            {
+              "slot": "part_series",
+              "evidence_id": "p1.rvm.1543a013f1f229342a8ed9b9",
+              "evidence_contract": "p1.period_observation_series",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "universe_series",
+              "evidence_id": "p1.rvm.59e829386e365af663f9a88e",
+              "evidence_contract": "p1.period_observation_series",
+              "evidence_version": "0.1.0"
+            }
+          ],
+          "parameters": {},
+          "executed_at": "2026-10-26T19:21:15.101Z"
+        }
+      }
+    },
+    "p2_rvm_dongfeng_share": {
+      "transport_error": false,
+      "result": {
+        "status": "EXECUTED",
+        "result": {
+          "part_value": 250,
+          "universe_value": 30989,
+          "ratio": 0.008067378747297429,
+          "percentage": 0.8067378747297429,
+          "ratio_status": "CALCULATED"
+        },
+        "limitations": [
+          "La causa de la proporción.",
+          "Si la proporción es buena o mala.",
+          "Una evolución temporal.",
+          "Una proyección futura.",
+          "Que dos universos incompatibles sean comparables."
+        ],
+        "lineage": {
+          "run_id": "reconcile-cierre-202609-20261026",
+          "execution_id": "f81a374d-9f51-4308-9728-35a09f425fc3",
+          "unit_id": "p2.part_to_universe_ratio",
+          "contract_version": "0.1.0",
+          "executor_id": "p2.part_to_universe_ratio",
+          "executor_version": "0.1.0",
+          "evidence_refs": [
+            {
+              "slot": "part",
+              "evidence_id": "p1.rvm.a4f09ac6129afa0d71aa15a1",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "universe",
+              "evidence_id": "p1.rvm.7634ace603346b11fa665773",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ],
+          "parameters": {},
+          "executed_at": "2026-10-26T19:23:04.804Z"
+        }
+      }
+    },
+    "p2_rvm_ytd_share": {
+      "transport_error": false,
+      "result": {
+        "status": "EXECUTED",
+        "result": {
+          "part_value": 7271,
+          "universe_value": 237181,
+          "ratio": 0.030655912573098184,
+          "percentage": 3.0655912573098183,
+          "ratio_status": "CALCULATED"
+        },
+        "limitations": [
+          "La causa de la proporción.",
+          "Si la proporción es buena o mala.",
+          "Una evolución temporal.",
+          "Una proyección futura.",
+          "Que dos universos incompatibles sean comparables."
+        ],
+        "lineage": {
+          "run_id": "reconcile-cierre-202609-20261026",
+          "execution_id": "95bad6be-4c8c-4b78-8b6c-685add0c813b",
+          "unit_id": "p2.part_to_universe_ratio",
+          "contract_version": "0.1.0",
+          "executor_id": "p2.part_to_universe_ratio",
+          "executor_version": "0.1.0",
+          "evidence_refs": [
+            {
+              "slot": "part",
+              "evidence_id": "p1.rvm.1c38a6c71a16a0e073f575ef",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "universe",
+              "evidence_id": "p1.rvm.4f34599677cd71440d387b7d",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ],
+          "parameters": {},
+          "executed_at": "2026-10-26T19:23:05.627Z"
+        }
+      }
+    },
+    "p2_sales_sequence": {
+      "transport_error": false,
+      "result": {
+        "status": "EXECUTED",
+        "result": {
+          "observations": [
+            {
+              "period_identity": "2026-06",
+              "value": 878
+            },
+            {
+              "period_identity": "2026-07",
+              "value": 899
+            },
+            {
+              "period_identity": "2026-08",
+              "value": 1200
+            },
+            {
+              "period_identity": "2026-09",
+              "value": 1034
+            }
+          ],
+          "movements": [
+            {
+              "from_period": "2026-06",
+              "to_period": "2026-07",
+              "from_value": 878,
+              "to_value": 899,
+              "absolute_delta": 21,
+              "relative_delta": 0.023917995444191344,
+              "relative_delta_status": "CALCULATED",
+              "direction": "UP"
+            },
+            {
+              "from_period": "2026-07",
+              "to_period": "2026-08",
+              "from_value": 899,
+              "to_value": 1200,
+              "absolute_delta": 301,
+              "relative_delta": 0.3348164627363737,
+              "relative_delta_status": "CALCULATED",
+              "direction": "UP"
+            },
+            {
+              "from_period": "2026-08",
+              "to_period": "2026-09",
+              "from_value": 1200,
+              "to_value": 1034,
+              "absolute_delta": -166,
+              "relative_delta": -0.13833333333333334,
+              "relative_delta_status": "CALCULATED",
+              "direction": "DOWN"
+            }
+          ],
+          "coverage": {
+            "observation_count": 4,
+            "first_period": "2026-06",
+            "last_period": "2026-09",
+            "gap_count": 0,
+            "gaps": []
+          }
+        },
+        "limitations": [
+          "Una predicción futura.",
+          "La causa de los movimientos.",
+          "Un diagnóstico comercial.",
+          "Que el patrón observado continuará.",
+          "Si el resultado es bueno o malo."
+        ],
+        "lineage": {
+          "run_id": "reconcile-cierre-202609-20261026",
+          "execution_id": "b3973c93-31bc-4300-9ec1-db92e0bbc956",
+          "unit_id": "p2.observed_sequence",
+          "contract_version": "0.1.0",
+          "executor_id": "p2.observed_sequence",
+          "executor_version": "0.1.0",
+          "evidence_refs": [
+            {
+              "slot": "sequence",
+              "evidence_id": "p1.sales.5a2308f169f1cf211341af40",
+              "evidence_contract": "p1.period_observation_series",
+              "evidence_version": "0.1.0"
+            }
+          ],
+          "parameters": {},
+          "executed_at": "2026-10-26T19:21:16.426Z"
+        }
+      }
+    },
+    "sales_sep": {
+      "transport_error": true,
+      "result": {
+        "message": "tool call error: tool call failed for `codex_apps/motor_test_azure.sales_observe_many`\n\nCaused by:\n    Mcp error: -32603: MCP request timed out"
+      }
+    },
+    "sales_company": {
+      "transport_error": true,
+      "result": {
+        "message": "tool call error: tool call failed for `codex_apps/motor_test_azure.sales_observe_many`\n\nCaused by:\n    Mcp error: -32603: MCP request timed out"
+      }
+    },
+    "sales_own": {
+      "transport_error": true,
+      "result": {
+        "message": "tool call error: tool call failed for `codex_apps/motor_test_azure.sales_observe_many`\n\nCaused by:\n    Mcp error: -32603: MCP request timed out"
+      }
+    },
+    "p3_trace": {
+      "transport_error": true,
+      "result": {
+        "error_code": "UNAVAILABLE",
+        "message": "run_trace: Connection timed out"
+      }
+    }
+  }
+}

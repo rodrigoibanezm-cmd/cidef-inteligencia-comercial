@@ -1,1359 +1,2006 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "period": "2026-09",
-  "domains": {
-    "sales": {
-      "status": "CLOSED",
-      "metrics": {
-        "vin_sales": {
-          "value": 1044,
-          "unit": "VIN",
-          "comparison": 924,
-          "comparison_period": "2025-09",
-          "comparison_type": "YOY",
-          "delta": 120,
-          "delta_pct": 13
+  "status": "PARTIALLY_CERTIFIED",
+  "provenance": {
+    "provider": "Azure",
+    "run_id": "reconcile-cierre-202609-20261026",
+    "retrieved_at": "2026-10-26T19:24:08.397Z",
+    "evidence_file": "certification-evidence.json",
+    "baseline_commit": "0b2f5e0e4314810cb30cfa1dd39930e3d3e42ab1",
+    "note": "Conciliación reconstruida con las fuentes disponibles en Azure el 26/10; no es una copia inmutable publicada originalmente el 30/09."
+  },
+  "indicators": {
+    "sales_company": {
+      "label": "Ventas compañía",
+      "value": 1034,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.quantitative_observation",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.c33c8f63933371710dbb01f3",
+      "evidence_ref": "sales_total",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "sales_own": {
+      "label": "Ventas propias",
+      "value": 373,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.026278ffeed5788b5322615a",
+      "evidence_ref": "sales_network",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "sales_dealers": {
+      "label": "Ventas dealers",
+      "value": 661,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.026278ffeed5788b5322615a",
+      "evidence_ref": "sales_network",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "sales_foton": {
+      "label": "Ventas Foton",
+      "value": 831,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.5d38a9f52d0f687776e40301",
+      "evidence_ref": "sales_foton_network",
+      "value_path": [
+        "coverage",
+        "filtered_n"
+      ]
+    },
+    "sales_foton_own": {
+      "label": "Ventas propias Foton",
+      "value": 256,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.5d38a9f52d0f687776e40301",
+      "evidence_ref": "sales_foton_network",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "sales_foton_dealers": {
+      "label": "Ventas dealers Foton",
+      "value": 575,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.5d38a9f52d0f687776e40301",
+      "evidence_ref": "sales_foton_network",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "sales_dongfeng": {
+      "label": "Ventas Dongfeng",
+      "value": 203,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.20e16d22b0925adfa51319bc",
+      "evidence_ref": "sales_dongfeng_network",
+      "value_path": [
+        "coverage",
+        "filtered_n"
+      ]
+    },
+    "sales_dongfeng_own": {
+      "label": "Ventas propias Dongfeng",
+      "value": 117,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.20e16d22b0925adfa51319bc",
+      "evidence_ref": "sales_dongfeng_network",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "sales_dongfeng_dealers": {
+      "label": "Ventas dealers Dongfeng",
+      "value": 86,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.20e16d22b0925adfa51319bc",
+      "evidence_ref": "sales_dongfeng_network",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "sales_finance_resolved": {
+      "label": "Ventas con financiera identificada",
+      "value": 196,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.ca57d7d14e2288b918e76aea",
+      "evidence_ref": "sales_finance",
+      "value_path": [
+        "coverage",
+        "dimension_resolved_n"
+      ]
+    },
+    "sales_finance_unresolved": {
+      "label": "Ventas sin financiera resuelta",
+      "value": 177,
+      "unit": "VIN",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "SALES",
+      "measure": "VIN_SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.sales.ca57d7d14e2288b918e76aea",
+      "evidence_ref": "sales_finance",
+      "value_path": [
+        "coverage",
+        "dimension_unresolved_n"
+      ]
+    },
+    "forum_quotations": {
+      "label": "Cotizaciones de septiembre",
+      "value": 5890,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "QUOTATIONS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:QUOTATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634166",
+      "evidence_ref": "forum_QUOTATIONS",
+      "value_path": [
+        "coverage",
+        "total_value"
+      ]
+    },
+    "forum_quotations_own": {
+      "label": "Cotizaciones de septiembre · own",
+      "value": 2587,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "QUOTATIONS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:QUOTATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634166",
+      "evidence_ref": "forum_QUOTATIONS",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_quotations_dealers": {
+      "label": "Cotizaciones de septiembre · dealers",
+      "value": 3303,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "QUOTATIONS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:QUOTATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634166",
+      "evidence_ref": "forum_QUOTATIONS",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_applications": {
+      "label": "Solicitudes de la cohorte septiembre",
+      "value": 4847,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "APPLICATIONS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:APPLICATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634199",
+      "evidence_ref": "forum_APPLICATIONS",
+      "value_path": [
+        "coverage",
+        "total_value"
+      ],
+      "semantics": "Estado consolidado de cotizaciones de septiembre observado al consultar; NO es foto histórica de solicitudes al 30/09."
+    },
+    "forum_applications_own": {
+      "label": "Solicitudes de la cohorte septiembre · own",
+      "value": 2108,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "APPLICATIONS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:APPLICATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634199",
+      "evidence_ref": "forum_APPLICATIONS",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_applications_dealers": {
+      "label": "Solicitudes de la cohorte septiembre · dealers",
+      "value": 2739,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "APPLICATIONS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:APPLICATIONS:NETWORK:2026-09:2026-09:2026-09-30:1793041634199",
+      "evidence_ref": "forum_APPLICATIONS",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_curses": {
+      "label": "Operaciones cursadas en septiembre",
+      "value": 381,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "CURSES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:CURSES:NETWORK:2026-09:2026-09:2026-09-30:1793041634165",
+      "evidence_ref": "forum_CURSES",
+      "value_path": [
+        "coverage",
+        "total_value"
+      ]
+    },
+    "forum_curses_own": {
+      "label": "Operaciones cursadas en septiembre · own",
+      "value": 172,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "CURSES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:CURSES:NETWORK:2026-09:2026-09:2026-09-30:1793041634165",
+      "evidence_ref": "forum_CURSES",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_curses_dealers": {
+      "label": "Operaciones cursadas en septiembre · dealers",
+      "value": 209,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "CURSES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:CURSES:NETWORK:2026-09:2026-09:2026-09-30:1793041634165",
+      "evidence_ref": "forum_CURSES",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_ufis": {
+      "label": "UFIs ejecutadas en septiembre",
+      "value": 383,
+      "unit": "VEHICLE_UNIT",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "UFIS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:UFIS:NETWORK:2026-09:2026-09:2026-09-30:1793041634159",
+      "evidence_ref": "forum_UFIS",
+      "value_path": [
+        "coverage",
+        "total_value"
+      ]
+    },
+    "forum_ufis_own": {
+      "label": "UFIs ejecutadas en septiembre · own",
+      "value": 174,
+      "unit": "VEHICLE_UNIT",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "UFIS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:UFIS:NETWORK:2026-09:2026-09:2026-09-30:1793041634159",
+      "evidence_ref": "forum_UFIS",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_ufis_dealers": {
+      "label": "UFIs ejecutadas en septiembre · dealers",
+      "value": 209,
+      "unit": "VEHICLE_UNIT",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "UFIS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:UFIS:NETWORK:2026-09:2026-09:2026-09-30:1793041634159",
+      "evidence_ref": "forum_UFIS",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_snapshot_operations": {
+      "label": "Operaciones en foto exacta del 30/09",
+      "value": 5675,
+      "unit": "OPERATION",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "measure": "OPERATION_STATES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "P1_OPERATION_STATE_SNAPSHOT",
+      "contract_version": "0.12",
+      "evidence_id": "FORUM:OPERATION_STATES:2026-09-30:1793041511120",
+      "evidence_ref": "forum_snapshot",
+      "value_path": [
+        "coverage",
+        "operation_count"
+      ]
+    },
+    "forum_precurse_september": {
+      "label": "PRECURSE al 30/09",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "FORUM",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "El contrato PRECURSE solo devuelve el último stock (21/10: 118); no certifica un stock histórico de septiembre."
+    },
+    "forum_snapshot_states": {
+      "label": "Estados y solicitudes en la foto del 30/09",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "FORUM",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "Foto recuperada: 5.675 operaciones. La consulta P1 filtrada por estado falló: column \"estado_actual\" does not exist. No se publican agregaciones históricas como recertificadas."
+    },
+    "rvm_market": {
+      "label": "Inscripciones del mercado",
+      "value": 30989,
+      "unit": "VEHICLE",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "RVM",
+      "measure": "RVM_UNITS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.quantitative_observation",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.rvm.7634ace603346b11fa665773",
+      "evidence_ref": "rvm_total",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "rvm_portfolio": {
+      "label": "Inscripciones CIDEF",
+      "value": 1037,
+      "unit": "VEHICLE",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "RVM",
+      "measure": "RVM_UNITS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.period_observation_series",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.rvm.d3961ee4cddf7e38c42d0ee8",
+      "evidence_ref": "rvm_portfolio_series",
+      "value_path": [
+        "payload",
+        "observations",
+        3,
+        "value"
+      ]
+    },
+    "rvm_foton": {
+      "label": "Inscripciones Foton",
+      "value": 787,
+      "unit": "VEHICLE",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "RVM",
+      "measure": "RVM_UNITS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.period_observation_series",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.rvm.1543a013f1f229342a8ed9b9",
+      "evidence_ref": "rvm_foton_series",
+      "value_path": [
+        "payload",
+        "observations",
+        3,
+        "value"
+      ]
+    },
+    "rvm_dongfeng": {
+      "label": "Inscripciones Dongfeng · etiqueta RVM DFM",
+      "value": 250,
+      "unit": "VEHICLE",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "RVM",
+      "measure": "RVM_UNITS",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.quantitative_observation",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.rvm.a4f09ac6129afa0d71aa15a1",
+      "evidence_ref": "rvm_dongfeng_sep",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "rvm_market_ytd": {
+      "label": "Inscripciones mercado enero–septiembre",
+      "value": 237181,
+      "unit": "VEHICLE",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "RVM",
+      "measure": "RVM_UNITS",
+      "period": "2026-01/2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.quantitative_observation",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.rvm.4f34599677cd71440d387b7d",
+      "evidence_ref": "rvm_market_ytd",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "rvm_portfolio_ytd": {
+      "label": "Inscripciones CIDEF enero–septiembre",
+      "value": 7271,
+      "unit": "VEHICLE",
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "RVM",
+      "measure": "RVM_UNITS",
+      "period": "2026-01/2026-09",
+      "cutoff": "2026-09-30",
+      "cutoff_basis": "certified temporal bounds; see original temporal in evidence",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p1.quantitative_observation",
+      "contract_version": "0.1.0",
+      "evidence_id": "p1.rvm.1c38a6c71a16a0e073f575ef",
+      "evidence_ref": "rvm_portfolio_ytd",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "rvm_share": {
+      "label": "Participación mensual CIDEF",
+      "value": 3.346348704378973,
+      "unit": "PERCENT",
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM P1 + P2",
+      "measure": "RVM_SHARE",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "evidence_ref": "p2_rvm_share_series",
+      "value_path": [
+        "result",
+        "observations",
+        3,
+        "percentage"
+      ],
+      "execution_id": "ff132c91-8939-4e8f-a7e0-120b20dcfd87",
+      "evidence_ids": [
+        "p1.rvm.d3961ee4cddf7e38c42d0ee8",
+        "p1.rvm.59e829386e365af663f9a88e"
+      ]
+    },
+    "rvm_foton_share": {
+      "label": "Participación mensual Foton",
+      "value": 2.5396108296492304,
+      "unit": "PERCENT",
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM P1 + P2",
+      "measure": "RVM_SHARE",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "evidence_ref": "p2_rvm_foton_share_series",
+      "value_path": [
+        "result",
+        "observations",
+        3,
+        "percentage"
+      ],
+      "execution_id": "94422c7b-2c23-412b-a39d-50e56d136dbd",
+      "evidence_ids": [
+        "p1.rvm.1543a013f1f229342a8ed9b9",
+        "p1.rvm.59e829386e365af663f9a88e"
+      ]
+    },
+    "rvm_dongfeng_share": {
+      "label": "Participación mensual Dongfeng · DFM",
+      "value": 0.8067378747297429,
+      "unit": "PERCENT",
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM P1 + P2",
+      "measure": "RVM_SHARE",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p2.part_to_universe_ratio",
+      "contract_version": "0.1.0",
+      "evidence_ref": "p2_rvm_dongfeng_share",
+      "value_path": [
+        "result",
+        "percentage"
+      ],
+      "execution_id": "f81a374d-9f51-4308-9728-35a09f425fc3",
+      "evidence_ids": [
+        "p1.rvm.a4f09ac6129afa0d71aa15a1",
+        "p1.rvm.7634ace603346b11fa665773"
+      ]
+    },
+    "rvm_ytd_share": {
+      "label": "Participación CIDEF enero–septiembre",
+      "value": 3.0655912573098183,
+      "unit": "PERCENT",
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM P1 + P2",
+      "measure": "RVM_SHARE",
+      "period": "2026-01/2026-09",
+      "cutoff": "2026-09-30",
+      "observed_at": "2026-10-26T19:24:08.397Z",
+      "contract": "p2.part_to_universe_ratio",
+      "contract_version": "0.1.0",
+      "evidence_ref": "p2_rvm_ytd_share",
+      "value_path": [
+        "result",
+        "percentage"
+      ],
+      "execution_id": "95bad6be-4c8c-4b78-8b6c-685add0c813b",
+      "evidence_ids": [
+        "p1.rvm.1c38a6c71a16a0e073f575ef",
+        "p1.rvm.4f34599677cd71440d387b7d"
+      ]
+    },
+    "rvm_dongfeng_evolution": {
+      "label": "Evolución mensual DFM",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "RVM",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "La serie P1 junio–septiembre agotó el tiempo de consulta. Septiembre (250 inscripciones) sí está certificado; no se reconstruye el resto por diferencia."
+    },
+    "rvm_brand_ytd": {
+      "label": "RVM YTD por marca",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "RVM",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "Foton: timeout de conexión; DFM: error interno. El acumulado combinado sí está certificado (7.271 / 237.181)."
+    },
+    "historical_brand_channels": {
+      "label": "Series por canal y marca y financiamiento",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "SALES",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "No se reutilizan las trayectorias antiguas sin recertificar su apertura. Las series de compañía, canales y marcas totales sí provienen de P1."
+    },
+    "yoy": {
+      "label": "Comparaciones interanuales",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "SALES / RVM",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "La base 2025 y sus comparaciones P2 no se recertificaron en esta ejecución; se retiró el divisor fijo 924."
+    },
+    "forum_penetration": {
+      "label": "Penetración UFIs / ventas",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "FORUM / SALES / P2",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "Las dos fuentes están verificadas, pero no hay en esta ejecución un resultado P2 compatible que certifique esta razón entre dominios."
+    },
+    "p3_trace_read": {
+      "label": "Lectura de traza P3",
+      "value": null,
+      "status": "PENDING_CERTIFICATION",
+      "source": "P3",
+      "period": "2026-09",
+      "cutoff": null,
+      "reason": "run_trace agotó el tiempo de conexión. Se conservan run_id, evidencias P1 e identificadores de las ejecuciones P2."
+    }
+  },
+  "series": {
+    "sales_company": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "sales_company_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 878
+        },
+        {
+          "period": "2026-07",
+          "value": 899
+        },
+        {
+          "period": "2026-08",
+          "value": 1200
+        },
+        {
+          "period": "2026-09",
+          "value": 1034
         }
-      },
-      "breakdowns": {
-        "network": [
-          {
-            "id": "OWN_STORES",
-            "label": "Tiendas propias",
-            "value": 377,
-            "unit": "VIN"
-          },
-          {
-            "id": "DEALERS",
-            "label": "Dealers",
-            "value": 667,
-            "unit": "VIN"
-          }
-        ],
-        "brand": [
-          {
-            "id": "FOTON",
-            "label": "Foton",
-            "value": 840,
-            "unit": "VIN"
-          },
-          {
-            "id": "DONGFENG",
-            "label": "Dongfeng",
-            "value": 205,
-            "unit": "VIN"
-          }
-        ]
-      },
-      "rankings": {
-        "stores": [
-          {
-            "id": "3",
-            "label": "CIDEF Bellavista",
-            "value": 52,
-            "unit": "VIN"
-          },
-          {
-            "id": "10",
-            "label": "CIDEF Mall Plaza Oeste",
-            "value": 37,
-            "unit": "VIN"
-          },
-          {
-            "id": "4",
-            "label": "CIDEF Pajaritos",
-            "value": 33,
-            "unit": "VIN"
-          },
-          {
-            "id": "5",
-            "label": "CIDEF Antofagasta",
-            "value": 33,
-            "unit": "VIN"
-          },
-          {
-            "id": "7",
-            "label": "CIDEF Mall Plaza Vespucio",
-            "value": 32,
-            "unit": "VIN"
-          }
-        ],
-        "models": [
-          {
-            "id": "28",
-            "label": "G7",
-            "value": 185,
-            "unit": "VIN"
-          },
-          {
-            "id": "17",
-            "label": "TM5",
-            "value": 178,
-            "unit": "VIN"
-          },
-          {
-            "id": "765",
-            "label": "TM3",
-            "value": 175,
-            "unit": "VIN"
-          },
-          {
-            "id": "176",
-            "label": "MIDI",
-            "value": 115,
-            "unit": "VIN"
-          },
-          {
-            "id": "426",
-            "label": "V9",
-            "value": 63,
-            "unit": "VIN"
-          }
-        ]
+      ]
+    },
+    "sales_own": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "sales_own_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 364
+        },
+        {
+          "period": "2026-07",
+          "value": 409
+        },
+        {
+          "period": "2026-08",
+          "value": 555
+        },
+        {
+          "period": "2026-09",
+          "value": 373
+        }
+      ]
+    },
+    "sales_dealers": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "sales_dealers_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 514
+        },
+        {
+          "period": "2026-07",
+          "value": 490
+        },
+        {
+          "period": "2026-08",
+          "value": 645
+        },
+        {
+          "period": "2026-09",
+          "value": 661
+        }
+      ]
+    },
+    "sales_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "sales_foton_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 703
+        },
+        {
+          "period": "2026-07",
+          "value": 720
+        },
+        {
+          "period": "2026-08",
+          "value": 858
+        },
+        {
+          "period": "2026-09",
+          "value": 831
+        }
+      ]
+    },
+    "sales_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "sales_dongfeng_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 175
+        },
+        {
+          "period": "2026-07",
+          "value": 179
+        },
+        {
+          "period": "2026-08",
+          "value": 342
+        },
+        {
+          "period": "2026-09",
+          "value": 203
+        }
+      ]
+    },
+    "rvm_market": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "rvm_market_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 26576
+        },
+        {
+          "period": "2026-07",
+          "value": 24722
+        },
+        {
+          "period": "2026-08",
+          "value": 27896
+        },
+        {
+          "period": "2026-09",
+          "value": 30989
+        }
+      ]
+    },
+    "rvm_portfolio": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "rvm_portfolio_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 945
+        },
+        {
+          "period": "2026-07",
+          "value": 832
+        },
+        {
+          "period": "2026-08",
+          "value": 1036
+        },
+        {
+          "period": "2026-09",
+          "value": 1037
+        }
+      ]
+    },
+    "rvm_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "evidence_ref": "rvm_foton_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 728
+        },
+        {
+          "period": "2026-07",
+          "value": 637
+        },
+        {
+          "period": "2026-08",
+          "value": 747
+        },
+        {
+          "period": "2026-09",
+          "value": 787
+        }
+      ]
+    },
+    "rvm_share": {
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "evidence_ref": "p2_rvm_share_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 3.5558398555087294
+        },
+        {
+          "period": "2026-07",
+          "value": 3.365423509424804
+        },
+        {
+          "period": "2026-08",
+          "value": 3.7137940923429884
+        },
+        {
+          "period": "2026-09",
+          "value": 3.346348704378973
+        }
+      ]
+    },
+    "rvm_foton_share": {
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "evidence_ref": "p2_rvm_foton_share_series",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 2.7393136664659843
+        },
+        {
+          "period": "2026-07",
+          "value": 2.5766523744033654
+        },
+        {
+          "period": "2026-08",
+          "value": 2.677803269285919
+        },
+        {
+          "period": "2026-09",
+          "value": 2.5396108296492304
+        }
+      ]
+    }
+  },
+  "breakdowns": {
+    "stores": {
+      "status": "CERTIFIED",
+      "source": "SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "evidence_ref": "sales_stores",
+      "evidence_id": "p1.sales.13dbe145a07500f1f8bab67b",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "total": 373,
+      "unresolved": 0,
+      "members": [
+        {
+          "member_id": "3",
+          "member_label": "CIDEF Bellavista",
+          "value": 52
+        },
+        {
+          "member_id": "4",
+          "member_label": "CIDEF Pajaritos",
+          "value": 33
+        },
+        {
+          "member_id": "5",
+          "member_label": "CIDEF Antofagasta",
+          "value": 33
+        },
+        {
+          "member_id": "7",
+          "member_label": "CIDEF Mall Plaza Vespucio",
+          "value": 30
+        },
+        {
+          "member_id": "8",
+          "member_label": "CIDEF Mall Plaza Norte",
+          "value": 28
+        },
+        {
+          "member_id": "9",
+          "member_label": "CIDEF Mall Plaza Sur",
+          "value": 30
+        },
+        {
+          "member_id": "10",
+          "member_label": "CIDEF Mall Plaza Oeste",
+          "value": 37
+        },
+        {
+          "member_id": "11",
+          "member_label": "CIDEF Mall Plaza Egaña",
+          "value": 19
+        },
+        {
+          "member_id": "15",
+          "member_label": "Amunategui",
+          "value": 1
+        },
+        {
+          "member_id": "18",
+          "member_label": "CIDEF Concepcion",
+          "value": 28
+        },
+        {
+          "member_id": "19",
+          "member_label": "CIDEF Mall Alameda",
+          "value": 24
+        },
+        {
+          "member_id": "20",
+          "member_label": "CIDEF Vicuña Mackenna",
+          "value": 30
+        },
+        {
+          "member_id": "21",
+          "member_label": "CIDEF Mall Paseo Quilin",
+          "value": 5
+        },
+        {
+          "member_id": "22",
+          "member_label": "CIDEF Mall Cenco Costanera",
+          "value": 23
+        }
+      ]
+    },
+    "sellers": {
+      "status": "CERTIFIED",
+      "source": "SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "evidence_ref": "sales_sellers",
+      "evidence_id": "p1.sales.5119da2bc3571274f3207d28",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "total": 373,
+      "unresolved": 0,
+      "members": [
+        {
+          "member_id": "1",
+          "member_label": "ALEXANDER JOHAN ALBORNOZ",
+          "value": 1
+        },
+        {
+          "member_id": "10",
+          "member_label": "ADA GONZALEZ",
+          "value": 3
+        },
+        {
+          "member_id": "16",
+          "member_label": "ANGELICA MARIA MORENO DE MATOS",
+          "value": 7
+        },
+        {
+          "member_id": "17",
+          "member_label": "ORTA MEDINA ADRIANA ALEJANDRA",
+          "value": 1
+        },
+        {
+          "member_id": "36",
+          "member_label": "CRISTIAN DIAZ",
+          "value": 7
+        },
+        {
+          "member_id": "37",
+          "member_label": "CONSTANZA GALARCE",
+          "value": 1
+        },
+        {
+          "member_id": "38",
+          "member_label": "GALLEGOS MIRANDA CARLA FERNARDA",
+          "value": 1
+        },
+        {
+          "member_id": "41",
+          "member_label": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
+          "value": 11
+        },
+        {
+          "member_id": "44",
+          "member_label": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
+          "value": 10
+        },
+        {
+          "member_id": "45",
+          "member_label": "MALUENDA LEIVA CLAUDIA VIVIANA",
+          "value": 12
+        },
+        {
+          "member_id": "47",
+          "member_label": "MORALES JIMENEZ CYNDI CAROLINA",
+          "value": 6
+        },
+        {
+          "member_id": "52",
+          "member_label": "VALENZUELA VERGARA CAROLINA EUGENIA",
+          "value": 6
+        },
+        {
+          "member_id": "56",
+          "member_label": "DIEGO LEANDRO ARAYA MONDACA",
+          "value": 7
+        },
+        {
+          "member_id": "57",
+          "member_label": "BASANTA GUEVARA DOUGLAS JOSE",
+          "value": 14
+        },
+        {
+          "member_id": "58",
+          "member_label": "CARO URREA DANILO ANDRES",
+          "value": 4
+        },
+        {
+          "member_id": "62",
+          "member_label": "JEREZ CORTEZ DIEGO ANDRES",
+          "value": 8
+        },
+        {
+          "member_id": "68",
+          "member_label": "EVELYN ASTUDILLO MENESES",
+          "value": 6
+        },
+        {
+          "member_id": "69",
+          "member_label": "EVELYN CONTRERAS",
+          "value": 3
+        },
+        {
+          "member_id": "71",
+          "member_label": "EDUARDO MESIAS",
+          "value": 6
+        },
+        {
+          "member_id": "76",
+          "member_label": "FELIX ACOSTA RODRIGUEZ",
+          "value": 11
+        },
+        {
+          "member_id": "77",
+          "member_label": "FRANCISCA JAVIERA FLORES FIGUEROA",
+          "value": 5
+        },
+        {
+          "member_id": "80",
+          "member_label": "FELIPE HERRERA TORRES",
+          "value": 6
+        },
+        {
+          "member_id": "86",
+          "member_label": "YOUNG GALLE FRANCISCO EDUARDO",
+          "value": 4
+        },
+        {
+          "member_id": "87",
+          "member_label": "GERALDINE ARIAS",
+          "value": 1
+        },
+        {
+          "member_id": "90",
+          "member_label": "GENESIS YORASLY CAMACHO PEÑA",
+          "value": 1
+        },
+        {
+          "member_id": "103",
+          "member_label": "VALENZUELA CERDA HECTOR ALEJANDRO",
+          "value": 6
+        },
+        {
+          "member_id": "104",
+          "member_label": "ALARCON PINILLA IVÁN ENRIQUE",
+          "value": 6
+        },
+        {
+          "member_id": "105",
+          "member_label": "ILEANA ALBURJAS SUAREZ",
+          "value": 1
+        },
+        {
+          "member_id": "106",
+          "member_label": "COVARRUBIAS DEE IVAN IGNACIO",
+          "value": 6
+        },
+        {
+          "member_id": "110",
+          "member_label": "BASTIAS GONZALEZ JUAN CARLOS",
+          "value": 5
+        },
+        {
+          "member_id": "129",
+          "member_label": "ROCA DE LA BARRA JUAN FRANCISCO",
+          "value": 4
+        },
+        {
+          "member_id": "131",
+          "member_label": "VALBUENA ZAMBRANO JOSE GABRIEL",
+          "value": 5
+        },
+        {
+          "member_id": "136",
+          "member_label": "KELVIN CEBALLOS",
+          "value": 2
+        },
+        {
+          "member_id": "137",
+          "member_label": "CORTEZ PEÑA KARIN DANIELA",
+          "value": 10
+        },
+        {
+          "member_id": "141",
+          "member_label": "KATHERINE MONARES",
+          "value": 3
+        },
+        {
+          "member_id": "144",
+          "member_label": "RIFFO OVIEDO KARIN MARCELA",
+          "value": 6
+        },
+        {
+          "member_id": "145",
+          "member_label": "ALAMOS PALMA LUISA FRANCISCA",
+          "value": 6
+        },
+        {
+          "member_id": "148",
+          "member_label": "CARDENAS SUAREZ LISMARY LISSETT",
+          "value": 1
+        },
+        {
+          "member_id": "150",
+          "member_label": "DURAN BLANCO LUIS RAUL",
+          "value": 6
+        },
+        {
+          "member_id": "155",
+          "member_label": "MAGLYS CARABALLO",
+          "value": 9
+        },
+        {
+          "member_id": "156",
+          "member_label": "CARDENAS ALVARADO MARIA CRISTINA",
+          "value": 6
+        },
+        {
+          "member_id": "157",
+          "member_label": "MANUEL ALEXANDER FORT BELMONTE",
+          "value": 2
+        },
+        {
+          "member_id": "159",
+          "member_label": "MARINA MARLENS GUTIERREZ GUTIERREZ",
+          "value": 7
+        },
+        {
+          "member_id": "161",
+          "member_label": "MARIN GRUSIC MAURICIO JAVIER",
+          "value": 6
+        },
+        {
+          "member_id": "170",
+          "member_label": "RIVERA RICON MAXIMO JAVIER",
+          "value": 5
+        },
+        {
+          "member_id": "180",
+          "member_label": "HERRERA FERNANDEZ NICOLAS ALEXIS",
+          "value": 4
+        },
+        {
+          "member_id": "181",
+          "member_label": "IBAÑEZ ARAVENA NADIA SCARLETTE",
+          "value": 7
+        },
+        {
+          "member_id": "188",
+          "member_label": "OSVALDO FARIAS",
+          "value": 8
+        },
+        {
+          "member_id": "189",
+          "member_label": "ORLANDO HERRERA",
+          "value": 5
+        },
+        {
+          "member_id": "193",
+          "member_label": "PEDRO IVO MILOVIC",
+          "value": 6
+        },
+        {
+          "member_id": "194",
+          "member_label": "ROSSE CARRIÓN PEREZ",
+          "value": 3
+        },
+        {
+          "member_id": "196",
+          "member_label": "DUQUE RODRIGUEZ RONNA NOHEMI",
+          "value": 1
+        },
+        {
+          "member_id": "200",
+          "member_label": "ROSSANA GONZALEZ",
+          "value": 6
+        },
+        {
+          "member_id": "205",
+          "member_label": "PALMA ORTA RICARDO ALEJANDRO",
+          "value": 7
+        },
+        {
+          "member_id": "211",
+          "member_label": "SOLANGEL NEWKEYNY HERNANDEZ PEREIRA",
+          "value": 1
+        },
+        {
+          "member_id": "214",
+          "member_label": "RAMIREZ OCHOA STHEFANY JHOJANA",
+          "value": 3
+        },
+        {
+          "member_id": "215",
+          "member_label": "RIQUELME VILLATORO SERGIO NICOLAS",
+          "value": 5
+        },
+        {
+          "member_id": "220",
+          "member_label": "USBALDINE OCTAVIO MEDINA TORREALBA",
+          "value": 2
+        },
+        {
+          "member_id": "223",
+          "member_label": "CABEZA ARCIA VIRGINIA CAROLINA",
+          "value": 4
+        },
+        {
+          "member_id": "226",
+          "member_label": "GONZALEZ NAVARRETE VALERIA IGNACIA",
+          "value": 3
+        },
+        {
+          "member_id": "229",
+          "member_label": "RIFFO PAILLAO VICTOR JOHN",
+          "value": 6
+        },
+        {
+          "member_id": "231",
+          "member_label": "SANCHEZ GALAVIS RAQUEL VICTORIA",
+          "value": 3
+        },
+        {
+          "member_id": "232",
+          "member_label": "TAMPOA GUANIPA VIRGINIA CENOBIA",
+          "value": 30
+        },
+        {
+          "member_id": "234",
+          "member_label": "YANINA GARCIA",
+          "value": 6
+        },
+        {
+          "member_id": "235",
+          "member_label": "YOSELIN GARCIA",
+          "value": 4
+        },
+        {
+          "member_id": "238",
+          "member_label": "DIETER ALEXANDER GUILLEN INFANTE",
+          "value": 3
+        },
+        {
+          "member_id": "239",
+          "member_label": "SEBASTIAN VELASQUEZ",
+          "value": 3
+        },
+        {
+          "member_id": "240",
+          "member_label": "JUAN ANTONIO DIAZ CARDENAS",
+          "value": 7
+        },
+        {
+          "member_id": "241",
+          "member_label": "MERIBETH SOTOMAYOR",
+          "value": 2
+        }
+      ]
+    },
+    "models": {
+      "status": "CERTIFIED",
+      "source": "SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "evidence_ref": "sales_models",
+      "evidence_id": "p1.sales.72d193110655569d84c3a9b6",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "total": 1034,
+      "unresolved": 0,
+      "members": [
+        {
+          "member_id": "4",
+          "member_label": "T5 EVO",
+          "value": 3
+        },
+        {
+          "member_id": "17",
+          "member_label": "TM5",
+          "value": 177
+        },
+        {
+          "member_id": "23",
+          "member_label": "HUGE",
+          "value": 6
+        },
+        {
+          "member_id": "28",
+          "member_label": "G7",
+          "value": 185
+        },
+        {
+          "member_id": "84",
+          "member_label": "AEOLUS Y3",
+          "value": 34
+        },
+        {
+          "member_id": "176",
+          "member_label": "MIDI",
+          "value": 113
+        },
+        {
+          "member_id": "181",
+          "member_label": "DF6",
+          "value": 1
+        },
+        {
+          "member_id": "217",
+          "member_label": "SX6",
+          "value": 58
+        },
+        {
+          "member_id": "228",
+          "member_label": "V7",
+          "value": 30
+        },
+        {
+          "member_id": "396",
+          "member_label": "AEOLUS GS",
+          "value": 23
+        },
+        {
+          "member_id": "399",
+          "member_label": "T5 L",
+          "value": 12
+        },
+        {
+          "member_id": "409",
+          "member_label": "WONDER",
+          "value": 2
+        },
+        {
+          "member_id": "426",
+          "member_label": "V9",
+          "value": 63
+        },
+        {
+          "member_id": "435",
+          "member_label": "G9",
+          "value": 45
+        },
+        {
+          "member_id": "457",
+          "member_label": "RICH 6",
+          "value": 3
+        },
+        {
+          "member_id": "481",
+          "member_label": "MAGE",
+          "value": 54
+        },
+        {
+          "member_id": "501",
+          "member_label": "T5",
+          "value": 7
+        },
+        {
+          "member_id": "612",
+          "member_label": "VIEW GRAND",
+          "value": 44
+        },
+        {
+          "member_id": "765",
+          "member_label": "TM3",
+          "value": 172
+        },
+        {
+          "member_id": "811",
+          "member_label": "T5 HEV",
+          "value": 2
+        }
+      ]
+    },
+    "financial_entities": {
+      "status": "CERTIFIED",
+      "source": "SALES",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "evidence_ref": "sales_finance",
+      "evidence_id": "p1.sales.ca57d7d14e2288b918e76aea",
+      "contract": "p1.dimensional_quantitative_dataset",
+      "total": 373,
+      "unresolved": 177,
+      "members": [
+        {
+          "member_id": "AUTOFIN",
+          "member_label": null,
+          "value": 4
+        },
+        {
+          "member_id": "FORUM",
+          "member_label": null,
+          "value": 159
+        },
+        {
+          "member_id": "GLOBAL SOLUCIONES",
+          "member_label": null,
+          "value": 15
+        },
+        {
+          "member_id": "TANNER",
+          "member_label": null,
+          "value": 18
+        },
+        {
+          "member_id": "UNRESOLVED",
+          "member_label": "No resuelto",
+          "value": 177
+        }
+      ]
+    }
+  },
+  "cards": [
+    {
+      "id": "sales_company",
+      "label": "Ventas · VIN",
+      "subtitle": "Mes completo · SALES P1",
+      "brands": {
+        "FOTON": "sales_foton",
+        "DONGFENG": "sales_dongfeng"
       },
       "series": {
-        "company_recent": {
-          "unit": "VIN",
-          "points": [
-            {
-              "period": "2026-06",
-              "value": 878
-            },
-            {
-              "period": "2026-07",
-              "value": 930
-            },
-            {
-              "period": "2026-08",
-              "value": 1201
-            },
-            {
-              "period": "2026-09",
-              "value": 1044
-            }
-          ]
-        }
-      },
-      "scopes": {
-        "own_stores": {
-          "status": "CLOSED",
-          "metrics": {
-            "vin_sales": {
-              "value": 377,
-              "unit": "VIN",
-              "comparison": 460,
-              "comparison_period": "2025-09",
-              "comparison_type": "YOY",
-              "delta": -83,
-              "delta_pct": -18
-            }
-          }
-        },
-        "dealers": {
-          "status": "CLOSED",
-          "metrics": {
-            "vin_sales": {
-              "value": 667,
-              "unit": "VIN",
-              "comparison": 464,
-              "comparison_period": "2025-09",
-              "comparison_type": "YOY",
-              "delta": 203,
-              "delta_pct": 43.8
-            }
-          },
-          "limitations": [
-            "Dealer ranking is not materialized because 355 of 667 dealer VINs do not have dealer_id resolved."
-          ]
-        },
-        "foton_pickup": {
-          "status": "CLOSED",
-          "metrics": {
-            "vin_sales": {
-              "value": 325,
-              "unit": "VIN"
-            }
-          },
-          "breakdowns": {
-            "network": [
-              {
-                "id": "DEALERS",
-                "label": "Dealers",
-                "value": 224,
-                "unit": "VIN"
-              },
-              {
-                "id": "OWN_STORES",
-                "label": "Tiendas propias",
-                "value": 101,
-                "unit": "VIN"
-              }
-            ]
-          }
-        }
+        "COMPANY": "sales_company",
+        "FOTON": "sales_foton",
+        "DONGFENG": "sales_dongfeng"
       }
     },
-    "rvm": {
-      "status": "CLOSED",
-      "metrics": {
-        "market_units": {
-          "value": 30989,
-          "unit": "VEHICLE",
-          "comparison": 31871,
-          "comparison_period": "2025-09",
-          "comparison_type": "YOY",
-          "delta": -882,
-          "delta_pct": -2.8
-        },
-        "portfolio_units": {
-          "value": 1037,
-          "unit": "VEHICLE",
-          "comparison": 1324,
-          "comparison_period": "2025-09",
-          "comparison_type": "YOY",
-          "delta": -287,
-          "delta_pct": -21.7
-        },
-        "portfolio_share": {
-          "value": 3.3463,
-          "unit": "PERCENT",
-          "comparison": 4.1542,
-          "comparison_period": "2025-09",
-          "comparison_type": "YOY",
-          "delta_pp": -0.8079
-        }
-      },
-      "breakdowns": {
-        "brand": [
-          {
-            "id": "FOTON",
-            "label": "Foton",
-            "value": 787,
-            "unit": "VEHICLE",
-            "comparison": 851,
-            "delta": -64,
-            "delta_pct": -7.5
-          },
-          {
-            "id": "DFM",
-            "label": "DFM",
-            "value": 250,
-            "unit": "VEHICLE",
-            "comparison": 473,
-            "delta": -223,
-            "delta_pct": -47.1
-          }
-        ],
-        "monthly_model_change_foton": [
-          {
-            "id": "MIDI",
-            "label": "MIDI",
-            "value": 113,
-            "comparison": 191,
-            "delta": -78,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "TM5",
-            "label": "TM5",
-            "value": 131,
-            "comparison": 169,
-            "delta": -38,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "G7",
-            "label": "FOTON G7",
-            "value": 161,
-            "comparison": 112,
-            "delta": 49,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "VIEW",
-            "label": "VIEW",
-            "value": 35,
-            "comparison": 0,
-            "delta": 35,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "V7",
-            "label": "V7",
-            "value": 44,
-            "comparison": 25,
-            "delta": 19,
-            "unit": "VEHICLE"
-          }
-        ],
-        "monthly_model_change_dfm": [
-          {
-            "id": "AEOLUS_Y3",
-            "label": "AEOLUS Y3",
-            "value": 37,
-            "comparison": 110,
-            "delta": -73,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "AEOLUS_GS",
-            "label": "AEOLUS GS",
-            "value": 29,
-            "comparison": 77,
-            "delta": -48,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "MAGE",
-            "label": "MAGE",
-            "value": 63,
-            "comparison": 98,
-            "delta": -35,
-            "unit": "VEHICLE"
-          },
-          {
-            "id": "DF6",
-            "label": "DF6",
-            "value": 7,
-            "comparison": 39,
-            "delta": -32,
-            "unit": "VEHICLE"
-          }
-        ]
+    {
+      "id": "sales_own",
+      "label": "Ventas propias",
+      "subtitle": "VIN · canal propio",
+      "brands": {
+        "FOTON": "sales_foton_own",
+        "DONGFENG": "sales_dongfeng_own"
+      }
+    },
+    {
+      "id": "sales_dealers",
+      "label": "Ventas dealers",
+      "subtitle": "VIN · canal dealer",
+      "brands": {
+        "FOTON": "sales_foton_dealers",
+        "DONGFENG": "sales_dongfeng_dealers"
+      }
+    },
+    {
+      "id": "rvm_share",
+      "label": "RVM · Share mensual",
+      "subtitle": "Mercado consolidado · P1 / P2",
+      "brands": {
+        "FOTON": "rvm_foton_share",
+        "DONGFENG": "rvm_dongfeng_share"
       },
       "series": {
-        "market_recent": {
-          "unit": "VEHICLE",
-          "points": [
-            {
-              "period": "2026-06",
-              "value": 26576
-            },
-            {
-              "period": "2026-07",
-              "value": 24722
-            },
-            {
-              "period": "2026-08",
-              "value": 27896
-            },
-            {
-              "period": "2026-09",
-              "value": 30989
-            }
-          ]
-        },
-        "foton_recent": {
-          "unit": "VEHICLE",
-          "points": [
-            {
-              "period": "2026-06",
-              "value": 728
-            },
-            {
-              "period": "2026-07",
-              "value": 637
-            },
-            {
-              "period": "2026-08",
-              "value": 747
-            },
-            {
-              "period": "2026-09",
-              "value": 787
-            }
-          ]
-        },
-        "dfm_recent": {
-          "unit": "VEHICLE",
-          "points": [
-            {
-              "period": "2026-06",
-              "value": 217
-            },
-            {
-              "period": "2026-07",
-              "value": 195
-            },
-            {
-              "period": "2026-08",
-              "value": 289
-            },
-            {
-              "period": "2026-09",
-              "value": 250
-            }
-          ]
-        }
-      },
-      "scopes": {
-        "ytd": {
-          "status": "CLOSED",
-          "metrics": {
-            "market_units": {
-              "value": 237181,
-              "unit": "VEHICLE",
-              "comparison": 231870,
-              "comparison_period": "2025-01/2025-09",
-              "comparison_type": "YOY_YTD",
-              "delta": 5311,
-              "delta_pct": 2.3
-            },
-            "portfolio_units": {
-              "value": 7271,
-              "unit": "VEHICLE",
-              "comparison": 6603,
-              "comparison_period": "2025-01/2025-09",
-              "comparison_type": "YOY_YTD",
-              "delta": 668,
-              "delta_pct": 10.1
-            },
-            "portfolio_share": {
-              "value": 3.0656,
-              "unit": "PERCENT",
-              "comparison": 2.8477,
-              "comparison_period": "2025-01/2025-09",
-              "comparison_type": "YOY_YTD",
-              "delta_pp": 0.2179
-            },
-            "foton_units": {
-              "value": 5340,
-              "unit": "VEHICLE",
-              "comparison": 4636,
-              "comparison_period": "2025-01/2025-09",
-              "comparison_type": "YOY_YTD",
-              "delta": 704,
-              "delta_pct": 15.2
-            },
-            "dfm_units": {
-              "value": 1931,
-              "unit": "VEHICLE",
-              "comparison": 1967,
-              "comparison_period": "2025-01/2025-09",
-              "comparison_type": "YOY_YTD",
-              "delta": -36,
-              "delta_pct": -1.8
-            }
-          },
-          "breakdowns": {
-            "model_change_foton": [
-              {
-                "id": "MIDI",
-                "label": "MIDI",
-                "value": 800,
-                "comparison": 887,
-                "delta": -87,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "TM5",
-                "label": "TM5",
-                "value": 987,
-                "comparison": 883,
-                "delta": 104,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "VIEW",
-                "label": "VIEW",
-                "value": 89,
-                "comparison": 0,
-                "delta": 89,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "TM3",
-                "label": "TM3",
-                "value": 951,
-                "comparison": 884,
-                "delta": 67,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "G9",
-                "label": "G9",
-                "value": 241,
-                "comparison": 174,
-                "delta": 67,
-                "unit": "VEHICLE"
-              }
-            ],
-            "model_change_dfm": [
-              {
-                "id": "DF6",
-                "label": "DF6",
-                "value": 11,
-                "comparison": 147,
-                "delta": -136,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "T5L",
-                "label": "T5L",
-                "value": 82,
-                "comparison": 190,
-                "delta": -108,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "AEOLUS_GS",
-                "label": "AEOLUS GS",
-                "value": 224,
-                "comparison": 295,
-                "delta": -71,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "SX6",
-                "label": "SX6",
-                "value": 234,
-                "comparison": 303,
-                "delta": -69,
-                "unit": "VEHICLE"
-              },
-              {
-                "id": "MAGE",
-                "label": "MAGE",
-                "value": 550,
-                "comparison": 389,
-                "delta": 161,
-                "unit": "VEHICLE"
-              }
-            ]
-          }
-        }
+        "COMPANY": "rvm_share",
+        "FOTON": "rvm_foton_share",
+        "DONGFENG": "rvm_dongfeng_share"
       }
     },
-    "forum": {
-      "status": "CLOSED",
-      "scopes": {
-        "own_stores": {
-          "status": "CLOSED",
-          "metrics": {
-            "sales_vin": {
-              "value": 377,
-              "unit": "VIN"
-            },
-            "ufis": {
-              "value": 174,
-              "unit": "VEHICLE_UNIT"
-            },
-            "ufi_penetration": {
-              "value": 46.15,
-              "unit": "PERCENT",
-              "numerator": 174,
-              "denominator": 377,
-              "derivation": "UFIS / SALES VIN; arithmetic over P1-certified facts"
-            }
-          },
-          "breakdowns": {
-            "september_store_sales": [
-              {
-                "id": "3",
-                "label": "CIDEF Bellavista",
-                "value": 52,
-                "unit": "VIN"
-              },
-              {
-                "id": "10",
-                "label": "CIDEF Mall Plaza Oeste",
-                "value": 37,
-                "unit": "VIN"
-              },
-              {
-                "id": "4",
-                "label": "CIDEF Pajaritos",
-                "value": 33,
-                "unit": "VIN"
-              },
-              {
-                "id": "5",
-                "label": "CIDEF Antofagasta",
-                "value": 33,
-                "unit": "VIN"
-              },
-              {
-                "id": "7",
-                "label": "CIDEF Mall Plaza Vespucio",
-                "value": 32,
-                "unit": "VIN"
-              },
-              {
-                "id": "9",
-                "label": "CIDEF Mall Plaza Sur",
-                "value": 30,
-                "unit": "VIN"
-              },
-              {
-                "id": "20",
-                "label": "CIDEF Vicuña Mackenna",
-                "value": 30,
-                "unit": "VIN"
-              },
-              {
-                "id": "8",
-                "label": "CIDEF Mall Plaza Norte",
-                "value": 29,
-                "unit": "VIN"
-              },
-              {
-                "id": "18",
-                "label": "CIDEF Concepcion",
-                "value": 28,
-                "unit": "VIN"
-              },
-              {
-                "id": "19",
-                "label": "CIDEF Mall Alameda",
-                "value": 25,
-                "unit": "VIN"
-              },
-              {
-                "id": "22",
-                "label": "CIDEF Mall Cenco Costanera",
-                "value": 23,
-                "unit": "VIN"
-              },
-              {
-                "id": "11",
-                "label": "CIDEF Mall Plaza Egaña",
-                "value": 19,
-                "unit": "VIN"
-              },
-              {
-                "id": "21",
-                "label": "CIDEF Mall Paseo Quilin",
-                "value": 5,
-                "unit": "VIN"
-              },
-              {
-                "id": "15",
-                "label": "Amunategui",
-                "value": 1,
-                "unit": "VIN"
-              }
-            ],
-            "september_store_ufis": [
-              {
-                "id": "8",
-                "label": "CIDEF Mall Plaza Norte",
-                "value": 20,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "9",
-                "label": "CIDEF Mall Plaza Sur",
-                "value": 20,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "18",
-                "label": "CIDEF Concepcion",
-                "value": 17,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "4",
-                "label": "CIDEF Pajaritos",
-                "value": 15,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "5",
-                "label": "CIDEF Antofagasta",
-                "value": 14,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "19",
-                "label": "CIDEF Mall Alameda",
-                "value": 14,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "10",
-                "label": "CIDEF Mall Plaza Oeste",
-                "value": 14,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "3",
-                "label": "CIDEF Bellavista",
-                "value": 13,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "22",
-                "label": "CIDEF Mall Cenco Costanera",
-                "value": 12,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "20",
-                "label": "CIDEF Vicuña Mackenna",
-                "value": 12,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "7",
-                "label": "CIDEF Mall Plaza Vespucio",
-                "value": 10,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "11",
-                "label": "CIDEF Mall Plaza Egaña",
-                "value": 9,
-                "unit": "VEHICLE_UNIT"
-              },
-              {
-                "id": "21",
-                "label": "CIDEF Mall Paseo Quilin",
-                "value": 4,
-                "unit": "VEHICLE_UNIT"
-              }
-            ],
-            "september_store_approved_without_curse": [
-              {
-                "id": "22",
-                "label": "CIDEF Mall Cenco Costanera",
-                "value": 82,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "18",
-                "label": "CIDEF Concepcion",
-                "value": 80,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "9",
-                "label": "CIDEF Mall Plaza Sur",
-                "value": 80,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "11",
-                "label": "CIDEF Mall Plaza Egaña",
-                "value": 73,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "5",
-                "label": "CIDEF Antofagasta",
-                "value": 65,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "19",
-                "label": "CIDEF Mall Alameda",
-                "value": 60,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "21",
-                "label": "CIDEF Mall Paseo Quilin",
-                "value": 55,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "7",
-                "label": "CIDEF Mall Plaza Vespucio",
-                "value": 54,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "10",
-                "label": "CIDEF Mall Plaza Oeste",
-                "value": 51,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "20",
-                "label": "CIDEF Vicuña Mackenna",
-                "value": 50,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "4",
-                "label": "CIDEF Pajaritos",
-                "value": 46,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "8",
-                "label": "CIDEF Mall Plaza Norte",
-                "value": 43,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "3",
-                "label": "CIDEF Bellavista",
-                "value": 35,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "44",
-                "label": "CIDEF Mall Cenco Florida",
-                "value": 3,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "78",
-                "label": "CIDEF Las Condes",
-                "value": 2,
-                "unit": "OPERATION"
-              }
-            ],
-            "september_brand_store_approved_without_curse": [
-              {
-                "id": "FOTON:18",
-                "label": "FOTON · CIDEF Concepcion",
-                "value": 62,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:22",
-                "label": "FOTON · CIDEF Mall Cenco Costanera",
-                "value": 45,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:11",
-                "label": "FOTON · CIDEF Mall Plaza Egaña",
-                "value": 41,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:9",
-                "label": "FOTON · CIDEF Mall Plaza Sur",
-                "value": 40,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:19",
-                "label": "FOTON · CIDEF Mall Alameda",
-                "value": 35,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:10",
-                "label": "FOTON · CIDEF Mall Plaza Oeste",
-                "value": 34,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:5",
-                "label": "FOTON · CIDEF Antofagasta",
-                "value": 32,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:21",
-                "label": "FOTON · CIDEF Mall Paseo Quilin",
-                "value": 31,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:20",
-                "label": "FOTON · CIDEF Vicuña Mackenna",
-                "value": 30,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:7",
-                "label": "FOTON · CIDEF Mall Plaza Vespucio",
-                "value": 27,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:3",
-                "label": "FOTON · CIDEF Bellavista",
-                "value": 25,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:4",
-                "label": "FOTON · CIDEF Pajaritos",
-                "value": 23,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "FOTON:8",
-                "label": "FOTON · CIDEF Mall Plaza Norte",
-                "value": 19,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:9",
-                "label": "DONGFENG · CIDEF Mall Plaza Sur",
-                "value": 40,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:22",
-                "label": "DONGFENG · CIDEF Mall Cenco Costanera",
-                "value": 37,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:5",
-                "label": "DONGFENG · CIDEF Antofagasta",
-                "value": 33,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:11",
-                "label": "DONGFENG · CIDEF Mall Plaza Egaña",
-                "value": 32,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:7",
-                "label": "DONGFENG · CIDEF Mall Plaza Vespucio",
-                "value": 27,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:19",
-                "label": "DONGFENG · CIDEF Mall Alameda",
-                "value": 25,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:21",
-                "label": "DONGFENG · CIDEF Mall Paseo Quilin",
-                "value": 24,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:8",
-                "label": "DONGFENG · CIDEF Mall Plaza Norte",
-                "value": 24,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:4",
-                "label": "DONGFENG · CIDEF Pajaritos",
-                "value": 23,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:20",
-                "label": "DONGFENG · CIDEF Vicuña Mackenna",
-                "value": 20,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:18",
-                "label": "DONGFENG · CIDEF Concepcion",
-                "value": 18,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:10",
-                "label": "DONGFENG · CIDEF Mall Plaza Oeste",
-                "value": 17,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "DONGFENG:3",
-                "label": "DONGFENG · CIDEF Bellavista",
-                "value": 10,
-                "unit": "OPERATION"
-              }
-            ],
-            "september_brand_store_sales": [
-              {
-                "id": "FOTON:3",
-                "label": "FOTON · CIDEF Bellavista",
-                "value": 42,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:10",
-                "label": "FOTON · CIDEF Mall Plaza Oeste",
-                "value": 28,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:4",
-                "label": "FOTON · CIDEF Pajaritos",
-                "value": 25,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:18",
-                "label": "FOTON · CIDEF Concepcion",
-                "value": 22,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:5",
-                "label": "FOTON · CIDEF Antofagasta",
-                "value": 21,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:20",
-                "label": "FOTON · CIDEF Vicuña Mackenna",
-                "value": 20,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:7",
-                "label": "FOTON · CIDEF Mall Plaza Vespucio",
-                "value": 19,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:9",
-                "label": "FOTON · CIDEF Mall Plaza Sur",
-                "value": 19,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:22",
-                "label": "FOTON · CIDEF Mall Cenco Costanera",
-                "value": 19,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:8",
-                "label": "FOTON · CIDEF Mall Plaza Norte",
-                "value": 13,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:11",
-                "label": "FOTON · CIDEF Mall Plaza Egaña",
-                "value": 12,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:19",
-                "label": "FOTON · CIDEF Mall Alameda",
-                "value": 14,
-                "unit": "VIN"
-              },
-              {
-                "id": "FOTON:21",
-                "label": "FOTON · CIDEF Mall Paseo Quilin",
-                "value": 2,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:8",
-                "label": "DONGFENG · CIDEF Mall Plaza Norte",
-                "value": 16,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:7",
-                "label": "DONGFENG · CIDEF Mall Plaza Vespucio",
-                "value": 13,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:5",
-                "label": "DONGFENG · CIDEF Antofagasta",
-                "value": 12,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:9",
-                "label": "DONGFENG · CIDEF Mall Plaza Sur",
-                "value": 11,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:19",
-                "label": "DONGFENG · CIDEF Mall Alameda",
-                "value": 11,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:3",
-                "label": "DONGFENG · CIDEF Bellavista",
-                "value": 10,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:20",
-                "label": "DONGFENG · CIDEF Vicuña Mackenna",
-                "value": 10,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:10",
-                "label": "DONGFENG · CIDEF Mall Plaza Oeste",
-                "value": 9,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:4",
-                "label": "DONGFENG · CIDEF Pajaritos",
-                "value": 8,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:11",
-                "label": "DONGFENG · CIDEF Mall Plaza Egaña",
-                "value": 7,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:18",
-                "label": "DONGFENG · CIDEF Concepcion",
-                "value": 6,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:22",
-                "label": "DONGFENG · CIDEF Mall Cenco Costanera",
-                "value": 4,
-                "unit": "VIN"
-              },
-              {
-                "id": "DONGFENG:21",
-                "label": "DONGFENG · CIDEF Mall Paseo Quilin",
-                "value": 3,
-                "unit": "VIN"
-              }
-            ],
-            "store_sales_trajectory": [
-              {
-                "id": "3",
-                "label": "CIDEF Bellavista",
-                "q1": 92,
-                "q2": 129,
-                "q3": 126,
-                "sep": 52,
-                "unit": "VIN"
-              },
-              {
-                "id": "4",
-                "label": "CIDEF Pajaritos",
-                "q1": 101,
-                "q2": 101,
-                "q3": 111,
-                "sep": 33,
-                "unit": "VIN"
-              },
-              {
-                "id": "5",
-                "label": "CIDEF Antofagasta",
-                "q1": 80,
-                "q2": 91,
-                "q3": 121,
-                "sep": 33,
-                "unit": "VIN"
-              },
-              {
-                "id": "7",
-                "label": "CIDEF Mall Plaza Vespucio",
-                "q1": 109,
-                "q2": 140,
-                "q3": 135,
-                "sep": 32,
-                "unit": "VIN"
-              },
-              {
-                "id": "8",
-                "label": "CIDEF Mall Plaza Norte",
-                "q1": 73,
-                "q2": 105,
-                "q3": 127,
-                "sep": 29,
-                "unit": "VIN"
-              },
-              {
-                "id": "9",
-                "label": "CIDEF Mall Plaza Sur",
-                "q1": 77,
-                "q2": 101,
-                "q3": 149,
-                "sep": 30,
-                "unit": "VIN"
-              },
-              {
-                "id": "10",
-                "label": "CIDEF Mall Plaza Oeste",
-                "q1": 92,
-                "q2": 110,
-                "q3": 123,
-                "sep": 37,
-                "unit": "VIN"
-              },
-              {
-                "id": "11",
-                "label": "CIDEF Mall Plaza Egaña",
-                "q1": 75,
-                "q2": 91,
-                "q3": 86,
-                "sep": 19,
-                "unit": "VIN"
-              },
-              {
-                "id": "18",
-                "label": "CIDEF Concepcion",
-                "q1": 92,
-                "q2": 85,
-                "q3": 90,
-                "sep": 28,
-                "unit": "VIN"
-              },
-              {
-                "id": "19",
-                "label": "CIDEF Mall Alameda",
-                "q1": 39,
-                "q2": 46,
-                "q3": 71,
-                "sep": 25,
-                "unit": "VIN"
-              },
-              {
-                "id": "20",
-                "label": "CIDEF Vicuña Mackenna",
-                "q1": 65,
-                "q2": 83,
-                "q3": 116,
-                "sep": 30,
-                "unit": "VIN"
-              },
-              {
-                "id": "21",
-                "label": "CIDEF Mall Paseo Quilin",
-                "q1": 0,
-                "q2": 0,
-                "q3": 29,
-                "sep": 5,
-                "unit": "VIN"
-              },
-              {
-                "id": "22",
-                "label": "CIDEF Mall Cenco Costanera",
-                "q1": 0,
-                "q2": 0,
-                "q3": 54,
-                "sep": 23,
-                "unit": "VIN"
-              }
-            ],
-            "approved_without_curse_by_cohort": [
-              {
-                "id": "3",
-                "label": "CIDEF Bellavista",
-                "jul": 77,
-                "aug": 48,
-                "sep": 35,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "4",
-                "label": "CIDEF Pajaritos",
-                "jul": 81,
-                "aug": 86,
-                "sep": 46,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "5",
-                "label": "CIDEF Antofagasta",
-                "jul": 81,
-                "aug": 96,
-                "sep": 65,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "7",
-                "label": "CIDEF Mall Plaza Vespucio",
-                "jul": 96,
-                "aug": 106,
-                "sep": 54,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "8",
-                "label": "CIDEF Mall Plaza Norte",
-                "jul": 84,
-                "aug": 97,
-                "sep": 43,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "9",
-                "label": "CIDEF Mall Plaza Sur",
-                "jul": 109,
-                "aug": 102,
-                "sep": 80,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "10",
-                "label": "CIDEF Mall Plaza Oeste",
-                "jul": 64,
-                "aug": 58,
-                "sep": 51,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "11",
-                "label": "CIDEF Mall Plaza Egaña",
-                "jul": 107,
-                "aug": 98,
-                "sep": 73,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "18",
-                "label": "CIDEF Concepcion",
-                "jul": 71,
-                "aug": 82,
-                "sep": 80,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "19",
-                "label": "CIDEF Mall Alameda",
-                "jul": 79,
-                "aug": 95,
-                "sep": 60,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "20",
-                "label": "CIDEF Vicuña Mackenna",
-                "jul": 56,
-                "aug": 54,
-                "sep": 50,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "21",
-                "label": "CIDEF Mall Paseo Quilin",
-                "jul": 40,
-                "aug": 58,
-                "sep": 55,
-                "unit": "OPERATION"
-              },
-              {
-                "id": "22",
-                "label": "CIDEF Mall Cenco Costanera",
-                "jul": 84,
-                "aug": 94,
-                "sep": 82,
-                "unit": "OPERATION"
-              }
-            ]
-          },
-          "limitations": [
-            "COHORT_APPROVED is approval stock from the quotation cohort that remains without certified Curse; it is not the same temporal universe as monthly UFIS.",
-            "The opportunity index approved-without-Curse / sales is an editorial operational ratio, not a certified penetration or conversion rate.",
-            "Historical unresolved Forum labels remain explicit for ACTIVACION, ARAUCO EL BOSQUE, CERRILLOS and FLOTAS; September own-store facts have zero unresolved store identity."
-          ]
-        }
+    {
+      "id": "rvm_ytd_share",
+      "label": "RVM · Share YTD",
+      "subtitle": "Acumulado enero–septiembre · P1 / P2"
+    },
+    {
+      "id": "sales_finance_resolved",
+      "label": "Ventas con financiera",
+      "subtitle": "Entidad identificada · propias · SALES P1"
+    }
+  ],
+  "pending": [
+    {
+      "id": "forum_precurse_september",
+      "label": "PRECURSE al 30/09",
+      "reason": "El contrato PRECURSE solo devuelve el último stock (21/10: 118); no certifica un stock histórico de septiembre."
+    },
+    {
+      "id": "forum_snapshot_states",
+      "label": "Estados y solicitudes en la foto del 30/09",
+      "reason": "Foto recuperada: 5.675 operaciones. La consulta P1 filtrada por estado falló: column \"estado_actual\" does not exist. No se publican agregaciones históricas como recertificadas."
+    },
+    {
+      "id": "rvm_dongfeng_evolution",
+      "label": "Evolución mensual DFM",
+      "reason": "La serie P1 junio–septiembre agotó el tiempo de consulta. Septiembre (250 inscripciones) sí está certificado; no se reconstruye el resto por diferencia."
+    },
+    {
+      "id": "rvm_brand_ytd",
+      "label": "RVM YTD por marca",
+      "reason": "Foton: timeout de conexión; DFM: error interno. El acumulado combinado sí está certificado (7.271 / 237.181)."
+    },
+    {
+      "id": "historical_brand_channels",
+      "label": "Series por canal y marca y financiamiento",
+      "reason": "No se reutilizan las trayectorias antiguas sin recertificar su apertura. Las series de compañía, canales y marcas totales sí provienen de P1."
+    },
+    {
+      "id": "yoy",
+      "label": "Comparaciones interanuales",
+      "reason": "La base 2025 y sus comparaciones P2 no se recertificaron en esta ejecución; se retiró el divisor fijo 924."
+    },
+    {
+      "id": "forum_penetration",
+      "label": "Penetración UFIs / ventas",
+      "reason": "Las dos fuentes están verificadas, pero no hay en esta ejecución un resultado P2 compatible que certifique esta razón entre dominios."
+    },
+    {
+      "id": "p3_trace_read",
+      "label": "Lectura de traza P3",
+      "reason": "run_trace agotó el tiempo de conexión. Se conservan run_id, evidencias P1 e identificadores de las ejecuciones P2."
+    },
+    {
+      "id": "rankings",
+      "label": "Rankings comerciales",
+      "reason": "Falta recertificar la clasificación histórica con identidades y evidencia compatibles; las cifras del snapshot anterior no se publican."
+    }
+  ],
+  "rankings": {
+    "status": "PENDING_CERTIFICATION",
+    "reason": "Falta recertificar la clasificación histórica con identidades y evidencia compatibles; las cifras del snapshot anterior no se publican.",
+    "categories": {
+      "stores": {
+        "current_ref": "breakdowns.stores",
+        "reason": "Septiembre: 14 sucursales, 373 ventas P1. Falta recertificar junio–agosto por sucursal y su clasificación."
+      },
+      "sellers": {
+        "current_ref": "breakdowns.sellers",
+        "reason": "Septiembre: 373 ventas P1 por vendedor. El padrón activo histórico y la primera venta del snapshot anterior no están recertificados."
+      },
+      "models": {
+        "current_ref": "breakdowns.models",
+        "reason": "Septiembre: 1.034 ventas P1 por modelo canónico. Se retira la agrupación heurística del ranking anterior; falta la comparación histórica."
+      },
+      "dealers": {
+        "current_ref": "indicators.sales_dealers",
+        "reason": "661 ventas del canal dealer verificadas. Falta recertificar la apertura por grupo y su vigencia histórica; el snapshot anterior sumaba 666."
       }
     }
-  }
+  },
+  "reconciliation": [
+    {
+      "indicator": "sales_company",
+      "previous": [
+        1041,
+        1044,
+        1045
+      ],
+      "current_ref": "indicators.sales_company",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "sales_own",
+      "previous": [
+        375,
+        377
+      ],
+      "current_ref": "indicators.sales_own",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "sales_dealers",
+      "previous": [
+        666,
+        667
+      ],
+      "current_ref": "indicators.sales_dealers",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "sales_foton",
+      "previous": [
+        837,
+        840
+      ],
+      "current_ref": "indicators.sales_foton",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "sales_dongfeng",
+      "previous": [
+        204,
+        205
+      ],
+      "current_ref": "indicators.sales_dongfeng",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "sales_finance_resolved",
+      "previous": [
+        198
+      ],
+      "current_ref": "indicators.sales_finance_resolved",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "sales_finance_unresolved",
+      "previous": [
+        177
+      ],
+      "current_ref": "indicators.sales_finance_unresolved",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "forum_quotations",
+      "previous": [
+        5675,
+        5890
+      ],
+      "current_ref": "indicators.forum_quotations",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "forum_applications",
+      "previous": [
+        4674,
+        4846
+      ],
+      "current_ref": "indicators.forum_applications",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "forum_curses",
+      "previous": [
+        381
+      ],
+      "current_ref": "indicators.forum_curses",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "forum_ufis",
+      "previous": [
+        383
+      ],
+      "current_ref": "indicators.forum_ufis",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "forum_snapshot_operations",
+      "previous": [
+        5675
+      ],
+      "current_ref": "indicators.forum_snapshot_operations",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "rvm_market",
+      "previous": [
+        30989
+      ],
+      "current_ref": "indicators.rvm_market",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "rvm_portfolio",
+      "previous": [
+        1037
+      ],
+      "current_ref": "indicators.rvm_portfolio",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "rvm_foton",
+      "previous": [
+        787
+      ],
+      "current_ref": "indicators.rvm_foton",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "rvm_dongfeng",
+      "previous": [
+        250
+      ],
+      "current_ref": "indicators.rvm_dongfeng",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "rvm_share",
+      "previous": [
+        3.3463
+      ],
+      "current_ref": "indicators.rvm_share",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "rvm_ytd_share",
+      "previous": [
+        3.0656
+      ],
+      "current_ref": "indicators.rvm_ytd_share",
+      "status": "CERTIFIED"
+    },
+    {
+      "indicator": "stores",
+      "previous_total": 374,
+      "current_ref": "breakdowns.stores",
+      "status": "CERTIFIED",
+      "note": "Alameda 24, Plaza Norte 28, Plaza Vespucio 30 y Amunátegui 1; conservar identidades P1, no reclasificar manualmente."
+    },
+    {
+      "indicator": "legacy_rankings",
+      "previous_dealers_total": 666,
+      "current_ref": "rankings",
+      "status": "PENDING_CERTIFICATION"
+    },
+    {
+      "indicator": "legacy_financing_capture",
+      "previous_source_status": "OBSERVED_NOT_CERTIFIED",
+      "current_ref": "breakdowns.financial_entities",
+      "status": "REPLACED_WITH_P1"
+    },
+    {
+      "indicator": "forum_states",
+      "previous_approved": [
+        1815,
+        1826
+      ],
+      "current_ref": "indicators.forum_snapshot_states",
+      "status": "PENDING_CERTIFICATION",
+      "note": "No mezclar la foto del 30/09 con el estado consolidado observado en octubre."
+    }
+  ]
 }

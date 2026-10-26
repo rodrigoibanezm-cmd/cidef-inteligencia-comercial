@@ -1,9 +1,10 @@
+// Legacy motor regression fixture only; current Azure certification is tested separately.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {calculateAllRankings,evaluateRanking,rankPerformance,MONTHS} from "../lib/motors/ranking-performance-v1.js";
-const dataset=JSON.parse(fs.readFileSync(new URL("../data/monthly-close/2026-09/performance-ranking.json",import.meta.url)));
-test("four-month dealer universe reconciles to certified SALES totals",()=>{
+const dataset=JSON.parse(fs.readFileSync(new URL("./fixtures/legacy-performance-ranking.json",import.meta.url)));
+test("legacy dealer fixture monthly totals reconcile",()=>{
  const result=calculateAllRankings(dataset);
  const totals=Object.fromEntries(MONTHS.map(m=>[m,result.category_results.dealers.observations.reduce((n,r)=>n+r.months[m],0)]));
  assert.deepEqual(totals,{"2026-06":514,"2026-07":491,"2026-08":646,"2026-09":666});
@@ -96,3 +97,4 @@ test("altered active seller totals must fail reconciliation",()=>{
  altered.categories.sellers[0].months["2026-09"]++;
  assert.throws(()=>calculateAllRankings(altered),/RANKING_VIN_RECONCILIATION_FAILED:sellers/);
 });
+

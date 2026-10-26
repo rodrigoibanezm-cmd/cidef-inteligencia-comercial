@@ -38,5 +38,8 @@
         "PEND. FIRMA": 2
       }
     }
-  }
+  },
+  "status": "SNAPSHOT_COUNT_VERIFIED_STATE_AGGREGATES_PENDING",
+  "snapshot_evidence_ref": "certification-evidence.json#records/forum_snapshot",
+  "note": "El total de operaciones fue recertificado. Los agregados states anteriores se conservan para pruebas del motor local; no se publican como una nueva certificación por estado."
 }
