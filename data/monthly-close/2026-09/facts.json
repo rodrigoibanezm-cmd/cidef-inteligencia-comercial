@@ -1942,6 +1942,181 @@
           }
         }
       ]
+    },
+    "sales_foton_own": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "VIN",
+      "basis": "Junio–agosto: serie P1 ya recuperada (252, 278, 345). Septiembre: indicador publicado sales_foton_own; no se usa el 255 posterior.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 252
+        },
+        {
+          "period": "2026-07",
+          "value": 278
+        },
+        {
+          "period": "2026-08",
+          "value": 345
+        },
+        {
+          "period": "2026-09",
+          "value": 256
+        }
+      ]
+    },
+    "sales_dongfeng_own": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "VIN",
+      "basis": "Apertura de demostración: sales_own menos sales_foton_own; septiembre conserva el indicador publicado.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 112
+        },
+        {
+          "period": "2026-07",
+          "value": 131
+        },
+        {
+          "period": "2026-08",
+          "value": 209
+        },
+        {
+          "period": "2026-09",
+          "value": 117
+        }
+      ]
+    },
+    "sales_foton_dealers": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "VIN",
+      "basis": "Apertura de demostración: sales_foton menos sales_foton_own; septiembre conserva el indicador publicado.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 451
+        },
+        {
+          "period": "2026-07",
+          "value": 442
+        },
+        {
+          "period": "2026-08",
+          "value": 513
+        },
+        {
+          "period": "2026-09",
+          "value": 575
+        }
+      ]
+    },
+    "sales_dongfeng_dealers": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "VIN",
+      "basis": "Apertura de demostración: sales_dongfeng menos sales_dongfeng_own; septiembre conserva el indicador publicado.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 63
+        },
+        {
+          "period": "2026-07",
+          "value": 48
+        },
+        {
+          "period": "2026-08",
+          "value": 132
+        },
+        {
+          "period": "2026-09",
+          "value": 86
+        }
+      ]
+    },
+    "rvm_ytd_share": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "PERCENT",
+      "basis": "Trayectoria de demostración derivada de acumulados de septiembre y series mensuales existentes (rvm_portfolio, rvm_market). Septiembre conserva el indicador publicado rvm_ytd_share.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 2.842929141651582
+        },
+        {
+          "period": "2026-07",
+          "value": 2.9153766769865843
+        },
+        {
+          "period": "2026-08",
+          "value": 3.0233956700550944
+        },
+        {
+          "period": "2026-09",
+          "value": 3.0655912573098183
+        }
+      ]
+    },
+    "rvm_foton_ytd_share": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "PERCENT",
+      "basis": "Trayectoria de demostración derivada de acumulados de septiembre y series mensuales existentes (rvm_foton, rvm_market). Septiembre conserva el indicador publicado rvm_foton_ytd_share.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 2.0635003320874628
+        },
+        {
+          "period": "2026-07",
+          "value": 2.1346524879974873
+        },
+        {
+          "period": "2026-08",
+          "value": 2.208136106153488
+        },
+        {
+          "period": "2026-09",
+          "value": 2.2514450988907204
+        }
+      ]
+    },
+    "rvm_dongfeng_ytd_share": {
+      "status": "DEMONSTRATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "unit": "PERCENT",
+      "basis": "Trayectoria de demostración derivada de acumulados de septiembre y series mensuales existentes (rvm_dongfeng, rvm_market). Septiembre conserva el indicador publicado rvm_dongfeng_ytd_share.",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 0.779428809564119
+        },
+        {
+          "period": "2026-07",
+          "value": 0.7807241889890968
+        },
+        {
+          "period": "2026-08",
+          "value": 0.8152595639016063
+        },
+        {
+          "period": "2026-09",
+          "value": 0.8141461584190977
+        }
+      ]
     }
   },
   "breakdowns": {
@@ -2560,7 +2735,9 @@
         "DONGFENG": "sales_dongfeng_own"
       },
       "series": {
-        "COMPANY": "sales_own"
+        "COMPANY": "sales_own",
+        "FOTON": "sales_foton_own",
+        "DONGFENG": "sales_dongfeng_own"
       }
     },
     {
@@ -2571,7 +2748,9 @@
         "DONGFENG": "sales_dongfeng_dealers"
       },
       "series": {
-        "COMPANY": "sales_dealers"
+        "COMPANY": "sales_dealers",
+        "FOTON": "sales_foton_dealers",
+        "DONGFENG": "sales_dongfeng_dealers"
       }
     },
     {
@@ -2604,6 +2783,11 @@
       "id": "rvm_ytd_share",
       "label": "Share YTD",
       "brands": {
+        "FOTON": "rvm_foton_ytd_share",
+        "DONGFENG": "rvm_dongfeng_ytd_share"
+      },
+      "series": {
+        "COMPANY": "rvm_ytd_share",
         "FOTON": "rvm_foton_ytd_share",
         "DONGFENG": "rvm_dongfeng_ytd_share"
       }
