@@ -460,12 +460,17 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     const scopeIds = branches.sucursales.map(store => String(store.sucursal_id));
     const scopeQuery = encodeURIComponent(scopeIds.join(','));
     const period = cutoffDate.slice(0, 7);
-    const [companyAdmin, companyFinance, sellerData, precurseBundle, brandIndicators] = await Promise.all([
+    const previousMonthEnd = new Date(Date.UTC(Number(period.slice(0,4)), Number(period.slice(5,7)) - 1, 0)).toISOString().slice(0,10);
+    const previousMonday = new Date(previousMonthEnd+'T12:00:00Z');
+    previousMonday.setUTCDate(previousMonday.getUTCDate()-((previousMonday.getUTCDay()+6)%7));
+    const previousWeekStart = previousMonday.toISOString().slice(0,10);
+    const [companyAdmin, companyFinance, sellerData, precurseBundle, brandIndicators, previousMonthAdmin] = await Promise.all([
       call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${weekStart}&cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
       getPrecurseBundle(),
       getP1BrandIndicators(period, cutoffDate),
+      call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${previousWeekStart}&cutoff_date=${previousMonthEnd}&include_scopes=1&scope_ids=${scopeQuery}`),
     ]);
     requireAdmin(companyAdmin, 'COMPANY');
     requireFinance(companyFinance, 'COMPANY');
@@ -537,7 +542,8 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
         value: Number(storeMember?.value || 0),
         evidence_id: precurseStoreEvidence.evidence_id,
       };
-      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin, companyFinance: finance, aliases } }));
+      const previousMonthSales = previousMonthAdmin.scopes?.[storeId]?.sales_mtd?.details || [];
+      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin: { ...admin, previous_month_sales: previousMonthSales.map(({ vin, persona_id, vendedor, vendedor_nombre }) => ({ vin, persona_id, vendedor, vendedor_nombre })) }, companyFinance: finance, aliases } }));
       const sellerIds = new Set([
         ...sellerData.sellers.filter(s => String(s.sucursal_id) === storeId).map(s => String(s.persona_id)),
         ...resolvedSellerGroups.map(member => String(member.member_id)),
