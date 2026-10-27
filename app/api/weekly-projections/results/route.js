@@ -334,6 +334,14 @@ function resultRow({ weekStart, cutoffDate, env, dimension, scopeKey, storeId = 
 
 function sum(rows, field) { return rows.reduce((total, row) => total + Number(row[field] || 0), 0); }
 
+function yoySales(periods, reference) {
+  const period=Array.isArray(periods)?periods.find(p=>p.label==='YOY'):null;
+  if(!reference?.date_from||!reference?.cutoff_date||!period||period.date_from!==reference.date_from||period.cutoff_date!==reference.cutoff_date||
+      !Number.isInteger(period.mtd_units)||period.mtd_units<0)return null;
+  return {date_from:period.date_from,cutoff_date:period.cutoff_date,total_units:period.mtd_units,
+    details:Array.isArray(period.details)?period.details:null};
+}
+
 export async function GET(request) {
   try {
     const url = new URL(request.url), { weekStart, cutoffDate } = dates(url.searchParams);
@@ -350,7 +358,8 @@ export async function GET(request) {
     if (!rows.length) return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
     const cached = rows[0];
     const storeSales = !storeId ? await sql`
-      SELECT sucursal_id::text AS sucursal_id, payload->'admin'->'sales_mtd'->>'total_units' AS total_units
+      SELECT sucursal_id::text AS sucursal_id, payload->'admin'->'sales_mtd'->>'total_units' AS total_units,
+         payload->'admin'->'historical_context'->'periods' AS historical_periods
       FROM weekly_projection_results
       WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
         AND dimension='STORE'
@@ -374,6 +383,9 @@ export async function GET(request) {
     const projections = liveByStore.flatMap(x => x.projections);
     const sent = liveByStore.flatMap(x => x.sent);
     const payload = cached.payload.admin;
+    const yoyPeriod = payload.historical_context.periods.find(p=>p.label==='YOY');
+    // Legacy snapshots lack seller details; an absent array is never an observed zero.
+    if(yoyPeriod&&!Array.isArray(yoyPeriod.details))yoyPeriod.details=null;
     payload.projections = projections;
     payload.sent_not_invoiced = sent;
     payload.summary = { total_units: sum(projections, 'projected_units'), sent_not_invoiced_units: sum(sent, 'units') };
@@ -411,7 +423,8 @@ export async function GET(request) {
     return NextResponse.json({
       ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
       admin: payload, companyFinance: cached.payload.companyFinance,
-      storeSales: storeSales.map(r => ({ sucursal_id: r.sucursal_id, total_units: Number(r.total_units || 0) })),
+      storeSales: storeSales.map(r => ({ sucursal_id: r.sucursal_id, total_units: Number(r.total_units || 0),
+        yoy: yoySales(r.historical_periods, yoyPeriod) })),
       forumSellerData: storeId ? {
         aliases: cached.payload.aliases,
         forum: sellerPayloads.map(x => x.forum).filter(Boolean),
@@ -485,6 +498,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     delete companyFinance.scopes;
     delete companyAdmin.projections;
     delete companyAdmin.sent_not_invoiced;
+    // Historical YOY details stay in historical_context.periods for company and every store.
     companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
@@ -586,4 +600,3 @@ export async function POST(request) {
     clearInterval(heartbeat);
   }
 }
-

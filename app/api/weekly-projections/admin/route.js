@@ -22,11 +22,13 @@ function plusDays(date,n){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.g
 function monthStart(date){return `${date.slice(0,7)}-01`}
 const ratio=(n,d)=>d? n/d:null;
 function normalizeDate(v){return v ? String(v).slice(0,10) : null}
-function periodSnapshot(all, cutoff, label, storeId) {
+function periodSnapshot(all, cutoff, label, storeId, includeDetails=false) {
   const from=monthStart(cutoff), weekFrom=minusDays(cutoff,6);
   const rows=all.filter(r=>(!storeId||String(r.sucursal_id)===String(storeId)) && r.fecha_venta>=from && r.fecha_venta<=cutoff);
   const week=rows.filter(r=>r.fecha_venta>=weekFrom);
-  return { label, month:cutoff.slice(0,7), date_from:from, week_from:weekFrom, cutoff_date:cutoff, effective_cutoff_date:cutoff, mtd_units:rows.length, last_7d_units:week.length };
+  if(includeDetails&&rows.some(r=>!r.sucursal_id||!r.persona_id))throw new Error('YOY_SALES_IDENTITY_UNRESOLVED');
+  return { label, month:cutoff.slice(0,7), date_from:from, week_from:weekFrom, cutoff_date:cutoff, effective_cutoff_date:cutoff, mtd_units:rows.length, last_7d_units:week.length,
+    ...(includeDetails?{details:rows.map(({vin,fecha_venta,sucursal_id,sucursal,persona_id,vendedor,vendedor_nombre})=>({vin,fecha_venta,sucursal_id,sucursal,persona_id,vendedor,vendedor_nombre}))}:{}) };
 }
 function byStore(rows, field='units') {
   const m=new Map(); for(const r of rows){const k=String(r.sucursal_id??`name:${r.sucursal}`),c=m.get(k)||{sucursal_id:r.sucursal_id,sucursal:r.sucursal,units:0};c.units+=Number(r[field]??1);m.set(k,c)} return m;
@@ -121,7 +123,7 @@ export async function GET(request) {
     `;
     const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
     const cuts=[['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
-    const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId));
+    const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId,label==='YOY'));
     const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-3','M-2','M-1'].includes(p.label));
     const lastYearMonth=shiftYear(cutoffDate,-1);
     const lastYearMonthEnd=ymd(new Date(Date.UTC(Number(lastYearMonth.slice(0,4)),Number(lastYearMonth.slice(5,7)),0)));
@@ -182,7 +184,7 @@ export async function GET(request) {
       const ids=(url.searchParams.get('scope_ids')||'').split(',').filter(id=>/^\d+$/.test(id));
       response.scopes={};
       for(const id of ids){
-        const scopedPeriods=cuts.map(([label,date])=>periodSnapshot(all,date,label,id));
+        const scopedPeriods=cuts.map(([label,date])=>periodSnapshot(all,date,label,id,label==='YOY'));
         const scopedCurrent=scopedPeriods.find(p=>p.label==='CURRENT'), scopedYoy=scopedPeriods.find(p=>p.label==='YOY');
         const scopedPrior=scopedPeriods.filter(p=>['M-3','M-2','M-1'].includes(p.label));
         const scopedAvgMtd=scopedPrior.reduce((sum,p)=>sum+p.mtd_units,0)/3, scopedAvgWeek=scopedPrior.reduce((sum,p)=>sum+p.last_7d_units,0)/3;
