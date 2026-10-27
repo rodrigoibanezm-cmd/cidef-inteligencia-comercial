@@ -1,9 +1,10 @@
+// Legacy motor regression fixture only; current Azure certification is tested separately.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {computeForumClose,computeForumOperationSnapshot} from "../lib/motors/forum-close-v1.js";
-const input=JSON.parse(fs.readFileSync(new URL("../data/monthly-close/2026-09/forum-close-source.json",import.meta.url)));
-test("Forum network totals reconcile to September certified evidence",()=>{
+const input=JSON.parse(fs.readFileSync(new URL("./fixtures/legacy-forum-close-source.json",import.meta.url)));
+test("legacy Forum fixture network totals reconcile",()=>{
  const x=computeForumClose(input);
  const total=x.networks.find(n=>n.id==="COMPANY");
  assert.deepEqual({quotations:total.quotations,applications:total.applications,curses:total.curses,ufis:total.ufis,approved_pending:total.approved_pending,sales_vin:total.sales_vin},{quotations:5890,applications:4846,curses:381,ufis:383,approved_pending:1826,sales_vin:1041});
@@ -68,3 +69,4 @@ test("rejects tampered history, avoids inventing historical approval snapshots",
  assert.throws(()=>computeForumClose(bad),/FORUM_QUOTATION_HISTORY_INCOMPLETE/);
  assert.equal(input.history_semantics.month_end_state.includes("Only 2026-09-30"),true);
 });
+

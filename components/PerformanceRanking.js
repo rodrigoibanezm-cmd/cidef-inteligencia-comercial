@@ -1,50 +1,47 @@
 "use client";
 import { useState } from "react";
-import rankings from "../data/monthly-close/2026-09/performance-ranking.json";
-import { calculateAllRankings, MONTHS, VERSION } from "../lib/motors/ranking-performance-v1";
+import { dateText, isCertified, valueText } from "../lib/monthly-close-view";
+import styles from "./CompanyClosePanels.module.css";
 
-const computed=calculateAllRankings(rankings);
+function Contributions({ rows, label }) {
+  const plotted = rows.filter(row => isCertified(row.delta) && Number.isFinite(row.delta.value))
+    .slice().sort((a, b) => Math.abs(b.delta.value) - Math.abs(a.delta.value));
+  if (!plotted.length) return <p className={styles.pending}>Pendiente: contribuciones certificadas P2.</p>;
+  const maximum = Math.max(1, ...plotted.map(row => Math.abs(row.delta.value)));
+  const zero = 320, half = 115, height = plotted.length * 30 + 40;
+  return <svg className={styles.graph} viewBox={"0 0 520 " + height} role="img" aria-label={"Contribuciones " + label + " a la variación de ventas, agosto contra septiembre 2026"}>
+    <line x1={zero} x2={zero} y1="10" y2={height - 23} stroke="#b8c4d3"/>
+    {plotted.map((row, index) => {
+      const width = Math.abs(row.delta.value) / maximum * half;
+      const y = 17 + index * 30, negative = row.delta.value < 0;
+      return <g key={row.id}><text x="3" y={y + 12} fontSize="11" fill="#52647a">{row.label}</text>
+        <rect x={negative ? zero - width : zero} y={y} width={width} height="17" rx="3" fill={negative ? "#b85a55" : "#315a89"}/>
+        <text x={negative ? zero - width - 6 : zero + width + 6} y={y + 12} textAnchor={negative ? "end" : "start"} fontSize="11" fill="#31445f">{valueText(row.delta, true)}</text>
+      </g>;
+    })}
+    <text x={zero} y={height - 5} textAnchor="middle" fontSize="10" fill="#748195">0 VIN</text>
+  </svg>;
+}
 
-const categories=[
- {id:"stores",title:"Tiendas propias",unit:"VIN",basis:"4 meses"},
- {id:"sellers",title:"Vendedores activos",unit:"VIN",basis:"4 meses"},
- {id:"dealers",title:"Dealers",unit:"VIN",basis:"4 meses"},
- {id:"models",title:"Modelos",unit:"VIN",basis:"4 meses"}
-];
-const number=v=>new Intl.NumberFormat("es-CL",{maximumFractionDigits:1}).format(v);
-const percent=v=>(v>0?"+":"")+number(v*100)+"%";
-const recent=MONTHS;
-const labels=["Jun","Jul","Ago","Sep"];
-const signed=n=>(n>0?"+":"")+number(n);
-function Trend({months}){if(!months)return null;const max=Math.max(1,...recent.map(k=>months[k]||0));return <div className="rank-mini-trend" aria-label="Ventas junio a septiembre">{recent.map((k,i)=><div key={k} title={labels[i]+": "+number(months[k]||0)+" VIN"}><div className="rank-mini-track"><span style={{height:(Math.max(2,(months[k]||0)/max*100))+"%"}}/></div><small>{labels[i]}</small></div>)}</div>;}
-function RankingItems({items,emptyText}){
- return <div className="rank-items">{items.length?items.map((r,i)=><div className="rank-result" key={r.id}>
-  <div className="rank-item-main"><span className="rank-position">{i+1}.</span><strong title={r.name}>{r.name.replace(/^CIDEF /,"")}</strong><b>{number(r.vin)} VIN</b></div>
-  <div className="rank-item-secondary"><span className={"rank-delta "+(r.delta_vin>=0?"positive":"negative")}>{signed(r.delta_vin)} VIN vs promedio · {percent(r.change_pct)}</span><Trend months={r.months}/></div>
- </div>):<p className="rank-none">{emptyText}</p>}</div>;
+export default function PerformanceRanking({ variations }) {
+  const [axis, setAxis] = useState("channels");
+  const options = [["channels", "Canal"], ["brands", "Marca"], ["models", "Modelo"]];
+  const selected = variations?.axes?.[axis] || { rows: [] };
+  const rows = selected.rows || [];
+  const total = selected.total;
+  return <section className={"mc-panel mc-rank-section " + styles.panel} data-close-panel="sales">
+    <div className="mc-panel-head"><div><h2>Variaciones de ventas</h2><p className="rank-subtitle">Agosto vs. septiembre 2026 · aporte aritmético en VIN</p></div><span>SALES P1 / P2</span></div>
+    <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Descomposición de ventas">{options.map(([id, label]) => <button key={id} type="button" aria-pressed={axis === id} className={axis === id ? "selected" : ""} onClick={() => setAxis(id)}>{label}</button>)}</div></div>
+    <Contributions rows={rows} label={options.find(([id]) => id === axis)[1]}/>
+    <div className={styles.scroll} tabIndex="0" role="region" aria-label="Tabla de variaciones de ventas">
+      <table className={styles.table}><caption>Ventas reconocidas por fecha de factura. Diferencias y variaciones provenientes de P2.</caption>
+        <thead><tr><th scope="col">Detalle</th><th scope="col">Agosto</th><th scope="col">Septiembre</th><th scope="col">Δ VIN</th><th scope="col">Δ %</th></tr></thead>
+        <tbody>{rows.length ? rows.map(row => <tr key={row.id}><th scope="row">{row.label}</th><td>{valueText(row.baseline)}</td><td>{valueText(row.current)}</td><td>{valueText(row.delta, true)}</td><td>{valueText(row.relative, true)}</td></tr>) : <tr><td colSpan="5">Pendiente: descomposición certificada.</td></tr>}</tbody>
+        {total && <tfoot><tr><th scope="row">Compañía</th><td>{valueText(total.baseline)}</td><td>{valueText(total.current)}</td><td>{valueText(total.delta, true)}</td><td>{valueText(total.relative, true)}</td></tr></tfoot>}
+      </table>
+    </div>
+    <p className={styles.note}>Corte agosto: 31/08/2026 · corte septiembre: 30/09/2026. Las contribuciones explican la diferencia aritmética; no atribuyen causas ni mérito.</p>
+    <p className={styles.note}>{selected.reconciliation === "RECONCILED" ? "Descomposición conciliada por P2 con el total de compañía." : selected.reason || "Conciliación por P2: Pendiente."} {selected.observed_at ? "Observación: " + dateText(selected.observed_at) + "." : ""}</p>
+  </section>;
 }
-export default function PerformanceRanking(){
- const [category,setCategory]=useState("stores");
- const ranking=computed.category_results[category];
- const info=category==="sellers"
- ?"Vendedores activos: padrón semanal activo y habilitado por persona_id; 73 personas, VIN comparables de junio a septiembre, con primera venta histórica observada. Promedio mínimo: 5 VIN/mes. Primera venta debe ser anterior a junio para evitar falsos crecimientos de nuevos vendedores. Esta fecha no representa contratación."
- :category==="dealers"
- ?"Dealers: reconstrucción junio–septiembre por VIN y grupo comercial (514/514, 491/491, 646/646 y 666/666). Agrupación histórica con identidad canónica actual: comparación provisional hasta validar vigencias de grupos. Ya no se utiliza Q3/Q2."
- :category==="models"
- ?"Modelos: agrupación orientativa a partir de nombre/modelo de VIN; pendiente de homologación con maestro canónico. No equiparar este ranking con cierre de producto certificado."
- :"Tiendas: VIN desde ventas_raw para junio–septiembre. Fuente septiembre: 375 VIN; se excluyen tiendas nuevas/sin tres meses previos con ventas.";
- return <section className="mc-panel mc-rank-section" aria-label="Ranking de desempeño comercial">
- <div className="mc-panel-head"><div><h2>Ranking de desempeño comercial</h2><p className="rank-subtitle">Mejoran · Se mantienen · Retroceden · septiembre 2026 · SALES</p></div><span>Motor v{VERSION} · Δ VIN</span></div>
- <div className="rank-controls">
- <div className="rank-cats" role="group" aria-label="Categoría">{categories.map(c=><button type="button" key={c.id} className={category===c.id?"selected":""} aria-pressed={category===c.id} onClick={()=>setCategory(c.id)}>{c.title}</button>)}</div>
- </div>
- <div className="rank-columns rank-columns-three">
-  <div className="rank-panel"><div className="rank-panel-header"><span className="rank-up">↗</span><strong>Mejoran ({ranking.counts.IMPROVING})</strong></div><RankingItems items={ranking.improving} emptyText="Sin mejoras relevantes."/></div>
-  <div className="rank-panel"><div className="rank-panel-header"><span>→</span><strong>Se mantienen ({ranking.counts.STABLE})</strong></div><RankingItems items={ranking.stable} emptyText="Sin casos estables elegibles."/></div>
-  <div className="rank-panel"><div className="rank-panel-header"><span className="rank-down">↘</span><strong>Retroceden ({ranking.counts.DECLINING})</strong></div><RankingItems items={ranking.declining} emptyText="Sin retrocesos relevantes."/></div>
- </div>
- <p className="rank-source-note">{info}</p>
- <p className="rank-source-note">Sin clasificación por historial, antigüedad observada o volumen insuficiente: {ranking.counts.UNCLASSIFIED}. Cada grupo muestra hasta cinco resultados.</p>
- <p className="rank-source-note">Mismo criterio para tiendas, dealers y modelos: septiembre frente al promedio junio–agosto. Mejoran o retroceden solo cuando |Δ| ≥5 VIN y |variación| ≥10%; las demás variaciones elegibles se mantienen. Exige ventas en cada mes previo y promedio ≥10 VIN para tiendas/dealers/modelos; para vendedores activos, ≥5 VIN y primera venta observada antes de junio. Top 5 por impacto VIN (estables por volumen); el número entre paréntesis indica todos los clasificados. Los casos sin historial suficiente no se clasifican. Vendedores no activos excluidos.</p>
- </section>;
-}
+

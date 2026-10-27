@@ -1,108 +1,21 @@
-import source from "../data/monthly-close/2026-09/forum-close-source.json";
-import { computeForumClose, computeForumOperationSnapshot } from "../lib/motors/forum-close-v1";
-import dailySnapshot from "../data/monthly-close/2026-09/forum-operation-state-sep30.json";
+import { dateText, valueText } from "../lib/monthly-close-view";
+import { Comparison, FourMonthTrend, SourceNote } from "./MonthlyCloseMetric";
 
-const result = computeForumClose(source);
-const daily = computeForumOperationSnapshot(dailySnapshot, source.event_cutoff);
-const formatNumber = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 0 });
-const formatPercent = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 1 });
-const number = value => formatNumber.format(value);
-const percent = value => Number.isFinite(value) ? formatPercent.format(value * 100) + "%" : "—";
-const signedPercent = value => Number.isFinite(value)
-  ? (value > 0 ? "+" : "") + percent(value) : "—";
-const shortMonth = period => new Date(period + "-01T12:00:00Z")
-  .toLocaleDateString("es-CL", { month: "short", timeZone: "UTC" }).replace(".", "");
-const changeFromPrevious = (rows, field) => {
-  if (rows.length < 2) return null;
-  const prior = rows[rows.length - 2][field], current = rows.at(-1)[field];
-  return prior > 0 ? current / prior - 1 : null;
-};
-
-function MiniTrend({ rows, field, isRate = false, title }) {
-  if (!rows?.length) return <div className="forum-mini-empty">Sin cierres históricos comparables certificados</div>;
-  const values = rows.map(row => row[field]);
-  if (values.some(value => !Number.isFinite(value))) return <div className="forum-mini-empty">Serie incompleta</div>;
-  const width = 360, left = 19, right = 341, top = 22, bottom = 96;
-  const minimum = Math.min(...values), maximum = Math.max(...values);
-  const low = Math.max(0, minimum - Math.max((maximum - minimum) * .22, maximum * .08));
-  const high = maximum + Math.max((maximum - minimum) * .22, maximum * .08, .001);
-  const positionX = i => left + (right - left) * i / Math.max(values.length - 1, 1);
-  const positionY = value => bottom - (value - low) * (bottom - top) / (high - low);
-  const coordinates = values.map((value, i) => ({ x: positionX(i), y: positionY(value) }));
-  const polyline = coordinates.map(({x,y}) => x + "," + y).join(" ");
-  return <div className="forum-mini-trend">
-    <svg viewBox="0 0 360 133" className="forum-mini-svg" role="img" aria-label={title}>
-      <path d="M19 96H341" fill="none" stroke="#e9eef4" strokeWidth="1"/>
-      <polyline points={polyline} fill="none" stroke="#315a89" strokeWidth="2.7" strokeLinejoin="round" strokeLinecap="round"/>
-      {coordinates.map((p,i) => <g key={rows[i].period}>
-        <circle cx={p.x} cy={p.y} r={i === coordinates.length - 1 ? "4" : "3"} fill={i === coordinates.length - 1 ? "#244d7a" : "#7897b9"}/>
-        <text x={p.x} y={Math.max(13, p.y - 10)} fontSize="10.5" textAnchor="middle" fill="#294767" fontWeight={i === coordinates.length - 1 ? "700" : "500"}>{isRate ? percent(values[i]) : number(values[i])}</text>
-        <text x={p.x} y="122" fontSize="10" textAnchor="middle" fill="#748298">{shortMonth(rows[i].period)}</text>
-      </g>)}
-    </svg>
-  </div>;
-}
-
-function Card({ label, main, subtitle, subtitleTone, own, dealers, trend, field, isRate, footnote }) {
-  return <article className="forum-exec-card">
-    <h3>{label}</h3>
-    <div className="forum-exec-headline">
-      <div className="forum-exec-main"><strong>{number(main)}</strong><span className={subtitleTone === "down" ? "forum-tone-down" : "forum-tone-neutral"}>{subtitle}</span></div>
-      <div className="forum-exec-split">
-        <div><span>Propias</span><strong>{number(own)}</strong></div>
-        <div><span>Dealers</span><strong>{number(dealers)}</strong></div>
-      </div>
-    </div>
-    <div className="forum-exec-chart">
-      <MiniTrend rows={trend} field={field} isRate={isRate} title={trend.length ? "Evolución de " + label.toLowerCase() + " de " + shortMonth(trend[0].period) + " a " + shortMonth(trend.at(-1).period) : "Sin cierres históricos comparables"}/>
-    </div>
-    <p className="forum-exec-caption">{footnote}</p>
-  </article>;
-}
-
-export default function ForumClose() {
-  const own = result.networks.find(row => row.id === "OWN_STORES");
-  const dealers = result.networks.find(row => row.id === "DEALERS");
-  const company = result.networks.find(row => row.id === "COMPANY");
-  const ufiChange = changeFromPrevious(result.event_trend, "ufis");
-  const snapshotOwn = daily.networks.find(row => row.id === "OWN_STORES");
-  const snapshotDealers = daily.networks.find(row => row.id === "DEALERS");
-  const snapshotCompany = daily.networks.find(row => row.id === "COMPANY");
-  if(result.quotation_volume_history.at(-1)?.quotations!==snapshotCompany.operations)throw new Error("FORUM_QUOTATION_HISTORY_SNAPSHOT_MISMATCH");
+export default function ForumClose({ data }) {
   return <section className="mc-forum-executive" aria-label="FORUM · desempeño del financiamiento">
-    <div className="forum-exec-header">
-      <div><h2>FORUM · Desempeño del financiamiento</h2><p>Septiembre 2026 · cierre mensual</p></div>
-      <span>Compañía · Motor v{result.version}</span>
-    </div>
-    <div className="forum-exec-grid">
-      <Card label="Cotizaciones" main={snapshotCompany.operations}
-        subtitle={number(snapshotCompany.applications) + " solicitudes al cierre"}
-        own={snapshotOwn.operations} dealers={snapshotDealers.operations}
-        trend={result.quotation_volume_history} field="quotations"
-        footnote="Cotizaciones por mes · enero–septiembre; septiembre: foto al 30"/>
-      <article className="forum-exec-card">
-        <h3>Aprobadas sin curse</h3>
-        <div className="forum-exec-headline">
-          <div className="forum-exec-main"><strong>{number(snapshotCompany.approved_pending)}</strong><span>{percent(snapshotCompany.approved_pending_share)} de operaciones</span></div>
-          <div className="forum-exec-split">
-            <div><span>Propias</span><strong>{number(snapshotOwn.approved_pending)}</strong></div>
-            <div><span>Dealers</span><strong>{number(snapshotDealers.approved_pending)}</strong></div>
-          </div>
+    <div className="forum-exec-header"><div><h2>FORUM · Desempeño del financiamiento</h2><p>Septiembre 2026 · mes completo</p></div><span>FORUM P1 / P2</span></div>
+    <div className="forum-exec-grid">{data.company.forum_cards.map(config => {
+      const item = data.indicators[config.id];
+      return <article className="forum-exec-card" key={config.id} data-close-card={config.id}>
+        <h3>{config.label}</h3><div className="forum-exec-headline">
+          <div className="forum-exec-main"><strong>{valueText(item)}</strong><Comparison comparison={data.company.comparisons[config.id]}/></div>
+          <div className="forum-exec-split">{[["Propias", config.own], ["Dealers", config.dealers]].map(([label, id]) => <div key={label}><span>{label}</span><strong>{valueText(data.indicators[id])}</strong></div>)}</div>
         </div>
-        <div className="forum-snapshot-breakdown">
-          <div><span>Foto al 30 de septiembre</span><strong>{percent(snapshotCompany.approved_pending_share)}</strong></div>
-          <div className="forum-snapshot-meter"><span style={{width:percent(snapshotCompany.approved_pending_share)}}/></div>
-          <p>No hay fotos certificadas de aprobaciones de los cierres anteriores. No se infiere una tendencia.</p>
-        </div>
-        <p className="forum-exec-caption">1.815 aprobadas sin curse · 5.675 operaciones</p>
-      </article>
-      <Card label="UFIs ejecutadas" main={company.ufis}
-        subtitle={signedPercent(ufiChange) + " vs agosto · " + percent(company.penetration) + " penetración"}
-        subtitleTone={ufiChange < 0 ? "down" : "neutral"}
-        own={own.ufis} dealers={dealers.ufis}
-        trend={result.event_trend} field="ufis"
-        footnote={number(company.curses) + " curses · " + number(company.sales_vin) + " VIN vendidos · junio–septiembre"}/>
-    </div>
-    <p className="forum-exec-method">Foto de septiembre congelada al 30/09. Cotizaciones de enero–agosto: histórico cargado al 31/08; septiembre: snapshot exacto del 30/09. Aprobadas sin curse: estado APROBADA en esa fecha; sin tendencia porque no hay cierres diarios equivalentes anteriores. UFIs: ejecución mensual certificada enero–septiembre. Penetración = UFIs / VIN vendidos.</p>
+        <FourMonthTrend data={data} series={config.series} label={config.label}/>
+        <p className="forum-exec-caption">{config.note}</p><SourceNote item={item}/>
+      </article>;
+    })}</div>
+    <p className="forum-exec-method">Cotizaciones por fecha de cotización y UFIs por fecha de curse. Los estados de cohortes se presentan en el panel de financiamiento con su fecha de observación. Consulta de la actividad: {dateText(data.company.panels.financing.observed_at)}. La penetración pendiente no se calcula provisionalmente.</p>
   </section>;
 }
+

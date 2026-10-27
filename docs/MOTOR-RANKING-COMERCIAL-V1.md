@@ -1,5 +1,7 @@
 # Motor de ranking comercial · v1.2.0
 
+> Estado desde la conciliación Azure del 26/10/2026: el motor local permanece sin cambios y sus pruebas usan `test/fixtures/legacy-performance-ranking.json`. La página no publica sus clasificaciones anteriores como certificadas. Las observaciones actuales y las brechas de certificación están en `data/monthly-close/2026-09/facts.json` y `docs/CIERRE-2026-09-CONCILIACION.md`; el detalle histórico de este documento no sustituye esa fuente.
+
 **Propietario:** repositorio `cidef-inteligencia-comercial`. No vive en `cidef-data-loader` ni modifica sus motores P1.
 
 ## Objetivo y alcance
@@ -66,3 +68,4 @@ La reconstrucción histórica de dealers y la agrupación por modelos siguen pro
 **Fuente:** `ventas_raw` filtrada a `categoria_cliente='Cliente General'`, VIN no nulo, última factura válida por VIN con corte `2026-10-13`. Vinculación por `persona_id` mediante `personas_master.usuario_canonico`, `weekly_projection_sellers.ombu_id` y `persona_aliases` validados de tipo login, solo si cada token resuelve inequívocamente a una persona. La primera fecha observada es el mínimo `fecha_factura` por vendedor en el histórico disponible; en empates se guarda el VIN lexicográficamente menor para evidencia.
 
 **Interpretación:** `primera_venta_observada` **no es fecha de contratación ni fecha de inicio de vigencia laboral**. Puede variar si se incorpora historia anterior, se corrigen facturas o se modifica la resolución de identidades. Un vendedor sin ventas históricas puede estar recién incorporado o carecer de cobertura. Nunca convertir una fecha nula en cero o antigüedad inventada. La vigencia comercial seguirá gobernada por la fuente de activos. El registro de primeras ventas, junto con `categories.sellers` (series de junio a septiembre por persona_id) y las conciliaciones que ejecuta el motor, permite clasificar únicamente vendedores activos elegibles. Se excluyen los nuevos y los que no tengan historia o volumen mínimos, sin inferir fecha de contratación. Estas observaciones son un snapshot: no se actualizan automáticamente al cambiar Neon o la nómina.
+

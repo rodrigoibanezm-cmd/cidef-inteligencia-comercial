@@ -1,5 +1,7 @@
 # Motor FORUM · cierre mensual · v1.0
 
+> Estado desde la conciliación Azure del 26/10/2026: este documento describe el motor local histórico, que permanece sin cambios. La página ya no ejecuta ese motor ni consume sus snapshots anteriores. La fuente vigente es `data/monthly-close/2026-09/facts.json`; evidencias y pendientes están en `certification-evidence.json` y `docs/CIERRE-2026-09-CONCILIACION.md`. El input anterior se conserva exclusivamente en `test/fixtures/legacy-forum-close-source.json`. Sus cifras no acreditan la certificación actual.
+
 Propietario: `cidef-inteligencia-comercial`. Fuente certificada: FORUM P1; denominador VIN: SALES P1. Sin cálculos delegados al LLM.
 
 ## Datos de entrada
@@ -58,4 +60,5 @@ Los archivos históricos sí contienen cotizaciones y ejecuciones desde enero. L
 - Al generar cierres futuros, conservar el snapshot diario del último día del mes junto con su reporte y provenance.
 
 `computeForumClose` valida que la serie de cotizaciones llegue al mes de cierre y expone el histórico. El componente verifica que la última observación del histórico de cotizaciones sea igual al total de operaciones del snapshot certificado 30-09. La CI prueba los 9 meses y los totales.
+
 
