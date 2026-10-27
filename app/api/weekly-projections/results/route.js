@@ -170,6 +170,18 @@ function shiftDate(date, days) {
   return value.toISOString().slice(0, 10);
 }
 
+async function timedP1(runId, stage, operation) {
+  const started = Date.now();
+  console.info('[projection-p1] start', { runId, stage });
+  try {
+    return await operation();
+  } catch (error) {
+    console.error('[projection-p1] failed', { runId, stage, elapsed_ms: Date.now()-started, error: error?.message });
+    throw error;
+  } finally {
+    console.info('[projection-p1] finish', { runId, stage, elapsed_ms: Date.now()-started });
+  }
+}
 async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumStoreAliases = []) {
   if (storeId && !forumStoreAliases.length) throw new Error('P1_FORUM_STORE_ALIAS_MISSING: ' + storeId);
   const scope = storeId ? '-store-' + storeId : '';
@@ -184,7 +196,7 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumSto
     dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to, ...(storeId ? { store_id: storeId } : {}) },
     cutoff: to,
   });
-  const [salesResult, quotesEvidence, approvedEvidence, precurseEvidence] = await Promise.all([
+  const [salesResult, quotesEvidence, approvedEvidence, precurseEvidence] = await timedP1(runId, 'base', () => Promise.all([
     storeId
       ? callP1Tool(runId, 'data_observe', {
         source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
@@ -207,15 +219,15 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumSto
       source: 'FORUM', measure: 'PRECURSE', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'BRAND', filters: network,
     }),
-  ]);
+  ]));
   const storeMonthlyBrandEvidence = storeId
-    ? await Promise.all(['89', '71'].map(brandId => callP1Tool(runId, 'data_observe', {
+    ? await timedP1(runId, 'monthly-brand', () => Promise.all(['89', '71'].map(brandId => callP1Tool(runId, 'data_observe', {
       source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       period, cutoff: cutoffDate, dimension: 'NETWORK',
       filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', store_id: storeId },
-    })))
+    }))))
     : null;
-  const [fotonOther, dongfengOther] = await Promise.all([
+  const [fotonOther, dongfengOther] = await timedP1(runId, 'finance', () => Promise.all([
     callP1Tool(runId, 'data_observe', {
       source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
       dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
@@ -226,11 +238,11 @@ async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumSto
       dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
       filters: { brand_id: '71', commercial_universe: 'OWN_STORES', ...(storeId ? { store_id: storeId } : {}) },
     }),
-  ]);
-  const [fotonWeek, dongfengWeek] = await Promise.all([
+  ]));
+  const [fotonWeek, dongfengWeek] = await timedP1(runId, 'weekly-sales', () => Promise.all([
     callP1Tool(runId, 'data_observe', salesBrandArgs('89', weekFrom, cutoffDate, 'NETWORK')),
     callP1Tool(runId, 'data_observe', salesBrandArgs('71', weekFrom, cutoffDate, 'NETWORK')),
-  ]);
+  ]));
   const companySalesEvidence = storeId
     ? salesResult
     : salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
