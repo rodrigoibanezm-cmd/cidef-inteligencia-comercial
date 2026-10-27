@@ -2,14 +2,15 @@
 import { useState } from 'react';
 import { dateText } from '../lib/monthly-close-view';
 
-const categories = [
-  ['stores', 'Tiendas propias'], ['sellers', 'Vendedores activos'],
-  ['dealers', 'Dealers'], ['models', 'Modelos'], ['forum', 'FORUM']
-];
+const dimensions = {
+  SALES: [['stores', 'Tiendas'], ['sellers', 'Vendedores'], ['dealers', 'Dealers'], ['models', 'Modelos']],
+  FORUM: [['stores', 'Tiendas'], ['dealers', 'Dealers'], ['sellers', 'Vendedores'], ['models', 'Modelos']],
+  RVM: [['brands', 'Marcas'], ['models', 'Modelos'], ['segments', 'Segmentos']]
+};
 const groups = [
   ['improving', 'IMPROVING', 'Mejoran', '↗', 'rank-up', 'Sin mejoras relevantes.'],
   ['stable', 'STABLE', 'Se mantienen', '→', '', 'Sin casos estables elegibles.'],
-  ['declining', 'DECLINING', 'Retroceden', '↘', 'rank-down', 'Sin retrocesos relevantes.']
+  ['declining', 'DECLINING', 'Deterioran', '↘', 'rank-down', 'Sin retrocesos relevantes.']
 ];
 const number = value => new Intl.NumberFormat('es-CL', { maximumFractionDigits: 1 }).format(value);
 const signed = value => (value > 0 ? '+' : '') + number(value);
@@ -37,13 +38,16 @@ function RankingItems({ ranking, group, emptyText }) {
 }
 
 export default function MonthlyCloseRanking({ categories: sources, forum }) {
-  const [category, setCategory] = useState('stores');
+  const [domain, setDomain] = useState('SALES');
+  const [dimension, setDimension] = useState('stores');
+  const category = domain === 'SALES' ? dimension : domain === 'FORUM' && dimension === 'stores' ? 'forum' : null;
   const ranking = category === 'forum' ? forum : null;
   return <section className="mc-panel mc-rank-section" aria-label="Ranking de desempeño comercial" data-close-ranking="commercial">
-    <div className="mc-panel-head"><div><h2>Ranking de desempeño comercial</h2><p className="rank-subtitle">Mejoran · Se mantienen · Retroceden · septiembre 2026</p></div>
+    <div className="mc-panel-head"><div><h2>Ranking de desempeño comercial</h2><p className="rank-subtitle">Mejoran · Se mantienen · Deterioran · septiembre 2026</p></div>
       <span>{ranking ? 'FORUM P1 · Motor v' + ranking.motor_version + ' · UFIs' : 'Pendiente de certificación'}</span>
     </div>
-    <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Categoría">{categories.map(([id, title]) => <button type="button" key={id} aria-pressed={category === id} className={category === id ? 'selected' : ''} onClick={() => setCategory(id)}>{title}</button>)}</div></div>
+    <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Dominio">{Object.keys(dimensions).map(id => <button type="button" key={id} aria-pressed={domain === id} className={domain === id ? 'selected' : ''} onClick={() => { setDomain(id); setDimension(dimensions[id][0][0]); }}>{id}</button>)}</div></div>
+    <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Dimensión">{dimensions[domain].map(([id, title]) => <button type="button" key={id} aria-pressed={dimension === id} className={dimension === id ? 'selected' : ''} onClick={() => setDimension(id)}>{title}</button>)}</div></div>
     <div className="rank-columns rank-columns-three">{groups.map(([id, status, title, arrow, tone, empty]) => <div className="rank-panel" key={id}>
       <div className="rank-panel-header"><span className={tone}>{arrow}</span><strong>{title} ({ranking ? ranking.counts[status] : 'Pendiente'})</strong></div>
       <RankingItems ranking={ranking} group={id} emptyText={empty}/>
