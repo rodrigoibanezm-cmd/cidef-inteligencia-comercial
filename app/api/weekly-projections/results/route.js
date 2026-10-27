@@ -111,59 +111,108 @@ async function callP1Tool(runId, name, args) {
   throw new Error('P1 brand observation returned no structured result');
 }
 
-function p1BrandIndicator(id, evidence, source, companyValue) {
+function certifiedMembers(evidence, name) {
   if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
       !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
-    throw new Error('P1 brand evidence is not certified: ' + id);
+    throw new Error('Incomplete P1 grouped evidence: ' + name);
   }
-  const values = { foton: 0, dongfeng: 0 };
-  for (const member of evidence.payload.members) {
-    const grouped = Array.isArray(member.members) ? member.members : [];
-    const network = grouped.find(item => item.dimension === 'NETWORK')?.member_label;
-    if (network && network !== 'TIENDA_PROPIA') continue;
-    const brand = grouped.find(item => item.dimension === 'BRAND')?.member_label ??
-      String(member.member_label ?? '').trim().toUpperCase();
-    const amount = Number(member.value);
-    if (!Number.isFinite(amount)) continue;
-    if (brand === 'FOTON') values.foton += amount;
-    if (['DONGFENG', 'DFM'].includes(brand)) values.dongfeng += amount;
-  }
-  const company = Number(companyValue ?? evidence.coverage?.total_value ?? evidence.coverage?.filtered_n);
-  if (!Number.isFinite(company)) throw new Error('P1 total is missing for ' + id);
-  return {
-    company,
-    foton: values.foton,
-    dongfeng: values.dongfeng,
-    cutoff: evidence.temporal?.snapshot_date || evidence.temporal?.cutoff || evidence.temporal?.to || null,
-    evidence_ids: [evidence.evidence_id],
-    source: source + ' P1',
-  };
+  return evidence.payload.members;
 }
 
-function p1FinanceByBrand(id, evidence) {
-  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
-      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
-    throw new Error('P1 financial-entity evidence is not certified: ' + id);
+async function getP1BrandIndicators(period, cutoffDate, storeIds) {
+  const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
+  const dateFrom = period + '-01', weekFrom = shiftDate(cutoffDate, -6);
+  const fetchFrom = weekFrom < dateFrom ? weekFrom : dateFrom;
+  // Like production, prepare every store before iterating; never reload P1 per store.
+  const observed = await callP1Tool(runId, 'sales_observe_many', {
+    measure: 'VIN_SALES', period, cutoff: cutoffDate, commercial_universe: 'OWN_STORES',
+    operations: [{ kind: 'TOTAL' }, { kind: 'BRAND_NETWORK' }, { kind: 'STORE_FINANCIAL_ENTITY' }],
+  });
+  const evidence = kind => observed?.results?.find(row => row.operation?.kind === kind)?.evidence;
+  const total = evidence('TOTAL'), brands = evidence('BRAND_NETWORK'), finance = evidence('STORE_FINANCIAL_ENTITY');
+  const brandMembers = certifiedMembers(brands, 'BRAND_NETWORK').map(row => {
+    const member = row.members?.find(item => item.dimension === 'BRAND');
+    if (!member) throw new Error('P1_BRAND_IDENTITY_MISSING');
+    return { ...member, value: row.value };
+  });
+  const financeMembers = certifiedMembers(finance, 'STORE_FINANCIAL_ENTITY');
+  const work = await callP1Tool(runId, 'data_fetch', {
+    source: 'SALES', filters: { commercial_universe: 'OWN_STORES', date_from: fetchFrom, date_to: cutoffDate },
+    fields: ['vin', 'sale_date', 'brand_id', 'store_id', 'financial_entity'],
+  });
+  // Reuse the SALES_WORK presentation projection used by the existing Forum publisher:
+  // P1 recognizes sales and identities; this route only groups its complete rows.
+  if (work?.source !== 'SALES' || work.dataset !== 'SALES_WORK' || work.grain !== 'RECOGNIZED_SALE' ||
+      !Array.isArray(work.rows) || work.rows.length !== work.size?.filtered_n ||
+      total?.authority !== 'P1_CERTIFIED' || !total.evidence_id ||
+      total.payload?.value !== work.rows.filter(row => row.sale_date >= dateFrom).length ||
+      total.temporal?.date_from !== dateFrom || total.temporal?.date_to !== cutoffDate ||
+      new Set(work.rows.map(row => row.vin)).size !== work.rows.length) throw new Error('P1_SALES_WORK_PARITY_FAILED');
+  const label = value => String(value ?? '').trim().toUpperCase();
+  const brandKey = new Map(brandMembers.map(row => [String(row.member_id),
+    label(row.member_label) === 'FOTON' ? 'foton' : ['DONGFENG', 'DFM'].includes(label(row.member_label)) ? 'dongfeng' : null]));
+  // Same canonical brand filters as the previous weekly observations, including
+  // a brand sold last month but absent from this month's observation.
+  brandKey.set('89', 'foton'); brandKey.set('71', 'dongfeng');
+  const refs = [total.evidence_id, brands.evidence_id, finance.evidence_id];
+  const blank = () => Object.fromEntries(['sales', 'weekly_sales', 'ufis', 'other_credits'].map(id => [id, {
+    foton: 0, dongfeng: 0, ...(id === 'other_credits' ? {} : { company: 0 }), source: 'SALES P1',
+    cutoff: cutoffDate, evidence_ids: refs, ...(id === 'weekly_sales' ? { date_from: weekFrom } : {}),
+    source_dataset: work.dataset, source_version: work.version,
+  }]));
+  const company = blank(), stores = Object.fromEntries(storeIds.map(id => [id, blank()]));
+  const brandCounts = new Map(), financeCounts = new Map();
+  for (const row of work.rows) {
+    if (!row.vin || !row.sale_date || row.sale_date < fetchFrom || row.sale_date > cutoffDate) throw new Error('INVALID_SALES_P1_ROW');
+    const bid = String(row.brand_id ?? 'UNRESOLVED'), sid = String(row.store_id ?? 'UNRESOLVED');
+    const entity = label(row.financial_entity) || 'UNRESOLVED', key = JSON.stringify([sid, entity]);
+    const brand = brandKey.get(bid);
+    if (row.sale_date >= dateFrom) {
+      brandCounts.set(bid, (brandCounts.get(bid) || 0) + 1);
+      financeCounts.set(key, (financeCounts.get(key) || 0) + 1);
+    }
+    for (const target of [company, stores[sid]].filter(Boolean)) {
+      if (brand && row.sale_date >= weekFrom) { target.weekly_sales[brand]++; target.weekly_sales.company++; }
+      if (row.sale_date < dateFrom) continue;
+      target.sales.company++;
+      if (!brand) continue; // Unknown brands stay in totals, never allocated.
+      target.sales[brand]++;
+      if (entity === 'FORUM') { target.ufis[brand]++; target.ufis.company++; }
+      else if (entity !== 'UNRESOLVED' && !entity.includes('NO RESUELTO')) target.other_credits[brand]++;
+    }
   }
-  let ufi = 0, other = 0;
-  for (const member of evidence.payload.members) {
-    const entity = String(member.member_id ?? member.member_label ?? '').trim().toUpperCase();
-    const amount = Number(member.value || 0);
-    if (entity === 'FORUM') ufi += amount;
-    else if (entity && entity !== 'UNRESOLVED' && !entity.includes('NO RESUELTO')) other += amount;
+  const expectedBrands = new Map(brandMembers.map(row => [String(row.member_id), row.value]));
+  const expectedFinance = new Map();
+  for (const row of financeMembers) {
+    const key = JSON.stringify([
+      String(row.members.find(member => member.dimension === 'STORE')?.member_id),
+      label(row.members.find(member => member.dimension === 'FINANCIAL_ENTITY')?.member_id),
+    ]);
+    expectedFinance.set(key, (expectedFinance.get(key) || 0) + row.value);
   }
-  return { ufi, other, evidence_id: evidence.evidence_id };
-}
-
-function p1OwnStoreSales(id, evidence) {
-  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
-      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
-    throw new Error('P1 own-store sales evidence is not certified: ' + id);
+  const sameCounts = (actual, expected) => actual.size === expected.size && [...expected].every(([key, value]) => actual.get(key) === value);
+  if (!sameCounts(brandCounts, expectedBrands) || !sameCounts(financeCounts, expectedFinance)) throw new Error('P1_SALES_GROUP_PARITY_FAILED');
+  for (const [id, measure] of [['quotations', 'QUOTATIONS'], ['approved', 'COHORT_APPROVED'], ['precurse', 'PRECURSE']]) {
+    const observations = [];
+    for (const brandId of [null, '89', '71']) {
+      observations.push(await callP1Tool(runId, 'data_observe', {
+        source: 'FORUM', measure, evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET', dimension: 'STORE',
+        ...(id === 'precurse' ? {} : { period_from: period, period_to: period, cutoff: cutoffDate }),
+        filters: { network: ['OWN_STORES'], ...(brandId ? { brand_id: brandId } : {}) },
+      }));
+    }
+    const members = observations.map((item, index) => certifiedMembers(item, measure + ':' + index));
+    const dates = observations.map(item => item.temporal?.snapshot_date || item.temporal?.to || item.temporal?.cutoff || null);
+    if (id === 'precurse' && (!dates[0] || dates.some(date => date !== dates[0]))) throw new Error('P1_PRECURSE_SNAPSHOT_MISMATCH');
+    const values = members.map(rows => new Map(rows.map(row => [String(row.member_id), Number(row.value)])));
+    const metric = sid => ({ company: sid == null ? sum(members[0], 'value') : values[0].get(sid) || 0,
+      foton: sid == null ? sum(members[1], 'value') : values[1].get(sid) || 0,
+      dongfeng: sid == null ? sum(members[2], 'value') : values[2].get(sid) || 0,
+      cutoff: dates[0], source: 'FORUM P1', evidence_ids: observations.map(item => item.evidence_id) });
+    company[id] = metric(null);
+    for (const sid of storeIds) stores[sid][id] = metric(sid);
   }
-  const ownStores = evidence.payload.members
-    .filter(member => String(member.member_id ?? member.member_label ?? '').trim().toUpperCase() === 'TIENDA_PROPIA')
-    .reduce((value, member) => value + Number(member.value || 0), 0);
-  return { total: ownStores, evidence_id: evidence.evidence_id };
+  return { company, stores };
 }
 
 function shiftDate(date, days) {
@@ -172,135 +221,6 @@ function shiftDate(date, days) {
   return value.toISOString().slice(0, 10);
 }
 
-async function timedP1(runId, stage, operation) {
-  const started = Date.now();
-  console.info('[projection-p1] start', { runId, stage });
-  try {
-    return await operation();
-  } catch (error) {
-    console.error('[projection-p1] failed', { runId, stage, elapsed_ms: Date.now()-started, error: error?.message });
-    throw error;
-  } finally {
-    console.info('[projection-p1] finish', { runId, stage, elapsed_ms: Date.now()-started });
-  }
-}
-async function getP1BrandIndicators(period, cutoffDate, storeId = null, forumStoreAliases = []) {
-  if (storeId && !forumStoreAliases.length) throw new Error('P1_FORUM_STORE_ALIAS_MISSING: ' + storeId);
-  const scope = storeId ? '-store-' + storeId : '';
-  const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate + scope;
-  const network = {
-    network: ['OWN_STORES'],
-    ...(storeId ? { store: forumStoreAliases } : {}),
-  };
-  const weekFrom = shiftDate(cutoffDate, -6);
-  const salesBrandArgs = (brandId, from, to, dimension) => ({
-    source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-    dimension, filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', date_from: from, date_to: to, ...(storeId ? { store_id: storeId } : {}) },
-    cutoff: to,
-  });
-  const [salesResult, quotesEvidence, approvedEvidence, precurseEvidence] = await timedP1(runId, 'base', () => Promise.all([
-    storeId
-      ? callP1Tool(runId, 'data_observe', {
-        source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-        period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'NETWORK',
-        filters: { commercial_universe: 'OWN_STORES', store_id: storeId },
-      })
-      : callP1Tool(runId, 'sales_observe_many', {
-        measure: 'VIN_SALES', period, cutoff: cutoffDate, commercial_universe: 'OWN_STORES',
-        operations: [{ kind: 'BRAND_NETWORK' }],
-      }),
-    callP1Tool(runId, 'data_observe', {
-      source: 'FORUM', measure: 'QUOTATIONS', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
-    }),
-    callP1Tool(runId, 'data_observe', {
-      source: 'FORUM', measure: 'COHORT_APPROVED', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      period_from: period, period_to: period, cutoff: cutoffDate, dimension: 'BRAND', filters: network,
-    }),
-    callP1Tool(runId, 'data_observe', {
-      source: 'FORUM', measure: 'PRECURSE', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      dimension: 'BRAND', filters: network,
-    }),
-  ]));
-  const storeMonthlyBrandEvidence = storeId
-    ? await timedP1(runId, 'monthly-brand', () => Promise.all(['89', '71'].map(brandId => callP1Tool(runId, 'data_observe', {
-      source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      period, cutoff: cutoffDate, dimension: 'NETWORK',
-      filters: { brand_id: brandId, commercial_universe: 'OWN_STORES', store_id: storeId },
-    }))))
-    : null;
-  const [fotonOther, dongfengOther] = await timedP1(runId, 'finance', () => Promise.all([
-    callP1Tool(runId, 'data_observe', {
-      source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
-      filters: { brand_id: '89', commercial_universe: 'OWN_STORES', ...(storeId ? { store_id: storeId } : {}) },
-    }),
-    callP1Tool(runId, 'data_observe', {
-      source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'DIMENSIONAL_QUANTITATIVE_DATASET',
-      dimension: 'FINANCIAL_ENTITY', period, cutoff: cutoffDate,
-      filters: { brand_id: '71', commercial_universe: 'OWN_STORES', ...(storeId ? { store_id: storeId } : {}) },
-    }),
-  ]));
-  const [fotonWeek, dongfengWeek] = await timedP1(runId, 'weekly-sales', () => Promise.all([
-    callP1Tool(runId, 'data_observe', salesBrandArgs('89', weekFrom, cutoffDate, 'NETWORK')),
-    callP1Tool(runId, 'data_observe', salesBrandArgs('71', weekFrom, cutoffDate, 'NETWORK')),
-  ]));
-  const companySalesEvidence = storeId
-    ? salesResult
-    : salesResult?.results?.find(item => item?.operation?.kind === 'BRAND_NETWORK')?.evidence;
-  let salesEvidence = companySalesEvidence;
-  if (storeId) {
-    const [fotonMonthly, dongfengMonthly] = storeMonthlyBrandEvidence.map((evidence, index) =>
-      p1OwnStoreSales(index === 0 ? 'FOTON' : 'DONGFENG', evidence));
-    const companyMonthly = p1OwnStoreSales('store sales', companySalesEvidence);
-    salesEvidence = {
-      ...companySalesEvidence,
-      coverage: { ...companySalesEvidence.coverage, filtered_n: companyMonthly.total },
-      payload: {
-        ...companySalesEvidence.payload,
-        members: [
-          { member_label: 'FOTON', value: fotonMonthly.total },
-          { member_label: 'DONGFENG', value: dongfengMonthly.total },
-        ],
-      },
-      _brandEvidenceIds: [fotonMonthly.evidence_id, dongfengMonthly.evidence_id],
-    };
-  }
-  if (!salesEvidence) throw new Error('P1 sales brand evidence is missing');
-  const fotonWeekly = p1OwnStoreSales('FOTON', fotonWeek);
-  const dongfengWeekly = p1OwnStoreSales('DONGFENG', dongfengWeek);
-  const fotonFinance = p1FinanceByBrand('FOTON', fotonOther);
-  const dongfengFinance = p1FinanceByBrand('DONGFENG', dongfengOther);
-  return {
-    sales: {
-      ...p1BrandIndicator('sales', salesEvidence, 'SALES', salesEvidence.coverage?.filtered_n),
-      ...(storeId ? { evidence_ids: [salesEvidence.evidence_id, ...salesEvidence._brandEvidenceIds] } : {}),
-    },
-    quotations: p1BrandIndicator('quotations', quotesEvidence, 'FORUM', quotesEvidence.coverage?.total_value),
-    approved: p1BrandIndicator('approved', approvedEvidence, 'FORUM', approvedEvidence.coverage?.total_value),
-    other_credits: {
-      foton: fotonFinance.other,
-      dongfeng: dongfengFinance.other,
-      source: 'SALES P1', cutoff: cutoffDate,
-      evidence_ids: [fotonFinance.evidence_id, dongfengFinance.evidence_id],
-    },
-    weekly_sales: {
-      foton: fotonWeekly.total,
-      dongfeng: dongfengWeekly.total,
-      company: fotonWeekly.total + dongfengWeekly.total,
-      source: 'SALES P1', cutoff: cutoffDate, date_from: weekFrom,
-      evidence_ids: [fotonWeek.evidence_id, dongfengWeek.evidence_id],
-    },
-    ufis: {
-      foton: fotonFinance.ufi,
-      dongfeng: dongfengFinance.ufi,
-      company: fotonFinance.ufi + dongfengFinance.ufi,
-      source: 'SALES P1', cutoff: cutoffDate,
-      evidence_ids: [fotonFinance.evidence_id, dongfengFinance.evidence_id],
-    },
-    precurse: p1BrandIndicator('precurse', precurseEvidence, 'FORUM', precurseEvidence.coverage?.total_value),
-  };
-}
 async function getPrecurseBundle() {
   const endpoint = process.env.FORUM_P1_PRECURSE_ENDPOINT ||
     'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/precurse-snapshot';
@@ -458,12 +378,11 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     const previousMonday = new Date(previousMonthEnd+'T12:00:00Z');
     previousMonday.setUTCDate(previousMonday.getUTCDate()-((previousMonday.getUTCDay()+6)%7));
     const previousWeekStart = previousMonday.toISOString().slice(0,10);
-    const [companyAdmin, companyFinance, sellerData, precurseBundle, brandIndicators, previousMonthAdmin] = await Promise.all([
+    const [companyAdmin, companyFinance, sellerData, precurseBundle, previousMonthAdmin] = await Promise.all([
       call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${weekStart}&cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
       getPrecurseBundle(),
-      getP1BrandIndicators(period, cutoffDate),
       call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${previousWeekStart}&cutoff_date=${previousMonthEnd}&include_scopes=1&scope_ids=${scopeQuery}`),
     ]);
     requireAdmin(companyAdmin, 'COMPANY');
@@ -473,8 +392,9 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     requireArray(sellerData.sellers, 'SELLER_ROSTER');
     if (!companyAdmin.scopes || !companyFinance.scopes) throw new Error('Incomplete grouped store results');
 
-    companyAdmin.brand_indicators = brandIndicators;
-    companyFinance.brand_indicators = brandIndicators;
+    const brandIndicators = await getP1BrandIndicators(period, cutoffDate, scopeIds);
+    companyAdmin.brand_indicators = brandIndicators.company;
+    companyFinance.brand_indicators = brandIndicators.company;
 
     const precurseCompany = precurseBundle.company;
     const precurseStoreMembers = new Map(
@@ -512,17 +432,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       delete admin.projections;
       delete admin.sent_not_invoiced;
       admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
-      const forumAliasRows = await db()`
-        SELECT DISTINCT valor_raw
-        FROM sucursal_aliases
-        WHERE sucursal_id=${storeId}::bigint
-          AND fuente='forum_raw'
-          AND validated=true
-          AND valor_raw IS NOT NULL
-        ORDER BY valor_raw
-      `;
-      const forumStoreAliases = forumAliasRows.map(row => String(row.valor_raw).trim()).filter(Boolean);
-      const storeBrandIndicators = await getP1BrandIndicators(period, cutoffDate, storeId, forumStoreAliases);
+      const storeBrandIndicators = brandIndicators.stores[storeId];
       admin.brand_indicators = storeBrandIndicators;
       finance.brand_indicators = storeBrandIndicators;
       const aliases = sellerData.aliases.filter(a => String(a.sucursal_id) === storeId);

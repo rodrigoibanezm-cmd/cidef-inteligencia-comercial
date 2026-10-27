@@ -87,7 +87,7 @@ async function fixture(t) {
     }),
     getProjections: async () => { throw new Error('unexpected live read'); },
     getNotInvoiced: async () => { throw new Error('unexpected live read'); },
-    mockedBrands: async () => structuredClone(brands),
+    mockedBrands: async () => ({ company: structuredClone(brands), stores: { "1": structuredClone(brands) } }),
     mockedPrecurse: async () => structuredClone(precurse),
     setInterval: (callback, delay) => {
       const timer = { callback, delay, unref() {} };
@@ -215,4 +215,110 @@ test('calculation and publication errors preserve every row of the last valid sn
   assert.equal((await f.status()).status, 'failed');
   assert.deepEqual(await f.rows(), saved);
   assert.equal(f.timers.size, 0);
+});
+
+function groupedFixture(cutDate = cutoff, previousWeek = false) {
+  const ids = Array.from({ length: 15 }, (_, i) => String(i + 1));
+  const rows = ids.slice(0, 14).flatMap(id => [
+    { vin: 'F' + id, sale_date: cutDate, brand_id: '89', store_id: id, financial_entity: id === '2' ? null : 'FORUM' },
+    { vin: 'D' + id, sale_date: '2026-10-01', brand_id: '71', store_id: id, financial_entity: 'BANK' },
+  ]).concat([
+    { vin: 'OTHER', sale_date: cutDate, brand_id: null, store_id: '1', financial_entity: 'FORUM' },
+    { vin: 'NO_STORE', sale_date: cutDate, brand_id: '89', store_id: null, financial_entity: 'FORUM' },
+  ]);
+  if (previousWeek) rows.push({ vin: 'SEPTEMBER', sale_date: '2026-09-29', brand_id: '89', store_id: '15', financial_entity: 'FORUM' });
+  const monthly = rows.filter(row => row.sale_date >= '2026-10-01');
+  const grouped = (keys, source) => {
+    const result = new Map();
+    for (const row of source) {
+      const tuple = keys.map(key => String(row[key] ?? 'UNRESOLVED'));
+      const key = JSON.stringify(tuple), entry = result.get(key) || { tuple, value: 0 };
+      entry.value++; result.set(key, entry);
+    }
+    return [...result.values()];
+  };
+  const certified = (id, payload) => ({ evidence_id: id, authority: 'P1_CERTIFIED', status: 'CERTIFIED',
+    temporal: { date_from: '2026-10-01', date_to: cutDate }, payload });
+  const brandEvidence = certified('brands', { members: grouped(['brand_id'], monthly).map(row => ({
+    members: [{ dimension: 'BRAND', member_id: row.tuple[0], member_label: { '89': 'FOTON', '71': 'DONGFENG' }[row.tuple[0]] || 'No resuelto' },
+      { dimension: 'NETWORK', member_id: 'TIENDA_PROPIA', member_label: 'TIENDA_PROPIA' }], value: row.value,
+  })) });
+  const financeEvidence = certified('finance', { members: grouped(['store_id', 'financial_entity'], monthly).map(row => ({
+    members: ['STORE', 'FINANCIAL_ENTITY'].map((dimension, i) => ({ dimension, member_id: row.tuple[i] })), value: row.value,
+  })) });
+  const calls = [], hooks = {};
+  const callP1Tool = async (runId, name, args) => {
+    calls.push({ name, args });
+    assert.ok(!args.filters?.store && !args.filters?.store_id, 'never query one store');
+    if (name === 'sales_observe_many') return { results: [
+      { operation: { kind: 'TOTAL' }, evidence: certified('total', { value: monthly.length }) },
+      { operation: { kind: 'BRAND_NETWORK' }, evidence: brandEvidence },
+      { operation: { kind: 'STORE_FINANCIAL_ENTITY' }, evidence: financeEvidence },
+    ] };
+    if (name === 'data_fetch') return { source: 'SALES', dataset: 'SALES_WORK', grain: 'RECOGNIZED_SALE',
+      version: '0.13', size: { filtered_n: rows.length }, rows: hooks.truncate ? rows.slice(1) : rows };
+    assert.equal(name, 'data_observe'); assert.equal(args.source, 'FORUM'); assert.equal(args.dimension, 'STORE');
+    const members = args.filters.brand_id === '89'
+      ? [{ member_id: '1', value: 1 }, { member_id: 'UNRESOLVED:RAW', value: 1 }]
+      : args.filters.brand_id === '71'
+        ? [{ member_id: '1', value: 1 }, { member_id: '2', value: 1 }, { member_id: 'UNRESOLVED:RAW', value: 1 }]
+        : [{ member_id: '1', value: 3 }, { member_id: '2', value: 1 }, { member_id: 'UNRESOLVED:RAW', value: 2 }];
+    if (hooks.uncertified) return { payload: { members } };
+    return { ...certified(args.measure + ':' + (args.filters.brand_id || 'ALL'), { members }),
+      temporal: args.measure === 'PRECURSE' ? { snapshot_date: hooks.stale && args.filters.brand_id ? '2026-10-26' : cutDate } : { to: cutDate } };
+  };
+  const source = routeSource.replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+  const context = { db() {}, withDbTransaction() {}, createSnapshotStore: () => ({}), console, AbortSignal };
+  const get = vm.runInNewContext(source + '\ncallP1Tool = mockedCall; getP1BrandIndicators;', { ...context, mockedCall: callP1Tool });
+  return { ids, calls, hooks, brandEvidence, financeEvidence, get: () => get('2026-10', cutDate, ids) };
+}
+
+test('weekly brand sales span the month boundary without entering monthly sales or financing', async () => {
+  const f = groupedFixture('2026-10-03', true), result = await f.get();
+  assert.equal(f.calls.find(call => call.name === 'data_fetch').args.filters.date_from, '2026-09-27');
+  assert.equal(result.company.sales.company, 30);
+  assert.equal(result.company.weekly_sales.company, 30);
+  assert.equal(result.company.ufis.company, 14);
+  assert.equal(result.stores['15'].sales.company, 0);
+  assert.equal(result.stores['15'].weekly_sales.foton, 1);
+  assert.equal(result.stores['15'].ufis.company, 0);
+});
+
+test('one grouped P1 bundle serves all 15 stores and preserves all seven brand indicators', async () => {
+  const f = groupedFixture(), result = await f.get();
+  assert.equal(f.calls.length, 11); // 2 SALES + 9 FORUM, independent of store count.
+  assert.equal(Object.keys(result.stores).length, 15);
+  assert.equal(result.company.sales.company, 30);
+  assert.equal(result.company.sales.foton, 15); assert.equal(result.company.sales.dongfeng, 14);
+  assert.equal(result.company.weekly_sales.company, 15); assert.equal(result.company.ufis.company, 14);
+  assert.equal(result.company.other_credits.dongfeng, 14);
+  for (const id of f.ids) {
+    const store = result.stores[id];
+    assert.equal(Object.keys(store).length, 7);
+    assert.equal(store.sales.company, id === '15' ? 0 : id === '1' ? 3 : 2);
+    assert.equal(store.sales.foton, id === '15' ? 0 : 1);
+    assert.equal(store.sales.dongfeng, id === '15' ? 0 : 1);
+    assert.equal(store.ufis.foton, ['2', '15'].includes(id) ? 0 : 1);
+    assert.equal(store.weekly_sales.dongfeng, 0);
+    for (const metric of ['quotations', 'approved', 'precurse']) {
+      assert.equal(result.company[metric].company, 6);
+      assert.equal(result.company[metric].foton, 2); assert.equal(result.company[metric].dongfeng, 3);
+      assert.equal(store[metric].company, id === '1' ? 3 : id === '2' ? 1 : 0);
+      assert.equal(store[metric].foton, id === '1' ? 1 : 0);
+      assert.ok(store[metric].evidence_ids.length);
+    }
+  }
+  assert.equal(Object.values(result.stores).reduce((sum, store) => sum + store.sales.company, 0), 29);
+  assert.equal(result.company.sales.company, 30, 'unresolved store remains in company, never reassigned');
+});
+
+test('grouped refresh rejects missing coverage, mismatched P1 groups and inconsistent snapshots', async () => {
+  for (const hook of ['truncate', 'uncertified', 'stale']) {
+    const f = groupedFixture(); f.hooks[hook] = true;
+    await assert.rejects(f.get(), /P1_SALES_WORK_PARITY_FAILED|Incomplete P1 grouped evidence|P1_PRECURSE_SNAPSHOT_MISMATCH/);
+  }
+  for (const field of ['brandEvidence', 'financeEvidence']) {
+    const f = groupedFixture(); f[field].payload.members[0].value++;
+    await assert.rejects(f.get(), /P1_SALES_GROUP_PARITY_FAILED/);
+  }
 });
