@@ -2,6 +2,8 @@ import Link from "next/link";
 import ForumClose from "../../components/ForumClose";
 import MonthlyCloseMetric from "../../components/MonthlyCloseMetric";
 import CompanyClosePanels from "../../components/CompanyClosePanels";
+import MonthlyCloseRanking from "../../components/MonthlyCloseRanking";
+import { buildForumRanking } from "../../lib/monthly-close-ranking";
 import { dateText, valueText } from "../../lib/monthly-close-view";
 import facts from "../../data/monthly-close/2026-09/facts.json";
 import styles from "../../components/CompanyClosePanels.module.css";
@@ -17,6 +19,7 @@ export default function CierreMensual() {
     <div className="mc-tabs" aria-label="Vistas del cierre"><span className="mc-active" aria-current="page">Compañía</span>{["Sucursales", "Foton", "Dongfeng", "Dealers"].map(label => <span key={label} aria-disabled="true">{label}</span>)}</div>
     <section className="mc-kpis" aria-label="Indicadores SALES y RVM">{facts.cards.map(config => <MonthlyCloseMetric key={config.id} data={facts} config={config}/>)}</section>
     <ForumClose data={facts}/>
+    <MonthlyCloseRanking categories={facts.rankings.categories} forum={buildForumRanking(facts.rankings.categories.forum)}/>
     <CompanyClosePanels data={facts}/>
     <details className={"mc-panel " + styles.panel}><summary>Indicadores pendientes de certificación</summary>{facts.company.pending.map(item => <p key={item.id} className={styles.note}><strong>{item.label}:</strong> {item.reason}</p>)}</details>
     <details className={"mc-panel " + styles.panel + " " + styles.sources}><summary>Fuentes y cortes</summary>

@@ -2665,6 +2665,381 @@
       "dealers": {
         "current_ref": "indicators.sales_dealers",
         "reason": "661 ventas del canal dealer verificadas. Falta recertificar la apertura por grupo y su vigencia histórica; el snapshot anterior sumaba 666."
+      },
+      "forum": {
+        "status": "CERTIFIED",
+        "authority": "P1_CERTIFIED",
+        "source": "FORUM",
+        "measure": "UFIS",
+        "unit": "UFI",
+        "date_axis": "fecha_curse",
+        "network": "OWN_STORES",
+        "period": "2026-09",
+        "months": [
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ],
+        "run_id": "company-card-forum-ranking-20261026",
+        "datasets": {
+          "2026-06": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "measure": "UFIS",
+            "unit": "VEHICLE_UNIT",
+            "network": "OWN_STORES",
+            "identity_contract": "store_v01",
+            "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE",
+            "period": "2026-06",
+            "cutoff": "2026-06-30",
+            "observed_at": "2026-10-27T00:37:09.310Z",
+            "evidence_ref": "forum_ranking_2026_06",
+            "evidence_id": "FORUM:UFIS:STORE:2026-06:2026-06:2026-06-30:1793061429256",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "members": [
+              {
+                "member_id": "4",
+                "member_label": "CIDEF Pajaritos",
+                "value": 19
+              },
+              {
+                "member_id": "18",
+                "member_label": "CIDEF Concepcion",
+                "value": 17
+              },
+              {
+                "member_id": "9",
+                "member_label": "CIDEF Mall Plaza Sur",
+                "value": 17
+              },
+              {
+                "member_id": "5",
+                "member_label": "CIDEF Antofagasta",
+                "value": 16
+              },
+              {
+                "member_id": "8",
+                "member_label": "CIDEF Mall Plaza Norte",
+                "value": 16
+              },
+              {
+                "member_id": "7",
+                "member_label": "CIDEF Mall Plaza Vespucio",
+                "value": 16
+              },
+              {
+                "member_id": "10",
+                "member_label": "CIDEF Mall Plaza Oeste",
+                "value": 15
+              },
+              {
+                "member_id": "20",
+                "member_label": "CIDEF Vicuña Mackenna",
+                "value": 11
+              },
+              {
+                "member_id": "3",
+                "member_label": "CIDEF Bellavista",
+                "value": 10
+              },
+              {
+                "member_id": "11",
+                "member_label": "CIDEF Mall Plaza Egaña",
+                "value": 10
+              },
+              {
+                "member_id": "19",
+                "member_label": "CIDEF Mall Alameda",
+                "value": 9
+              },
+              {
+                "member_id": "UNRESOLVED:CIDEF ACTIVACION",
+                "member_label": "CIDEF ACTIVACION",
+                "value": 2
+              }
+            ],
+            "members_path": [
+              "payload",
+              "members"
+            ],
+            "total_value": 158,
+            "unresolved_value": 2
+          },
+          "2026-07": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "measure": "UFIS",
+            "unit": "VEHICLE_UNIT",
+            "network": "OWN_STORES",
+            "identity_contract": "store_v01",
+            "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-27T00:37:09.313Z",
+            "evidence_ref": "forum_ranking_2026_07",
+            "evidence_id": "FORUM:UFIS:STORE:2026-07:2026-07:2026-07-31:1793061429255",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "members": [
+              {
+                "member_id": "9",
+                "member_label": "CIDEF Mall Plaza Sur",
+                "value": 26
+              },
+              {
+                "member_id": "8",
+                "member_label": "CIDEF Mall Plaza Norte",
+                "value": 25
+              },
+              {
+                "member_id": "5",
+                "member_label": "CIDEF Antofagasta",
+                "value": 21
+              },
+              {
+                "member_id": "10",
+                "member_label": "CIDEF Mall Plaza Oeste",
+                "value": 19
+              },
+              {
+                "member_id": "20",
+                "member_label": "CIDEF Vicuña Mackenna",
+                "value": 19
+              },
+              {
+                "member_id": "18",
+                "member_label": "CIDEF Concepcion",
+                "value": 15
+              },
+              {
+                "member_id": "11",
+                "member_label": "CIDEF Mall Plaza Egaña",
+                "value": 15
+              },
+              {
+                "member_id": "19",
+                "member_label": "CIDEF Mall Alameda",
+                "value": 14
+              },
+              {
+                "member_id": "7",
+                "member_label": "CIDEF Mall Plaza Vespucio",
+                "value": 13
+              },
+              {
+                "member_id": "4",
+                "member_label": "CIDEF Pajaritos",
+                "value": 13
+              },
+              {
+                "member_id": "3",
+                "member_label": "CIDEF Bellavista",
+                "value": 9
+              },
+              {
+                "member_id": "22",
+                "member_label": "CIDEF Mall Cenco Costanera",
+                "value": 3
+              },
+              {
+                "member_id": "21",
+                "member_label": "CIDEF Mall Paseo Quilin",
+                "value": 3
+              }
+            ],
+            "members_path": [
+              "payload",
+              "members"
+            ],
+            "total_value": 195,
+            "unresolved_value": 0
+          },
+          "2026-08": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "measure": "UFIS",
+            "unit": "VEHICLE_UNIT",
+            "network": "OWN_STORES",
+            "identity_contract": "store_v01",
+            "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-27T00:37:09.314Z",
+            "evidence_ref": "forum_ranking_2026_08",
+            "evidence_id": "FORUM:UFIS:STORE:2026-08:2026-08:2026-08-31:1793061429255",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "members": [
+              {
+                "member_id": "9",
+                "member_label": "CIDEF Mall Plaza Sur",
+                "value": 45
+              },
+              {
+                "member_id": "10",
+                "member_label": "CIDEF Mall Plaza Oeste",
+                "value": 34
+              },
+              {
+                "member_id": "7",
+                "member_label": "CIDEF Mall Plaza Vespucio",
+                "value": 33
+              },
+              {
+                "member_id": "8",
+                "member_label": "CIDEF Mall Plaza Norte",
+                "value": 31
+              },
+              {
+                "member_id": "11",
+                "member_label": "CIDEF Mall Plaza Egaña",
+                "value": 28
+              },
+              {
+                "member_id": "20",
+                "member_label": "CIDEF Vicuña Mackenna",
+                "value": 24
+              },
+              {
+                "member_id": "5",
+                "member_label": "CIDEF Antofagasta",
+                "value": 23
+              },
+              {
+                "member_id": "4",
+                "member_label": "CIDEF Pajaritos",
+                "value": 18
+              },
+              {
+                "member_id": "18",
+                "member_label": "CIDEF Concepcion",
+                "value": 17
+              },
+              {
+                "member_id": "22",
+                "member_label": "CIDEF Mall Cenco Costanera",
+                "value": 15
+              },
+              {
+                "member_id": "3",
+                "member_label": "CIDEF Bellavista",
+                "value": 8
+              },
+              {
+                "member_id": "19",
+                "member_label": "CIDEF Mall Alameda",
+                "value": 7
+              },
+              {
+                "member_id": "21",
+                "member_label": "CIDEF Mall Paseo Quilin",
+                "value": 3
+              }
+            ],
+            "members_path": [
+              "payload",
+              "members"
+            ],
+            "total_value": 286,
+            "unresolved_value": 0
+          },
+          "2026-09": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "measure": "UFIS",
+            "unit": "VEHICLE_UNIT",
+            "network": "OWN_STORES",
+            "identity_contract": "store_v01",
+            "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-27T00:37:09.312Z",
+            "evidence_ref": "forum_ranking_2026_09",
+            "evidence_id": "FORUM:UFIS:STORE:2026-09:2026-09:2026-09-30:1793061429254",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "members": [
+              {
+                "member_id": "8",
+                "member_label": "CIDEF Mall Plaza Norte",
+                "value": 20
+              },
+              {
+                "member_id": "9",
+                "member_label": "CIDEF Mall Plaza Sur",
+                "value": 20
+              },
+              {
+                "member_id": "18",
+                "member_label": "CIDEF Concepcion",
+                "value": 17
+              },
+              {
+                "member_id": "4",
+                "member_label": "CIDEF Pajaritos",
+                "value": 15
+              },
+              {
+                "member_id": "5",
+                "member_label": "CIDEF Antofagasta",
+                "value": 14
+              },
+              {
+                "member_id": "19",
+                "member_label": "CIDEF Mall Alameda",
+                "value": 14
+              },
+              {
+                "member_id": "10",
+                "member_label": "CIDEF Mall Plaza Oeste",
+                "value": 14
+              },
+              {
+                "member_id": "3",
+                "member_label": "CIDEF Bellavista",
+                "value": 13
+              },
+              {
+                "member_id": "22",
+                "member_label": "CIDEF Mall Cenco Costanera",
+                "value": 12
+              },
+              {
+                "member_id": "20",
+                "member_label": "CIDEF Vicuña Mackenna",
+                "value": 12
+              },
+              {
+                "member_id": "7",
+                "member_label": "CIDEF Mall Plaza Vespucio",
+                "value": 10
+              },
+              {
+                "member_id": "11",
+                "member_label": "CIDEF Mall Plaza Egaña",
+                "value": 9
+              },
+              {
+                "member_id": "21",
+                "member_label": "CIDEF Mall Paseo Quilin",
+                "value": 4
+              }
+            ],
+            "members_path": [
+              "payload",
+              "members"
+            ],
+            "total_value": 174,
+            "unresolved_value": 0
+          }
+        },
+        "observed_at": "2026-10-27T00:37:09.314Z"
       }
     }
   },

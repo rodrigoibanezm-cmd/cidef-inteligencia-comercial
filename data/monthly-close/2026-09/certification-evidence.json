@@ -21857,6 +21857,553 @@
           "executed_at": "2026-10-26T23:51:52.010Z"
         }
       }
+    },
+    "forum_ranking_2026_06": {
+      "run_id": "company-card-forum-ranking-20261026",
+      "request": {
+        "run_id": "company-card-forum-ranking-20261026",
+        "source": "FORUM",
+        "measure": "UFIS",
+        "evidence_shape": "DIMENSIONAL_QUANTITATIVE_DATASET",
+        "dimension": "STORE",
+        "filters": {
+          "network": "OWN_STORES"
+        },
+        "period": "2026-06",
+        "cutoff": "2026-06-30"
+      },
+      "retrieved_at": "2026-10-27T00:37:09.310Z",
+      "result": {
+        "evidence_id": "FORUM:UFIS:STORE:2026-06:2026-06:2026-06-30:1793061429256",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "UFIS",
+          "unit": "VEHICLE_UNIT"
+        },
+        "universe": {
+          "network": "OWN_STORES"
+        },
+        "dimensions": {
+          "group_by": "STORE"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-06",
+          "period_to": "2026-06",
+          "from": "2026-06-01",
+          "to": "2026-06-30",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 158,
+          "dimension_unresolved_value": 2
+        },
+        "payload": {
+          "dimension": {
+            "id": "STORE",
+            "identity_contract": "store_v01",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "4",
+              "member_label": "CIDEF Pajaritos",
+              "value": 19
+            },
+            {
+              "member_id": "18",
+              "member_label": "CIDEF Concepcion",
+              "value": 17
+            },
+            {
+              "member_id": "9",
+              "member_label": "CIDEF Mall Plaza Sur",
+              "value": 17
+            },
+            {
+              "member_id": "5",
+              "member_label": "CIDEF Antofagasta",
+              "value": 16
+            },
+            {
+              "member_id": "8",
+              "member_label": "CIDEF Mall Plaza Norte",
+              "value": 16
+            },
+            {
+              "member_id": "7",
+              "member_label": "CIDEF Mall Plaza Vespucio",
+              "value": 16
+            },
+            {
+              "member_id": "10",
+              "member_label": "CIDEF Mall Plaza Oeste",
+              "value": 15
+            },
+            {
+              "member_id": "20",
+              "member_label": "CIDEF Vicuña Mackenna",
+              "value": 11
+            },
+            {
+              "member_id": "3",
+              "member_label": "CIDEF Bellavista",
+              "value": 10
+            },
+            {
+              "member_id": "11",
+              "member_label": "CIDEF Mall Plaza Egaña",
+              "value": 10
+            },
+            {
+              "member_id": "19",
+              "member_label": "CIDEF Mall Alameda",
+              "value": 9
+            },
+            {
+              "member_id": "UNRESOLVED:CIDEF ACTIVACION",
+              "member_label": "CIDEF ACTIVACION",
+              "value": 2
+            }
+          ],
+          "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_ranking_2026_07": {
+      "run_id": "company-card-forum-ranking-20261026",
+      "request": {
+        "run_id": "company-card-forum-ranking-20261026",
+        "source": "FORUM",
+        "measure": "UFIS",
+        "evidence_shape": "DIMENSIONAL_QUANTITATIVE_DATASET",
+        "dimension": "STORE",
+        "filters": {
+          "network": "OWN_STORES"
+        },
+        "period": "2026-07",
+        "cutoff": "2026-07-31"
+      },
+      "retrieved_at": "2026-10-27T00:37:09.313Z",
+      "result": {
+        "evidence_id": "FORUM:UFIS:STORE:2026-07:2026-07:2026-07-31:1793061429255",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "UFIS",
+          "unit": "VEHICLE_UNIT"
+        },
+        "universe": {
+          "network": "OWN_STORES"
+        },
+        "dimensions": {
+          "group_by": "STORE"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-07",
+          "period_to": "2026-07",
+          "from": "2026-07-01",
+          "to": "2026-07-31",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 195,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "STORE",
+            "identity_contract": "store_v01",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "9",
+              "member_label": "CIDEF Mall Plaza Sur",
+              "value": 26
+            },
+            {
+              "member_id": "8",
+              "member_label": "CIDEF Mall Plaza Norte",
+              "value": 25
+            },
+            {
+              "member_id": "5",
+              "member_label": "CIDEF Antofagasta",
+              "value": 21
+            },
+            {
+              "member_id": "10",
+              "member_label": "CIDEF Mall Plaza Oeste",
+              "value": 19
+            },
+            {
+              "member_id": "20",
+              "member_label": "CIDEF Vicuña Mackenna",
+              "value": 19
+            },
+            {
+              "member_id": "18",
+              "member_label": "CIDEF Concepcion",
+              "value": 15
+            },
+            {
+              "member_id": "11",
+              "member_label": "CIDEF Mall Plaza Egaña",
+              "value": 15
+            },
+            {
+              "member_id": "19",
+              "member_label": "CIDEF Mall Alameda",
+              "value": 14
+            },
+            {
+              "member_id": "7",
+              "member_label": "CIDEF Mall Plaza Vespucio",
+              "value": 13
+            },
+            {
+              "member_id": "4",
+              "member_label": "CIDEF Pajaritos",
+              "value": 13
+            },
+            {
+              "member_id": "3",
+              "member_label": "CIDEF Bellavista",
+              "value": 9
+            },
+            {
+              "member_id": "22",
+              "member_label": "CIDEF Mall Cenco Costanera",
+              "value": 3
+            },
+            {
+              "member_id": "21",
+              "member_label": "CIDEF Mall Paseo Quilin",
+              "value": 3
+            }
+          ],
+          "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_ranking_2026_08": {
+      "run_id": "company-card-forum-ranking-20261026",
+      "request": {
+        "run_id": "company-card-forum-ranking-20261026",
+        "source": "FORUM",
+        "measure": "UFIS",
+        "evidence_shape": "DIMENSIONAL_QUANTITATIVE_DATASET",
+        "dimension": "STORE",
+        "filters": {
+          "network": "OWN_STORES"
+        },
+        "period": "2026-08",
+        "cutoff": "2026-08-31"
+      },
+      "retrieved_at": "2026-10-27T00:37:09.314Z",
+      "result": {
+        "evidence_id": "FORUM:UFIS:STORE:2026-08:2026-08:2026-08-31:1793061429255",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "UFIS",
+          "unit": "VEHICLE_UNIT"
+        },
+        "universe": {
+          "network": "OWN_STORES"
+        },
+        "dimensions": {
+          "group_by": "STORE"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-08",
+          "period_to": "2026-08",
+          "from": "2026-08-01",
+          "to": "2026-08-31",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 286,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "STORE",
+            "identity_contract": "store_v01",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "9",
+              "member_label": "CIDEF Mall Plaza Sur",
+              "value": 45
+            },
+            {
+              "member_id": "10",
+              "member_label": "CIDEF Mall Plaza Oeste",
+              "value": 34
+            },
+            {
+              "member_id": "7",
+              "member_label": "CIDEF Mall Plaza Vespucio",
+              "value": 33
+            },
+            {
+              "member_id": "8",
+              "member_label": "CIDEF Mall Plaza Norte",
+              "value": 31
+            },
+            {
+              "member_id": "11",
+              "member_label": "CIDEF Mall Plaza Egaña",
+              "value": 28
+            },
+            {
+              "member_id": "20",
+              "member_label": "CIDEF Vicuña Mackenna",
+              "value": 24
+            },
+            {
+              "member_id": "5",
+              "member_label": "CIDEF Antofagasta",
+              "value": 23
+            },
+            {
+              "member_id": "4",
+              "member_label": "CIDEF Pajaritos",
+              "value": 18
+            },
+            {
+              "member_id": "18",
+              "member_label": "CIDEF Concepcion",
+              "value": 17
+            },
+            {
+              "member_id": "22",
+              "member_label": "CIDEF Mall Cenco Costanera",
+              "value": 15
+            },
+            {
+              "member_id": "3",
+              "member_label": "CIDEF Bellavista",
+              "value": 8
+            },
+            {
+              "member_id": "19",
+              "member_label": "CIDEF Mall Alameda",
+              "value": 7
+            },
+            {
+              "member_id": "21",
+              "member_label": "CIDEF Mall Paseo Quilin",
+              "value": 3
+            }
+          ],
+          "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
+    },
+    "forum_ranking_2026_09": {
+      "run_id": "company-card-forum-ranking-20261026",
+      "request": {
+        "run_id": "company-card-forum-ranking-20261026",
+        "source": "FORUM",
+        "measure": "UFIS",
+        "evidence_shape": "DIMENSIONAL_QUANTITATIVE_DATASET",
+        "dimension": "STORE",
+        "filters": {
+          "network": "OWN_STORES"
+        },
+        "period": "2026-09",
+        "cutoff": "2026-09-30"
+      },
+      "retrieved_at": "2026-10-27T00:37:09.312Z",
+      "result": {
+        "evidence_id": "FORUM:UFIS:STORE:2026-09:2026-09:2026-09-30:1793061429254",
+        "evidence_contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+        "evidence_version": "0.12",
+        "authority": "P1_CERTIFIED",
+        "status": "COMPLETE",
+        "source": "FORUM",
+        "operation": "OBSERVE",
+        "grain": "FORUM_OPERATION",
+        "measure": {
+          "id": "UFIS",
+          "unit": "VEHICLE_UNIT"
+        },
+        "universe": {
+          "network": "OWN_STORES"
+        },
+        "dimensions": {
+          "group_by": "STORE"
+        },
+        "temporal": {
+          "cohort_basis": null,
+          "period_from": "2026-09",
+          "period_to": "2026-09",
+          "from": "2026-09-01",
+          "to": "2026-09-30",
+          "period_status": "DATED_EVENT"
+        },
+        "coverage": {
+          "complete": true,
+          "total_value": 174,
+          "dimension_unresolved_value": 0
+        },
+        "payload": {
+          "dimension": {
+            "id": "STORE",
+            "identity_contract": "store_v01",
+            "unresolved_member_policy": "EXPLICIT_UNRESOLVED_MEMBER"
+          },
+          "members": [
+            {
+              "member_id": "8",
+              "member_label": "CIDEF Mall Plaza Norte",
+              "value": 20
+            },
+            {
+              "member_id": "9",
+              "member_label": "CIDEF Mall Plaza Sur",
+              "value": 20
+            },
+            {
+              "member_id": "18",
+              "member_label": "CIDEF Concepcion",
+              "value": 17
+            },
+            {
+              "member_id": "4",
+              "member_label": "CIDEF Pajaritos",
+              "value": 15
+            },
+            {
+              "member_id": "5",
+              "member_label": "CIDEF Antofagasta",
+              "value": 14
+            },
+            {
+              "member_id": "19",
+              "member_label": "CIDEF Mall Alameda",
+              "value": 14
+            },
+            {
+              "member_id": "10",
+              "member_label": "CIDEF Mall Plaza Oeste",
+              "value": 14
+            },
+            {
+              "member_id": "3",
+              "member_label": "CIDEF Bellavista",
+              "value": 13
+            },
+            {
+              "member_id": "22",
+              "member_label": "CIDEF Mall Cenco Costanera",
+              "value": 12
+            },
+            {
+              "member_id": "20",
+              "member_label": "CIDEF Vicuña Mackenna",
+              "value": 12
+            },
+            {
+              "member_id": "7",
+              "member_label": "CIDEF Mall Plaza Vespucio",
+              "value": 10
+            },
+            {
+              "member_id": "11",
+              "member_label": "CIDEF Mall Plaza Egaña",
+              "value": 9
+            },
+            {
+              "member_id": "21",
+              "member_label": "CIDEF Mall Paseo Quilin",
+              "value": 4
+            }
+          ],
+          "rule": "CURSE_VEHICLE_UNITS_BY_FECHA_CURSE"
+        },
+        "lineage": {
+          "universe": "forum_funnel_universe_v01",
+          "raw_source": "forum_funnel_raw",
+          "operation_identity": "numero_operacion",
+          "quotation_rule": "all operations by fecha_cotizacion; never filter tipo_proceso",
+          "application_rule": "tipo_proceso/estado_actual different from COTIZACION",
+          "precurse_rule": "PRECURSE stage is evidenced by a PRECURSE source row and remains open only without certified CURSE evidence; measured as distinct operations at latest available snapshot",
+          "curse_rule": "valid CURSE evidence requires source_type CURSE, tipo_proceso CURSADA, and a non-sentinel fecha_curse",
+          "ufi_rule": "UFI = executed financed vehicle units evidenced by Curse; Precurse is not UFI",
+          "product_identity_rule": "FORUM ModeloVehiculo + VersionVehiculo resolve through producto_aliases_v01 fuente forum_funnel; unresolved/conflicting identities remain unresolved",
+          "network_rule": "OWN_STORES when the Forum Distribuidor identity is CIDEF; otherwise DEALERS. This is a network identity rule, not a store-name heuristic",
+          "dealer_identity_rule": "Forum distribuidor resolves through validated dealer_aliases into legal dealers_master and then canonical commercial dealer_groups; raw source label is preserved separately",
+          "sales_invariant": "A certified UFI implies an associated CIDEF sale, but P1 FORUM does not require or claim VIN identity"
+        }
+      }
     }
   }
 }

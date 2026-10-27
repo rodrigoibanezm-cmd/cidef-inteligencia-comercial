@@ -1,5 +1,19 @@
 # Conciliación de septiembre 2026 — Azure
 
+## Ajuste visual y ranking FORUM — pendiente de publicación
+
+Las nueve cards conservan sus valores absolutos certificados. `FourMonthTrend` representa solamente coordenadas visuales: valor mensual / valor de junio × 100. Todas las series disponibles parten en 100 y comparten el mismo dominio vertical entre las nueve cards. Series incompletas, no certificadas o con junio igual a cero no se indexan; no impiden mostrar las otras series. Share YTD y penetración sin cuatro meses siguen pendientes.
+
+Se recupera el selector **Tiendas propias | Vendedores activos | Dealers | Modelos | FORUM**, por instrucción explícita durante esta corrección. Las cuatro categorías SALES conservan sus referencias y motivos de recertificación pendientes; no se recuperan cifras de los fixtures antiguos. El panel actual de variaciones por canal/marca/modelo y los demás paneles permanecen intactos.
+
+FORUM usa cuatro datasets P1 `UFIS`, dimensión `STORE`, red `OWN_STORES`, identidad `store_v01`, meses completos y fecha de curse. Run: `company-card-forum-ranking-20261026`; evidencia preservada como `forum_ranking_2026_06` a `forum_ranking_2026_09`. Totales propios: junio 158, julio 195, agosto 286 y septiembre 174; septiembre coincide con el indicador vigente. Los indicadores existentes y las series de las cards no cambian.
+
+La adaptación reutiliza `rankPerformance` y `POLICY` del motor existente, sin modificarlo ni crear una clasificación paralela. Sus nombres internos históricos `vin`/`delta_vin` transportan UFIs exclusivamente en este resultado; la interfaz muestra UFIs. Septiembre se compara con el promedio junio–agosto: exige actividad en los tres meses, promedio mínimo 10, diferencia absoluta mínima 5 y variación mínima 10%. Orden por impacto absoluto; estables por volumen de septiembre; máximo cinco por categoría. Estos grupos son el resultado de la política existente aplicada a hechos P1, no una nueva salida certificada por P2.
+
+Hay 10 sucursales elegibles: 0 mejoran, 4 se mantienen y 6 retroceden (se muestran cinco). Bellavista queda sin clasificación por promedio inferior al mínimo; Quilín y Costanera carecen de observación explícita de junio y no se rellenan con cero. La identidad `UNRESOLVED:CIDEF ACTIVACION` queda fuera del ranking, preservada en la cobertura P1. Ausencias, bajo volumen y falta de identidad se informan por separado.
+
+Validación: `node --test test/monthly-close-ranking-ui.test.js test/company-close-view.test.js test/monthly-close-certification.test.js test/ranking-performance.test.js test/forum-close.test.js`; `npm run build`. Sin despliegue, cambios de motores, otras páginas, estilos globales, bases de datos, tablas ni infraestructura.
+
 ## Implementación de Compañía — diseño aprobado
 
 La vista `/cierre-mensual` implementa las nueve cards aprobadas: ventas compañía/propias/dealers; inscripciones CIDEF/share mensual/share YTD; cotizaciones/UFIs/penetración FORUM. Penetración se mantiene **Pendiente**, sin fórmula provisional. Las series certificadas disponibles se muestran aunque falte otra apertura.
