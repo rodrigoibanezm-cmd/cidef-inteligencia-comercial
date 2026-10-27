@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, withDbTransaction } from '../../../../lib/db.js';
+import { liveLease } from '../../../../lib/weekly-projection-snapshot.js';
 import { GET as getAdmin } from '../admin/route.js';
 import { GET as getCompanyFinance } from '../company-finance/route.js';
 import { GET as getForumSellers } from '../forum-sellers/route.js';
@@ -431,10 +432,14 @@ async function readRefreshStatus(weekStart, cutoffDate, env) {
   try {
     const sql = db();
     const rows = await sql.query(`
-      SELECT payload FROM weekly_projection_results
+      SELECT payload, updated_at::text FROM weekly_projection_results
       WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3 AND scope_key=$4
     `, [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE]);
-    return rows[0]?.payload || { status: 'idle' };
+    if (!rows[0]) return { status: 'idle' };
+    const { payload, updated_at } = rows[0];
+    return payload.status === 'running' && !liveLease(payload, updated_at)
+      ? { ...payload, status: 'expired', recoverable: true }
+      : payload;
   } catch (error) {
     if (error?.code === '42P01') return { status: 'idle' };
     throw error;
@@ -458,7 +463,13 @@ async function writeRefreshStatus(weekStart, cutoffDate, env, job, claim = false
         )
         ELSE EXCLUDED.payload END,
         updated_at=now()
-      ${claim ? "WHERE weekly_projection_results.payload->>'status' IS DISTINCT FROM 'running'" : ''}
+      ${claim ? `WHERE weekly_projection_results.payload->>'status' IS DISTINCT FROM 'running'
+        OR (
+          COALESCE((weekly_projection_results.payload->>'lease_until')::timestamptz,
+                   weekly_projection_results.updated_at + interval '5 minutes') <= now()
+          OR COALESCE((weekly_projection_results.payload->>'started_at')::timestamptz,
+                      weekly_projection_results.updated_at) + interval '110 minutes' <= now()
+        )` : ''}
     RETURNING payload
   `;
   const rows = await sql.query(query, [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(job), progress]);
