@@ -64,8 +64,20 @@ for(const s of storeSellers){
   if(tokens.length>=2)registerAlias(tokens[0].slice(0,1)+tokens[1],id);
 }
 for(const key of ambiguous)aliases.delete(key);
+// Match ERP display names to a unique canonical roster entry; never merge ambiguous names.
+const names=new Map(),duplicateNames=new Set();
+for(const seller of storeSellers){
+  const key=sellerKey(seller.nombre),id=String(seller.persona_id);
+  if(!key||!sellers.has(id))continue;
+  if(names.has(key)&&names.get(key)!==id)duplicateNames.add(key);
+  else names.set(key,id);
+}
+for(const key of duplicateNames)names.delete(key);
 function target(r){
   const id=String(r.persona_id||'');
+  const nameKey=sellerKey(r.vendedor_nombre||r.vendedor);
+  const canonicalId=names.get(nameKey);
+  if(canonicalId&&sellers.has(canonicalId))return sellers.get(canonicalId);
   if(sellers.has(id))return sellers.get(id);
   const aliasId=aliases.get(sellerKey(r.vendedor));
   if(aliasId&&sellers.has(aliasId))return sellers.get(aliasId);
