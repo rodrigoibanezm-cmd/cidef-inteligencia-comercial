@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, withDbTransaction } from '../../../../lib/db.js';
-import { liveLease } from '../../../../lib/weekly-projection-snapshot.js';
+import { createSnapshotStore } from '../../../../lib/weekly-projection-snapshot.js';
 import { GET as getAdmin } from '../admin/route.js';
 import { GET as getCompanyFinance } from '../company-finance/route.js';
 import { GET as getForumSellers } from '../forum-sellers/route.js';
@@ -9,6 +9,7 @@ import { GET as getProjections } from '../projections/route.js';
 import { GET as getNotInvoiced } from '../not-invoiced/route.js';
 
 export const dynamic = 'force-dynamic';
+const snapshots = createSnapshotStore({ db, withDbTransaction });
 
 const bad = (message, status = 400) => NextResponse.json({ ok: false, error: message }, { status });
 
@@ -424,56 +425,13 @@ export async function GET(request) {
   }
 }
 
-const REFRESH_STATUS_SCOPE = 'REFRESH_STATUS';
-function refreshKey(weekStart, cutoffDate, env) { return `${weekStart}:${cutoffDate}:${env}`; }
-
-
 async function readRefreshStatus(weekStart, cutoffDate, env) {
   try {
-    const sql = db();
-    const rows = await sql.query(`
-      SELECT payload, updated_at::text FROM weekly_projection_results
-      WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3 AND scope_key=$4
-    `, [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE]);
-    if (!rows[0]) return { status: 'idle' };
-    const { payload, updated_at } = rows[0];
-    return payload.status === 'running' && !liveLease(payload, updated_at)
-      ? { ...payload, status: 'expired', recoverable: true }
-      : payload;
+    return await snapshots.status(weekStart, cutoffDate, env);
   } catch (error) {
     if (error?.code === '42P01') return { status: 'idle' };
     throw error;
   }
-}
-
-async function writeRefreshStatus(weekStart, cutoffDate, env, job, claim = false, progress = false) {
-  const sql = db();
-  const query = `
-    INSERT INTO weekly_projection_results
-      (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
-    VALUES ($1::date,$2::date,$3,'COMPANY',$4,$5::jsonb,now())
-    ON CONFLICT (week_start,cutoff_date,environment,scope_key) DO UPDATE
-      SET payload = CASE WHEN $6::boolean THEN
-        EXCLUDED.payload || jsonb_build_object(
-          'completedStores',
-          GREATEST(
-            COALESCE((weekly_projection_results.payload->>'completedStores')::integer, 0),
-            COALESCE((EXCLUDED.payload->>'completedStores')::integer, 0)
-          )
-        )
-        ELSE EXCLUDED.payload END,
-        updated_at=now()
-      ${claim ? `WHERE weekly_projection_results.payload->>'status' IS DISTINCT FROM 'running'
-        OR (
-          COALESCE((weekly_projection_results.payload->>'lease_until')::timestamptz,
-                   weekly_projection_results.updated_at + interval '5 minutes') <= now()
-          OR COALESCE((weekly_projection_results.payload->>'started_at')::timestamptz,
-                      weekly_projection_results.updated_at) + interval '110 minutes' <= now()
-        )` : ''}
-    RETURNING payload
-  `;
-  const rows = await sql.query(query, [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(job), progress]);
-  return rows[0]?.payload || null;
 }
 
 async function performRefresh(weekStart, cutoffDate, origin, job, env) {
@@ -531,7 +489,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
     job.totalStores = branches.sucursales.length;
-    await writeRefreshStatus(weekStart, cutoffDate, env, job);
+    await snapshots.update(weekStart, cutoffDate, env, job);
     let completedStores = 0;
     for (const store of branches.sucursales) {
       const storeId = String(store.sucursal_id);
@@ -586,55 +544,46 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       }
       completedStores += 1;
       job.completedStores = completedStores;
-      await writeRefreshStatus(weekStart, cutoffDate, env, job, false, true);
+      await snapshots.update(weekStart, cutoffDate, env, job);
     }
 
-    const finishedAt = new Date().toISOString();
-    const completedJob = { ...job, status: 'completed', finished_at: finishedAt, duration_ms: Date.now() - Date.parse(job.started_at) };
-    await withDbTransaction(async client => {
-      await client.query(
-        'DELETE FROM weekly_projection_results WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3',
-        [weekStart, cutoffDate, env],
-      );
-      for (const row of rows) {
-        await client.query(
-          `INSERT INTO weekly_projection_results
-            (week_start,cutoff_date,environment,dimension,scope_key,sucursal_id,persona_id,payload,updated_at)
-           VALUES ($1::date,$2::date,$3,$4,$5,$6::bigint,$7::bigint,$8::jsonb,now())`,
-          [row.weekStart, row.cutoffDate, row.env, row.dimension, row.scopeKey, row.storeId, row.personId, JSON.stringify(row.payload)],
-        );
-      }
-      await client.query(
-        `INSERT INTO weekly_projection_results
-          (week_start,cutoff_date,environment,dimension,scope_key,payload,updated_at)
-         VALUES ($1::date,$2::date,$3,'COMPANY',$4,$5::jsonb,now())`,
-        [weekStart, cutoffDate, env, REFRESH_STATUS_SCOPE, JSON.stringify(completedJob)],
-      );
-    });
-    return { ok: true, week_start: weekStart, cutoff_date: cutoffDate, environment: env, results: rows.length, updated_at: finishedAt, ...completedJob };
+    return snapshots.publish(weekStart, cutoffDate, env, job, rows);
 }
 
 export async function POST(request) {
-  let weekStart, cutoffDate, job, env;
+  let weekStart, cutoffDate, job, env, heartbeat;
   try {
     env = environment();
+    if (env !== 'staging') return bad('STAGING_ONLY', 403);
     const body = await request.json();
+    if (body.automatic) return bad('La actualización se inicia manualmente desde el botón Actualizar.', 400);
     ({ weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' })));
-    job = { status: 'running', week_start: weekStart, cutoff_date: cutoffDate, completedStores: 0, totalStores: 0, started_at: new Date().toISOString() };
-    const claimed = await writeRefreshStatus(weekStart, cutoffDate, env, job, true);
-    if (!claimed) {
-      return NextResponse.json({ ok: true, queued: true, environment: env, ...(await readRefreshStatus(weekStart, cutoffDate, env)) }, { status: 202 });
+    const sources = await snapshots.sources();
+    if (sources.status !== 'READY') return bad('La última carga aún no tiene publicación completa certificada.', 409);
+    // A manual click always recalculates: omit the source argument used for automatic deduplication.
+    const claimed = await snapshots.claim(weekStart, cutoffDate, env);
+    if (!claimed.claimed) {
+      return NextResponse.json({ ok: true, queued: true, environment: env, ...claimed }, { status: 202 });
     }
+    job = { ...claimed, sources };
+    await snapshots.update(weekStart, cutoffDate, env, job);
+    // Reuse the coordinator heartbeat: an expired/replaced worker cannot publish its results.
+    heartbeat = setInterval(() => {
+      snapshots.update(weekStart, cutoffDate, env, job).catch(error => console.error('Snapshot heartbeat:', error.message));
+    }, 30_000);
+    heartbeat.unref?.();
     const origin = new URL(request.url).origin;
-    const result = await performRefresh(weekStart, cutoffDate, origin, job, env);
-    return NextResponse.json(result);
+    return NextResponse.json(await performRefresh(weekStart, cutoffDate, origin, job, env));
   } catch (error) {
     console.error(error);
-    if (job && weekStart && cutoffDate) {
+    if (job) {
       const failed = { ...job, status: 'failed', error: error?.message || 'No fue posible actualizar los resultados', finished_at: new Date().toISOString() };
-      try { if (env) await writeRefreshStatus(weekStart, cutoffDate, env, failed); } catch (statusError) { console.error(statusError); }
+      try { await snapshots.update(weekStart, cutoffDate, env, failed); } catch (statusError) { console.error(statusError.message); }
       return NextResponse.json({ ok: false, ...failed }, { status: 500 });
     }
     return bad(error?.message || 'Internal server error', 400);
+  } finally {
+    clearInterval(heartbeat);
   }
 }
+
