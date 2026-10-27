@@ -83,6 +83,87 @@ function requirePrecurseBundle(value) {
   return value;
 }
 
+async function callP1Tool(runId, name, args) {
+  const endpoint = process.env.P1_BRAND_INDICATORS_ENDPOINT ||
+    'https://cidef-motor-test-azure.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/api/como-vamos';
+  const url = new URL('/api/mcp', endpoint);
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: { run_id: runId, ...args } } }),
+    cache: 'no-store',
+    signal: AbortSignal.timeout(120000),
+  });
+  const body = await response.text();
+  if (!response.ok) throw new Error('P1 brand observation failed (' + response.status + ')');
+  const dataLine = body.split(/\r?\n/).find(line => line.startsWith('data:'));
+  if (!dataLine) throw new Error('P1 brand observation returned no data');
+  const envelope = JSON.parse(dataLine.slice(5).trim());
+  if (envelope.error || envelope.result?.isError) {
+    throw new Error(envelope.error?.message || envelope.result?.content?.[0]?.text || 'P1 brand observation failed');
+  }
+  const result = envelope.result?.structuredContent;
+  if (result) return result;
+  const text = envelope.result?.content?.find(item => item.type === 'text')?.text;
+  if (text) return JSON.parse(text);
+  throw new Error('P1 brand observation returned no structured result');
+}
+
+function p1BrandIndicator(id, evidence, source, companyValue) {
+  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
+      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
+    throw new Error('P1 brand evidence is not certified: ' + id);
+  }
+  const values = { foton: 0, dongfeng: 0 };
+  for (const member of evidence.payload.members) {
+    const grouped = Array.isArray(member.members) ? member.members : [];
+    const network = grouped.find(item => item.dimension === 'NETWORK')?.member_label;
+    if (network && network !== 'TIENDA_PROPIA') continue;
+    const brand = grouped.find(item => item.dimension === 'BRAND')?.member_label ??
+      String(member.member_label ?? '').trim().toUpperCase();
+    const amount = Number(member.value);
+    if (!Number.isFinite(amount)) continue;
+    if (brand === 'FOTON') values.foton += amount;
+    if (['DONGFENG', 'DFM'].includes(brand)) values.dongfeng += amount;
+  }
+  const company = Number(companyValue ?? evidence.coverage?.total_value ?? evidence.coverage?.filtered_n);
+  if (!Number.isFinite(company)) throw new Error('P1 total is missing for ' + id);
+  return {
+    company,
+    foton: values.foton,
+    dongfeng: values.dongfeng,
+    cutoff: evidence.temporal?.snapshot_date || evidence.temporal?.cutoff || evidence.temporal?.to || null,
+    evidence_ids: [evidence.evidence_id],
+    source: source + ' P1',
+  };
+}
+
+function p1FinanceByBrand(id, evidence) {
+  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
+      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
+    throw new Error('P1 financial-entity evidence is not certified: ' + id);
+  }
+  let ufi = 0, other = 0;
+  for (const member of evidence.payload.members) {
+    const entity = String(member.member_id ?? member.member_label ?? '').trim().toUpperCase();
+    const amount = Number(member.value || 0);
+    if (entity === 'FORUM') ufi += amount;
+    else if (entity && entity !== 'UNRESOLVED' && !entity.includes('NO RESUELTO')) other += amount;
+  }
+  return { ufi, other, evidence_id: evidence.evidence_id };
+}
+
+function p1OwnStoreSales(id, evidence) {
+  if (evidence?.authority !== 'P1_CERTIFIED' || !evidence.evidence_id ||
+      !['COMPLETE', 'CERTIFIED'].includes(evidence.status) || !Array.isArray(evidence?.payload?.members)) {
+    throw new Error('P1 own-store sales evidence is not certified: ' + id);
+  }
+  const ownStores = evidence.payload.members
+    .filter(member => String(member.member_id ?? member.member_label ?? '').trim().toUpperCase() === 'TIENDA_PROPIA')
+    .reduce((value, member) => value + Number(member.value || 0), 0);
+  return { total: ownStores, evidence_id: evidence.evidence_id };
+}
+
 function shiftDate(date, days) {
   const value = new Date(date + 'T00:00:00Z');
   value.setUTCDate(value.getUTCDate() + days);
