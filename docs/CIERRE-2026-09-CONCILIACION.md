@@ -1,5 +1,29 @@
 # Conciliación de septiembre 2026 — Azure
 
+## Implementación de Compañía — diseño aprobado
+
+La vista `/cierre-mensual` implementa las nueve cards aprobadas: ventas compañía/propias/dealers; inscripciones CIDEF/share mensual/share YTD; cotizaciones/UFIs/penetración FORUM. Penetración se mantiene **Pendiente**, sin fórmula provisional. Las series certificadas disponibles se muestran aunque falte otra apertura.
+
+Los cuatro paneles están implementados: variaciones agosto–septiembre por canal, marca y modelo; metas oficiales por sucursal; RVM por marca y segmento; entidades SALES, actividad FORUM por canal y conversión de cohortes. Las conclusiones quedan al final como placeholder, sin desarrollar.
+
+La implementación se apoya en `facts.json#company`. Las nuevas observaciones y ejecuciones se conservan bajo el prefijo `company_` de `certification-evidence.json`, con run `implement-company-sep2026-20261026`, entrada, período, corte, fecha de observación y ruta exacta del valor. Las celdas se materializan desde esos resultados; no se añaden fórmulas comerciales en el navegador, rutas ni motores.
+
+**Corrección de origen posterior al corte descrito debajo:** agosto ahora devuelve **1.199** ventas P1 (554 propias + 645 dealers; Foton 858 + Dongfeng 341). Septiembre conserva 1.034. La comparación P2 resulta **−165 VIN**: propias −181 y dealers +16. AEOLUS Y3 de agosto pasa de 58 a 57 en la fuente. Las cards, trayectorias y paneles usan estas nuevas observaciones, sin ajustes manuales para cuadrar. Las tablas posteriores de este documento describen la conciliación inicial y no sustituyen `facts.json` vigente.
+
+Metas: 13 referencias oficiales y 14 sucursales con ventas; Amunátegui conserva su venta y muestra meta/cumplimiento/brecha **Pendiente**. Cumplimiento muestra el estado P2 respecto de la meta; la desviación porcentual es la devuelta por P2, sin fabricar un porcentaje de cumplimiento. No se suman metas para inventar una referencia de compañía, dealers o marcas.
+
+La posición competitiva incluye las dos marcas y cinco aperturas marca/segmento, con cantidades y shares mensuales/YTD certificados. Cada share de segmento utiliza su mercado contenedor correspondiente. Las variaciones de share en puntos porcentuales siguen **Pendiente**: las unidades disponibles no devuelven ese resultado entre proporciones P2. No se calcula su resta localmente.
+
+Conversión FORUM: 351 operaciones convertidas de 4.090 casos evaluables; 8,581907090464547% de P2. Se indica la cohorte 01–30/09 y la fecha de observación por separado. Quedan fuera del denominador los otros estados. Esto no equivale a UFIs mensuales ni a conversión histórica al 30/09.
+
+Pendientes visibles: penetración FORUM; variaciones RVM en pp; referencias/comparaciones 2025; trayectoria de cuatro cierres acumulados del share YTD; estados/PRECURSE históricos. Los faltantes no se convierten en cero. Una variación porcentual indefinida por base cero se muestra como «No aplica (base 0)».
+
+Alcance limitado a Compañía. Sin cambios en otras vistas, estilos globales, motores, tablas ni infraestructura. Sin automatizaciones ni nuevas consultas al navegar. El commit debe llevar `[skip ci]` para impedir el despliegue automático de staging; publicación pendiente de autorización.
+
+Validación: `node --test test/company-close-view.test.js test/monthly-close-certification.test.js test/ranking-performance.test.js test/forum-close.test.js`; `npm run build`; inspección del HTML generado para las nueve cards, los cuatro paneles, denominadores, fuentes y placeholder final. La instalación del navegador de pruebas falló por una descarga inválida; no se declara una revisión visual de navegador.
+
+## Conciliación inicial — antecedente de la base 75860ee
+
 Estado: **parcialmente certificado**, reconstruido con fuentes consultadas el 26/10/2026. No representa una foto publicada originalmente el 30/09. Solo SALES, FORUM y RVM. Sin despliegue ni cambios de motores, tablas, infraestructura u otras páginas.
 
 ## Fuente y trazabilidad
