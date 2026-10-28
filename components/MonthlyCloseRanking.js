@@ -27,7 +27,7 @@ function Trend({ row, months, unit = 'UFIs' }) {
 }
 
 function RankingItems({ ranking, group, emptyText }) {
-  if (!ranking) return <p className="rank-none">Pendiente de certificación.</p>;
+  if (!ranking) return <p className="rank-none">Resultados de esta vista pendientes.</p>;
   const items = ranking[group];
   const sales = ranking.unit === 'VIN', unit = sales ? 'VIN' : 'UFIs';
   return <div className="rank-items">{items.length ? items.slice(0, 5).map((row, i) => <div className="rank-result" key={row.id}>
@@ -40,21 +40,24 @@ function RankingItems({ ranking, group, emptyText }) {
 }
 
 export default function MonthlyCloseRanking({ categories: sources, forum }) {
+  const [brand, setBrand] = useState('COMPANY');
   const [domain, setDomain] = useState('SALES');
   const [dimension, setDimension] = useState('stores');
   const category = domain === 'SALES' ? dimension : domain === 'FORUM' && dimension === 'stores' ? 'forum' : null;
-  const ranking = domain === 'SALES' ? { ...salesRanking.dimensions[dimension], months: salesRanking.months } : category === 'forum' ? forum : null;
+  const ranking = brand !== 'COMPANY' ? null : domain === 'SALES' ? { ...salesRanking.dimensions[dimension], months: salesRanking.months } : category === 'forum' ? forum : null;
   return <section className="mc-panel mc-rank-section" aria-label="Ranking de desempeño comercial" data-close-ranking="commercial">
     <div className="mc-panel-head"><div><h2>Ranking de desempeño comercial</h2><p className="rank-subtitle">Mejoran · Se mantienen · Deterioran · septiembre 2026</p></div>
-      <span>{domain === 'SALES' ? 'SALES P1 / P2 · septiembre 2026 · VIN' : ranking ? 'FORUM P1 · Motor v' + ranking.motor_version + ' · UFIs' : 'Pendiente de certificación'}</span>
+      <span>{brand !== 'COMPANY' ? 'Vista por marca pendiente' : domain === 'SALES' ? 'SALES P1 / P2 · septiembre 2026 · VIN' : ranking ? 'FORUM P1 · Motor v' + ranking.motor_version + ' · UFIs' : 'Pendiente de certificación'}</span>
     </div>
+    <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Marca">{[['COMPANY', 'Compañía'], ['FOTON', 'Foton'], ['DONGFENG', 'Dongfeng']].map(([id, title]) => <button type="button" key={id} aria-pressed={brand === id} className={brand === id ? 'selected' : ''} onClick={() => setBrand(id)}>{title}</button>)}</div></div>
     <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Dominio">{Object.keys(dimensions).map(id => <button type="button" key={id} aria-pressed={domain === id} className={domain === id ? 'selected' : ''} onClick={() => { setDomain(id); setDimension(dimensions[id][0][0]); }}>{id}</button>)}</div></div>
     <div className="rank-controls"><div className="rank-cats" role="group" aria-label="Dimensión">{dimensions[domain].map(([id, title]) => <button type="button" key={id} aria-pressed={dimension === id} className={dimension === id ? 'selected' : ''} onClick={() => setDimension(id)}>{title}</button>)}</div></div>
+    {brand !== 'COMPANY' && <p className="rank-source-note">Vista {brand === 'FOTON' ? 'Foton' : 'Dongfeng'}: resultados por marca aún no conectados. Se conserva la selección al cambiar de dominio o dimensión.</p>}
     <div className="rank-columns rank-columns-three">{groups.map(([id, status, title, arrow, tone, empty]) => <div className="rank-panel" key={id}>
       <div className="rank-panel-header"><span className={tone}>{arrow}</span><strong>{title} ({ranking ? ranking.counts[domain === 'SALES' && status === 'DECLINING' ? 'DETERIORATING' : status] : 'Pendiente'})</strong></div>
       <RankingItems ranking={ranking} group={id} emptyText={empty}/>
     </div>)}</div>
-    {domain === 'SALES' ? <>
+    {brand !== 'COMPANY' ? null : domain === 'SALES' ? <>
       <p className="rank-source-note">Sin clasificación: {ranking.counts.UNKNOWN} de {ranking.observations.length} integrantes{dimension === 'sellers' ? ' observados en septiembre' : ''}.</p>
       <p className="rank-source-note">Clasificaciones P2 previamente calculadas · corte 30/09/2026. Variación frente a la media móvil de 12 meses (MA12); trayectoria junio–septiembre. Hasta cinco integrantes por columna, ordenados por ventas de septiembre.</p>
       <p className="rank-source-note"><a href={ranking.source_url} target="_blank" rel="noreferrer">Resultado P2 y referencias P1</a> · ejecución {ranking.run_id}.</p>
