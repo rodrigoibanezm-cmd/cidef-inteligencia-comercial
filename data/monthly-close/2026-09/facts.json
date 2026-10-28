@@ -793,14 +793,26 @@
       "reason": "La base 2025 y sus comparaciones P2 no se recertificaron en esta ejecución; se retiró el divisor fijo 924."
     },
     "forum_penetration": {
-      "status": "PENDING_CERTIFICATION",
-      "value": null,
+      "status": "PROVIDED",
+      "source": "Tabla de penetración proporcionada por el usuario",
+      "value": 45.438898450946645,
       "unit": "PERCENT",
-      "reason": "Pendiente de certificación P2 compatible para UFIs / ventas",
-      "label": "Penetración FORUM",
-      "source": "FORUM / SALES",
       "period": "2026-09",
-      "cutoff": null
+      "ufi": 264,
+      "sales_vin": 581,
+      "networks": [
+        {
+          "label": "Propias",
+          "ufi": 124,
+          "sales_vin": 274
+        },
+        {
+          "label": "Dealers",
+          "ufi": 140,
+          "sales_vin": 307
+        }
+      ],
+      "note": "Universo de la tabla proporcionada: 264 UFI / 581 ventas; independiente de las 383 UFIs por fecha de curse. No se infiere corte ni apertura por marca."
     },
     "p3_trace_read": {
       "label": "Lectura de traza P3",
@@ -876,6 +888,70 @@
         "p1.rvm.4f34599677cd71440d387b7d"
       ],
       "label": "Share YTD DFM"
+    },
+    "forum_quotations_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "value": 4231,
+      "unit": "OPERATION",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "brand": "FOTON",
+      "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-09:2026-09:2026-09-30:1793197884003",
+      "run_id": "complete-forum-brand-cards-20261028"
+    },
+    "forum_quotations_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "value": 1652,
+      "unit": "OPERATION",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "brand": "DONGFENG",
+      "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-09:2026-09:2026-09-30:1793197884003",
+      "run_id": "complete-forum-brand-cards-20261028"
+    },
+    "forum_ufis_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "value": 290,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "brand": "FOTON",
+      "evidence_id": "FORUM:UFIS:BRAND:2026-09:2026-09:2026-09-30:1793197852863",
+      "run_id": "complete-forum-brand-cards-20261028"
+    },
+    "forum_ufis_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "value": 92,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-09",
+      "cutoff": "2026-09-30",
+      "brand": "DONGFENG",
+      "evidence_id": "FORUM:UFIS:BRAND:2026-09:2026-09:2026-09-30:1793197852863",
+      "run_id": "complete-forum-brand-cards-20261028"
+    },
+    "forum_penetration_foton": {
+      "status": "PENDING_DATA",
+      "value": null,
+      "unit": "PERCENT",
+      "source": "Tabla de penetración proporcionada",
+      "period": "2026-09",
+      "reason": "Sin componentes por marca identificados para el universo de 264 UFI / 581 ventas. No usar las UFIs de actividad mensual."
+    },
+    "forum_penetration_dongfeng": {
+      "status": "PENDING_DATA",
+      "value": null,
+      "unit": "PERCENT",
+      "source": "Tabla de penetración proporcionada",
+      "period": "2026-09",
+      "reason": "Sin componentes por marca identificados para el universo de 264 UFI / 581 ventas. No usar las UFIs de actividad mensual."
     }
   },
   "series": {
@@ -2115,6 +2191,134 @@
         {
           "period": "2026-09",
           "value": 0.8141461584190977
+        }
+      ]
+    },
+    "forum_quotations_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "unit": "OPERATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "brand": "FOTON",
+      "run_id": "complete-forum-brand-cards-20261028",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 3707,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-06:2026-06:2026-06-30:1793197881262"
+        },
+        {
+          "period": "2026-07",
+          "value": 4633,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-07:2026-07:2026-07-31:1793197852864"
+        },
+        {
+          "period": "2026-08",
+          "value": 5120,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-08:2026-08:2026-08-31:1793197852861"
+        },
+        {
+          "period": "2026-09",
+          "value": 4231,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-09:2026-09:2026-09-30:1793197884003"
+        }
+      ]
+    },
+    "forum_quotations_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "unit": "OPERATION",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "brand": "DONGFENG",
+      "run_id": "complete-forum-brand-cards-20261028",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 1661,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-06:2026-06:2026-06-30:1793197881262"
+        },
+        {
+          "period": "2026-07",
+          "value": 2296,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-07:2026-07:2026-07-31:1793197852864"
+        },
+        {
+          "period": "2026-08",
+          "value": 2755,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-08:2026-08:2026-08-31:1793197852861"
+        },
+        {
+          "period": "2026-09",
+          "value": 1652,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-09:2026-09:2026-09-30:1793197884003"
+        }
+      ]
+    },
+    "forum_ufis_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "unit": "VEHICLE_UNIT",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "brand": "FOTON",
+      "run_id": "complete-forum-brand-cards-20261028",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 268,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-06:2026-06:2026-06-30:1793197852861"
+        },
+        {
+          "period": "2026-07",
+          "value": 293,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-07:2026-07:2026-07-31:1793197882868"
+        },
+        {
+          "period": "2026-08",
+          "value": 405,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-08:2026-08:2026-08-31:1793197852864"
+        },
+        {
+          "period": "2026-09",
+          "value": 290,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-09:2026-09:2026-09-30:1793197852863"
+        }
+      ]
+    },
+    "forum_ufis_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "unit": "VEHICLE_UNIT",
+      "period_from": "2026-06",
+      "period_to": "2026-09",
+      "brand": "DONGFENG",
+      "run_id": "complete-forum-brand-cards-20261028",
+      "points": [
+        {
+          "period": "2026-06",
+          "value": 91,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-06:2026-06:2026-06-30:1793197852861"
+        },
+        {
+          "period": "2026-07",
+          "value": 117,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-07:2026-07:2026-07-31:1793197882868"
+        },
+        {
+          "period": "2026-08",
+          "value": 203,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-08:2026-08:2026-08-31:1793197852864"
+        },
+        {
+          "period": "2026-09",
+          "value": 92,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-09:2026-09:2026-09-30:1793197852863"
         }
       ]
     }
@@ -9377,9 +9581,15 @@
         "own": "forum_quotations_own",
         "dealers": "forum_quotations_dealers",
         "series": {
-          "COMPANY": "forum_quotations"
+          "COMPANY": "forum_quotations",
+          "FOTON": "forum_quotations_foton",
+          "DONGFENG": "forum_quotations_dongfeng"
         },
-        "note": "Cohorte de cotización de septiembre · operaciones"
+        "note": "Cotizaciones por fecha de cotización. El total incluye 7 fuera de Foton/Dongfeng (ZNA o identidad no resuelta).",
+        "brands": {
+          "FOTON": "forum_quotations_foton",
+          "DONGFENG": "forum_quotations_dongfeng"
+        }
       },
       {
         "id": "forum_ufis",
@@ -9387,16 +9597,27 @@
         "own": "forum_ufis_own",
         "dealers": "forum_ufis_dealers",
         "series": {
-          "COMPANY": "forum_ufis"
+          "COMPANY": "forum_ufis",
+          "FOTON": "forum_ufis_foton",
+          "DONGFENG": "forum_ufis_dongfeng"
         },
-        "note": "Unidades financiadas por fecha de curse"
+        "note": "Unidades ejecutadas por fecha de curse. El total incluye 1 fuera de Foton/Dongfeng (ZNA o identidad no resuelta).",
+        "brands": {
+          "FOTON": "forum_ufis_foton",
+          "DONGFENG": "forum_ufis_dongfeng"
+        }
       },
       {
         "id": "forum_penetration",
-        "label": "Penetración FORUM",
+        "label": "Penetración UFI",
         "own": "forum_penetration_own",
         "dealers": "forum_penetration_dealers",
-        "note": "Pendiente de evidencia certificada para esta relación"
+        "note": "264 UFI / 581 ventas VIN · universo de la tabla proporcionada. Apertura por marca e historia de este universo pendientes.",
+        "brands": {
+          "FOTON": "forum_penetration_foton",
+          "DONGFENG": "forum_penetration_dongfeng"
+        },
+        "series": {}
       }
     ]
   }
