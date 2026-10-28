@@ -1,12 +1,10 @@
 import Link from "next/link";
 import ForumClose from "../../components/ForumClose";
 import MonthlyCloseMetric from "../../components/MonthlyCloseMetric";
-import CompanyClosePanels from "../../components/CompanyClosePanels";
 import MonthlyCloseRanking from "../../components/MonthlyCloseRanking";
 import { buildForumRanking } from "../../lib/monthly-close-ranking";
-import { dateText, valueText } from "../../lib/monthly-close-view";
+import { valueText } from "../../lib/monthly-close-view";
 import facts from "../../data/monthly-close/2026-09/facts.json";
-import styles from "../../components/CompanyClosePanels.module.css";
 
 export const metadata = { title: "Septiembre 2026 · Cierre mensual | CIDEF" };
 
@@ -20,13 +18,6 @@ export default function CierreMensual() {
     <section className="mc-kpis" aria-label="Indicadores SALES y RVM">{facts.cards.map(config => <MonthlyCloseMetric key={config.id} data={facts} config={config}/>)}</section>
     <ForumClose data={facts}/>
     <MonthlyCloseRanking categories={facts.rankings.categories} forum={buildForumRanking(facts.rankings.categories.forum)}/>
-    <CompanyClosePanels data={facts}/>
-    <details className={"mc-panel " + styles.panel}><summary>Indicadores pendientes de certificación</summary>{facts.company.pending.map(item => <p key={item.id} className={styles.note}><strong>{item.label}:</strong> {item.reason}</p>)}</details>
-    <details className={"mc-panel " + styles.panel + " " + styles.sources}><summary>Fuentes y cortes</summary>
-      <p>Fuente única: cierre de septiembre 2026. Observación de la implementación: {dateText(facts.company.observed_at)}.</p>
-      {Object.entries(facts.indicators).map(([id, item]) => <p key={id}><strong>{item.label}</strong> · {item.source} · período {item.period} · corte {dateText(item.cutoff)} · {item.status === "CERTIFIED" ? "Certificado" : "Pendiente"}.</p>)}
-    </details>
-    <section className="mc-panel mc-insights" data-close-conclusions="pending"><div className="mc-panel-head"><h2>Conclusiones ejecutivas</h2><span>Pendiente</span></div><p className="mc-footnote">Pendiente de desarrollar.</p></section>
   </main>;
 }
 
