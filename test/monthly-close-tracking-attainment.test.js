@@ -49,6 +49,16 @@ function fixture({ create = createMonthlyCloseTrackingAttainment, mutateSales = 
   return { load: (overrides = {}) => load({ ...input, ...overrides }), calls, originals, input };
 }
 const attainment = (result, id) => result.rows.find(row => row.dimension_id === id).payload.attainment;
+function groupedSales(f, mutate = () => {}) {
+  const stores = f.input.sales.filter(row => row.dimension === 'STORE');
+  const block = { ...stores[0].evidence, evidence_id: 'original-p1-store-block',
+    evidence_contract: 'p1.dimensional_quantitative_dataset', dimensions: {},
+    coverage: { filtered_n: 18, dimension_unresolved_n: 0 },
+    payload: { dimension: { id: 'STORE' }, members: stores.filter(row => row.evidence.payload.observed_value > 0)
+      .map(row => ({ member_id: row.dimension_id, value: row.evidence.payload.observed_value })) } };
+  mutate(block); f.originals.set(block.evidence_id, block);
+  return { block, sales: f.input.sales.map(row => row.dimension === 'STORE' ? { ...row, evidence: block } : row) };
+}
 
 test('calculates locally with five TARGETS P1 calls, one per store including missing targets, and no P2', async () => {
   const { load, calls, originals } = fixture(), result = await load(), r = attainment(result, '8');
@@ -94,7 +104,7 @@ test('distinguishes missing/uncertified targets, zero target and certified zero 
   assert.equal(attainment(result, '9').sales_vin, 0);
 });
 
-test('rejects incompatible periods, universes, identities, grouped sales and incomplete targets', async () => {
+test('rejects incompatible periods, universes, identities, malformed sales and incomplete targets', async () => {
   for (const change of [e => { e.temporal.period_identity = '2026-09'; }, e => { e.universe.commercial_universe = 'DEALERS'; },
     e => { e.dimensions = { store_id: '99' }; }, e => { e.evidence_contract = 'p1.dimensional_quantitative_dataset'; },
     e => { delete e.payload.observed_value; }, e => { e.payload.observed_value = null; },
@@ -119,4 +129,41 @@ test('uses P1 values without repeating authority, lineage or coverage certificat
   assert.equal(attainment(result, '8').attainment_percent, 60);
   assert.equal(attainment(result, '8').gap_vin, -8);
   assert.equal(result.rows.length, 7);
+});
+
+test('grouped and individual inputs give identical commercial results with no SALES or P2 queries', async () => {
+  const scalar = fixture(), grouped = fixture(), { block, sales } = groupedSales(grouped);
+  const before = await scalar.load(), after = await grouped.load({ sales });
+  const commercial = result => result.rows.map(row => {
+    const { sales_evidence_id, lineage, ...values } = row.payload.attainment;
+    return { dimension: row.dimension, dimension_id: row.dimension_id, ...values };
+  });
+  assert.deepEqual(commercial(after), commercial(before));
+  assert.deepEqual(grouped.calls, scalar.calls); assert.equal(grouped.calls.length, 5);
+  assert.ok(grouped.calls.every(c => c.name === 'data_observe' && c.args.source === 'TARGETS'));
+  assert.equal(attainment(after, '22').status, 'ZERO_TARGET');
+  assert.equal(attainment(after, '9').status, 'TARGET_NOT_FOUND');
+  assert.equal(attainment(after, '11').attainment_percent, 0);
+  for (const row of after.rows.filter(row => row.dimension === 'STORE')) {
+    const r = row.payload.attainment;
+    assert.equal(r.sales_evidence_id, block.evidence_id);
+    if (r.lineage) assert.deepEqual(r.lineage.evidence_refs[0], { slot: 'observed', evidence_id: block.evidence_id,
+      evidence_contract: 'p1.dimensional_quantitative_dataset', member_id: row.dimension_id });
+  }
+  for (const e of after.evidence) assert.equal(e, grouped.originals.get(e.evidence_id));
+  assert.ok(after.evidence.includes(block));
+  assert.ok(!after.evidence.some(e => e.evidence_id.startsWith('sales-STORE-')));
+  assert.equal(block.payload.observed_value, undefined); assert.deepEqual(block.dimensions, {});
+});
+
+test('rejects missing or incompatible grouped evidence before querying targets', async () => {
+  for (const change of [e => { delete e.evidence_id; }, e => { delete e.payload.members; },
+    e => { e.payload.dimension.id = 'SELLER'; }, e => { e.universe = { commercial_universe: 'DEALERS' }; },
+    e => { e.temporal = { ...e.temporal, period_identity: '2026-09' }; },
+    e => { e.temporal = { ...e.temporal, cutoff: '2026-10-28' }; },
+    e => { e.dimensions = { store_id: '8' }; }, e => { e.coverage.dimension_unresolved_n = 1; },
+    e => { e.payload.members[0].value = null; }]) {
+    const f = fixture(), { sales } = groupedSales(f, change);
+    await assert.rejects(f.load({ sales }), /INCOMPATIBLE_ATTAINMENT_SALES/); assert.equal(f.calls.length, 0);
+  }
 });
