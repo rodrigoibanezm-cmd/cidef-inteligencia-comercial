@@ -6,68 +6,81 @@ const input = { run_id: 'rhythm-test', period: '2026-10', cutoff_date: '2026-10-
 const plan = { '2026-10': [60, 100], '2026-06': [20, 50], '2026-07': [90, 100],
   '2026-08': [30, 100], '2026-09': [60, 200], '2025-10': [50, 100] };
 function fixture(options = {}) {
-  const calls = [], originals = new Map();
-  const load = createMonthlyCloseTrackingRhythm({ withP1Mcp: async callback => callback('mock'),
+  const calls = [], originals = new Map(); let active = 0, maximum = 0;
+  const load = (options.create || createMonthlyCloseTrackingRhythm)({ withP1Mcp: async callback => callback('mock'),
     callP1: async (client, name, args) => {
-      assert.equal(client, 'mock'); calls.push({ name, args });
-      const p = args.period, id = args.filters?.store_id;
-      if (name === 'p2_execute') {
-        const observed = originals.get(args.evidence.observed), target = originals.get(args.evidence.reference);
-        const value = observed.payload.observed_value, meta = target.payload.value;
-        return { status: 'EXECUTED', result: { observed_value: value, reference_value: meta,
-          absolute_deviation: value - meta, relative_deviation: meta === 0 ? null : (value - meta) / meta,
-          relative_deviation_status: meta === 0 ? 'ZERO_REFERENCE' : 'CALCULATED',
-          direction: value < meta ? 'BELOW_REFERENCE' : value > meta ? 'ABOVE_REFERENCE' : 'ON_REFERENCE' },
-          lineage: { run_id: args.run_id, execution_id: 'exec-' + calls.length, unit_id: args.unit_id, contract_version: args.contract_version,
-            evidence_refs: Object.entries(args.evidence).map(([slot, evidence_id]) => ({ slot, evidence_id })) } };
+      assert.equal(client, 'mock'); assert.equal(args.run_id, input.run_id); calls.push({ name, args });
+      maximum = Math.max(maximum, ++active); await Promise.resolve(); active--;
+      const grouped = name === 'sales_observe_many', p = args.period, id = args.filters?.store_id;
+      assert.ok(grouped || name === 'data_observe');
+      if (grouped) {
+        assert.equal(args.commercial_universe, 'OWN_STORES'); assert.deepEqual(args.operations, [{ kind: 'STORE' }]);
       }
-      assert.equal(name, 'data_observe');
-      const e = { source: args.source, authority: 'P1_CERTIFIED', status: 'CERTIFIED', evidence_id: 'original-' + calls.length,
-        evidence_version: '0.1.0', evidence_contract: 'p1.' + args.evidence_shape.toLowerCase(), lineage: { certifier: args.source } };
+      const shape = grouped ? 'DIMENSIONAL_QUANTITATIVE_DATASET' : args.evidence_shape;
+      const source = grouped ? 'SALES' : args.source;
+      const e = { source, authority: 'P1_CERTIFIED', status: 'CERTIFIED',
+        evidence_id: ['original', source, shape, p, args.cutoff || '', id || 'ALL'].join(':'),
+        evidence_version: '0.1.0', evidence_contract: 'p1.' + shape.toLowerCase(), lineage: { certifier: source } };
       const [year, month] = p.split('-').map(Number), offset = Number(Boolean(options.shiftStart));
       const first = new Date(Date.UTC(year, month - 1, 1 + offset)).toISOString().slice(0, 10);
       const [value, target] = id === '22' ? [10, 20] : plan[p];
-      if (args.evidence_shape === 'PERIOD_CALENDAR') {
+      if (shape === 'PERIOD_CALENDAR') {
+        if (options.noCalendar === p) throw new Error('NO_CERTIFIED_DATA_IN_PERIOD');
         const n = new Date(Date.UTC(year, month, 0)).getUTCDate();
         const days = Array.from({ length: n }, (_, i) => new Date(Date.UTC(year, month - 1, i + 1 + offset)).toISOString().slice(0, 10));
         Object.assign(e, { measure: { id: 'VIN_SALES', unit: 'VIN' }, temporal: { period_identity: p, period_type: 'COMMERCIAL_MONTH', close_boundary: days.at(-1) },
           payload: { eligible_observation_days: days, close_boundary: days.at(-1) }, coverage: { eligible_days: n } });
-      } else if (args.source === 'SALES') {
+      } else if (source === 'SALES') {
         if (options.noSales === p) return null;
+        const observed = options.zeroSales === p ? 0 : value;
         Object.assign(e, { grain: 'FILTERED_SALES_UNIVERSE', measure: { id: 'VIN_SALES', unit: 'VIN', aggregation: 'COUNT_RECOGNIZED_SALE' },
-          universe: { commercial_universe: 'OWN_STORES' }, dimensions: { store_id: id }, payload: { observed_value: value },
+          universe: { commercial_universe: 'OWN_STORES' }, dimensions: grouped ? {} : { store_id: id }, payload: { observed_value: observed },
           temporal: { period_identity: p, period_type: 'COMMERCIAL_MONTH', date_from: first, date_to: args.cutoff, cutoff: args.cutoff, date_semantics: 'fecha_factura' },
-          coverage: { source_n: 100, filtered_n: value } });
+          coverage: { source_n: 100, filtered_n: observed } });
+        if (grouped) {
+          const members = options.zeroSales === p ? [] : input.store_ids.map(member_id => ({ member_id, value: member_id === '22' ? 10 : plan[p][0] }));
+          e.payload = { dimension: { id: 'STORE' }, members };
+          e.coverage = { source_n: 100, filtered_n: members.reduce((sum, m) => sum + m.value, 0), dimension_unresolved_n: 0 };
+        }
       } else {
-        assert.equal(args.source, 'TARGETS');
+        assert.equal(source, 'TARGETS');
         if (options.missingTarget === p) throw new Error('TARGET_REFERENCE_NOT_FOUND');
         if (options.uncertifiedTarget === p) e.authority = 'UNVERIFIED';
         Object.assign(e, { grain: 'STORE_MONTH', measure: { id: 'VIN_TARGET', unit: 'VIN', aggregation: 'EXPLICIT_TARGET' },
           universe: { commercial_universe: 'OWN_STORES' }, dimensions: { store_id: id }, temporal: { period_identity: p },
           coverage: { complete: true, rows: 1 }, payload: { value: options.zeroTarget === p ? 0 : target, reference_type: 'OFFICIAL_TARGET', source: 'official-plan' } });
       }
-      originals.set(e.evidence_id, e); return e;
+      options.mutate?.(e, name, args); originals.set(e.evidence_id, e);
+      return grouped ? { source: 'SALES', period: p, cutoff: args.cutoff, commercial_universe: 'OWN_STORES', results: [{ operation: { kind: 'STORE' }, evidence: e }] } : e;
     } });
-  return { load, calls, originals };
+  return { load, calls, originals, get maximum() { return maximum; } };
 }
 const rhythm = (result, id = '8') => result.rows.find(row => row.dimension === 'STORE' && row.dimension_id === id).payload.rhythm;
 
-test('builds four prior months and YoY using original evidence and existing attainment/P2', async () => {
-  const { load, calls, originals } = fixture(), result = await load(input), r = rhythm(result);
+test('uses one historical STORE block per period, preserves current scalar ids, and never calls P2', async () => {
+  const f = fixture(), result = await f.load(input), r = rhythm(result);
   assert.deepEqual(r.previous_4_months.map(p => p.period), ['2026-06', '2026-07', '2026-08', '2026-09']);
   assert.equal(r.yoy.period, '2025-10'); assert.equal(r.coverage.comparable_references, 5);
-  assert.ok(calls.every(c => c.args.run_id === input.run_id));
-  for (const c of calls.filter(c => c.name === 'p2_execute')) {
-    assert.equal(c.args.unit_id, 'p2.reference_deviation');
-    for (const id of Object.values(c.args.evidence)) assert.ok(result.evidence.includes(originals.get(id)));
-  }
-  assert.ok(result.rows.filter(r => r.dimension !== 'STORE').every(r => r.payload.rhythm === null));
+  assert.equal(f.calls.length, 25); assert.equal(f.maximum, 1);
+  const batches = f.calls.filter(c => c.name === 'sales_observe_many');
+  assert.deepEqual(batches.map(c => c.args.period), ['2026-06', '2026-07', '2026-08', '2026-09', '2025-10']);
+  const scalars = f.calls.filter(c => c.args.evidence_shape === 'CUMULATIVE_PERIOD_OBSERVATION');
+  assert.equal(scalars.length, 2); assert.ok(scalars.every(c => c.args.period === input.period));
+  assert.equal(r.current.sales_evidence_id, 'original:SALES:CUMULATIVE_PERIOD_OBSERVATION:2026-10:2026-10-29:8');
+  for (const e of result.evidence) assert.equal(e, f.originals.get(e.evidence_id));
+  assert.equal(r.yoy.sales_evidence_id, rhythm(result, '22').yoy.sales_evidence_id);
+  assert.deepEqual(r.yoy.lineage.evidence_refs[0], { slot: 'observed', evidence_id: r.yoy.sales_evidence_id,
+    evidence_contract: 'p1.dimensional_quantitative_dataset', member_id: '8' });
+  assert.equal(result.sources.rhythm.p2_unit, undefined); assert.equal(result.sources.rhythm.p2_version, undefined);
+  assert.equal(result.sources.rhythm.calculation, 'LOCAL_ATTAINMENT_DIFFERENCE_PP');
+  assert.ok(!f.calls.some(c => c.name === 'p2_execute'));
+  assert.ok(result.rows.filter(row => row.dimension !== 'STORE').every(row => row.payload.rhythm === null));
 });
 
 test('aligns by commercial day and excludes shorter or closed historical periods', async () => {
   const { load, calls } = fixture({ shiftStart: true }), result = await load(input);
   assert.equal(result.commercial_day, 28);
-  assert.ok(calls.filter(c => c.args.source === 'SALES' && c.args.cutoff).every(c => c.args.cutoff.endsWith('-29')));
+  assert.ok(calls.filter(c => c.args.cutoff).every(c => c.args.cutoff.endsWith('-29')));
   assert.equal(rhythm(result).yoy.date_from, '2025-10-02');
   const plain = fixture(), end = rhythm(await plain.load({ ...input, cutoff_date: '2026-10-30' }));
   assert.equal(end.previous_4_months[0].status, 'NO_EQUIVALENT_CUTOFF');
@@ -77,9 +90,9 @@ test('aligns by commercial day and excludes shorter or closed historical periods
 
 test('expresses differences in percentage points, comparing each store independently', async () => {
   const result = await fixture().load(input), r = rhythm(result);
-  assert.ok(Math.abs(r.current.attainment_percent - 60) < 1e-9);
-  r.previous_4_months.forEach((p, i) => assert.ok(Math.abs(p.difference_pp - [20, -30, 30, 30][i]) < 1e-9));
-  assert.ok(Math.abs(r.yoy.difference_pp - 10) < 1e-9);
+  assert.equal(r.current.attainment_percent, 60);
+  assert.deepEqual(r.previous_4_months.map(p => p.difference_pp), [20, -30, 30, 30]);
+  assert.equal(r.yoy.difference_pp, 10);
   assert.ok(rhythm(result, '22').previous_4_months.every(p => p.difference_pp === 0));
 });
 
@@ -92,4 +105,22 @@ test('excludes missing sales, absent/uncertified/zero targets and unavailable cu
   const current = rhythm(await fixture({ zeroTarget: input.period }).load(input));
   assert.equal(current.current.attainment_percent, null); assert.equal(current.coverage.comparable_references, 0);
   assert.equal(current.yoy.difference_pp, null);
+  const absent = fixture({ noCalendar: '2026-06' }), result = await absent.load(input);
+  assert.equal(rhythm(result).previous_4_months[0].status, 'NO_CERTIFIED_CALENDAR');
+  assert.ok(!absent.calls.some(c => c.name === 'sales_observe_many' && c.args.period === '2026-06'));
+});
+
+test('a complete empty grouping means zero sales; a missing block does not', async () => {
+  const zero = rhythm(await fixture({ zeroSales: '2026-06' }).load(input)).previous_4_months[0];
+  assert.equal(zero.sales_vin, 0); assert.equal(zero.attainment_percent, 0); assert.equal(zero.difference_pp, 60);
+  const missing = rhythm(await fixture({ noSales: '2026-06' }).load(input)).previous_4_months[0];
+  assert.equal(missing.attainment_percent, null); assert.equal(missing.status, 'NO_CERTIFIED_SALES');
+});
+
+test('rejects incomplete/incompatible grouped input instead of producing zero or artificial evidence', async () => {
+  for (const change of [e => { delete e.evidence_id; }, e => { delete e.payload.members; },
+    e => { e.universe.commercial_universe = 'DEALERS'; }, e => { e.temporal.period_identity = '2026-05'; },
+    e => { e.temporal.date_from = '2026-06-02'; }, e => { e.coverage.dimension_unresolved_n = 1; }]) {
+    await assert.rejects(fixture({ mutate: (e, name) => { if (name === 'sales_observe_many') change(e); } }).load(input), /INCOMPLETE_RHYTHM|INCOMPATIBLE_RHYTHM|INCOMPATIBLE_ATTAINMENT/);
+  }
 });
