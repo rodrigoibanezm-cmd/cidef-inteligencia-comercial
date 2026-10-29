@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createMonthlyCloseTrackingAttainment } from '../lib/monthly-close-tracking-attainment.js';
 
-function fixture({ mutateSales = () => {}, mutateTarget = () => {}, mutateP2 = () => {} } = {}) {
+function fixture({ create = createMonthlyCloseTrackingAttainment, mutateSales = () => {}, mutateTarget = () => {} } = {}) {
   const run_id = 'attainment-test', period = '2026-10', cutoff_date = '2026-10-29', calls = [];
   const samples = { '8': [12, 20, -8, -0.4, 'BELOW_REFERENCE'], '22': [5, 0, 5, null, 'ABOVE_REFERENCE'],
     '11': [0, 10, -10, -1, 'BELOW_REFERENCE'] };
@@ -19,7 +19,7 @@ function fixture({ mutateSales = () => {}, mutateTarget = () => {}, mutateP2 = (
     mutateSales(evidence); return { dimension, dimension_id, evidence };
   });
   const originals = new Map(sales.map(row => [row.evidence.evidence_id, row.evidence]));
-  const load = createMonthlyCloseTrackingAttainment({ withP1Mcp: async callback => callback('mock-client'),
+  const load = create({ withP1Mcp: async callback => callback('mock-client'),
     callP1: async (client, name, args) => {
       assert.equal(client, 'mock-client'); calls.push({ name, args });
       if (name === 'data_observe') {
@@ -35,6 +35,7 @@ function fixture({ mutateSales = () => {}, mutateTarget = () => {}, mutateP2 = (
           coverage: { complete: true, rows: 1 }, payload: { value: samples[id]?.[1] ?? 20, reference_type: 'OFFICIAL_TARGET', source: 'official-plan' } };
         mutateTarget(e); originals.set(e.evidence_id, e); return e;
       }
+      // Legacy mock retained to measure before/after with exactly the same P1 inputs.
       assert.equal(name, 'p2_execute'); assert.equal(args.unit_id, 'p2.reference_deviation');
       const observed = originals.get(args.evidence.observed), target = originals.get(args.evidence.reference), s = samples[observed.dimensions.store_id];
       const result = { status: 'EXECUTED', result: { observed_value: s[0], reference_value: s[1], absolute_deviation: s[2],
@@ -42,21 +43,33 @@ function fixture({ mutateSales = () => {}, mutateTarget = () => {}, mutateP2 = (
         direction: s[4], reference_type: 'OFFICIAL_TARGET', reference_source: 'official-plan' },
         lineage: { run_id, unit_id: args.unit_id, contract_version: args.contract_version, execution_id: 'p2-' + calls.length,
           evidence_refs: [{ slot: 'observed', evidence_id: observed.evidence_id }, { slot: 'reference', evidence_id: target.evidence_id }] } };
-      mutateP2(result); return result;
+      return result;
     } });
-  return { load: () => load({ run_id, period, cutoff_date, sales }), calls, originals };
+  const input = { run_id, period, cutoff_date, sales };
+  return { load: (overrides = {}) => load({ ...input, ...overrides }), calls, originals, input };
 }
 const attainment = (result, id) => result.rows.find(row => row.dimension_id === id).payload.attainment;
 
-test('uses original compatible P1 refs and P2 deviations to report attainment and signed gap', async () => {
+test('calculates locally with five TARGETS P1 calls, one per store including missing targets, and no P2', async () => {
   const { load, calls, originals } = fixture(), result = await load(), r = attainment(result, '8');
   assert.equal(r.status, 'CALCULATED'); assert.equal(r.target_vin, 20); assert.equal(r.sales_vin, 12);
   assert.ok(Math.abs(r.attainment_percent - 60) < 1e-10); assert.equal(r.gap_vin, -8);
   assert.equal(r.period, '2026-10'); assert.equal(r.cutoff_date, '2026-10-29');
-  for (const { args } of calls.filter(c => c.name === 'p2_execute')) {
-    assert.equal(args.run_id, result.run_id);
-    for (const id of Object.values(args.evidence)) assert.ok(result.evidence.includes(originals.get(id)));
-  }
+  assert.equal(calls.length, 5); assert.ok(calls.every(c => c.name === 'data_observe' && c.args.source === 'TARGETS'));
+  assert.deepEqual(calls.map(c => [c.args.filters.store_id, c.args.period]),
+    [['8', '2026-10'], ['22', '2026-10'], ['9', '2026-10'], ['10', '2026-10'], ['11', '2026-10']]);
+  assert.ok(calls.every(c => c.args.run_id === result.run_id));
+  for (const e of result.evidence) assert.equal(e, originals.get(e.evidence_id));
+  assert.equal(r.sales_evidence_id, 'sales-STORE-8'); assert.equal(r.target_evidence_id, 'target-8');
+  assert.equal(r.lineage.calculation, 'LOCAL_ATTAINMENT'); assert.equal(r.lineage.run_id, result.run_id);
+  assert.deepEqual(r.lineage.evidence_refs, [{ slot: 'observed', evidence_id: r.sales_evidence_id },
+    { slot: 'reference', evidence_id: r.target_evidence_id }]);
+  assert.equal(r.lineage.execution_id, undefined); assert.equal(r.lineage.unit_id, undefined);
+  assert.equal(result.sources.attainment.calculation, 'LOCAL_ATTAINMENT');
+  assert.equal(result.sources.attainment.p2_unit, undefined); assert.equal(result.sources.attainment.p2_version, undefined);
+  assert.deepEqual(r.deviation, { observed_value: 12, reference_value: 20, absolute_deviation: -8,
+    relative_deviation: -0.4, relative_deviation_status: 'CALCULATED', direction: 'BELOW_REFERENCE',
+    reference_type: 'OFFICIAL_TARGET', reference_source: 'official-plan' });
   assert.equal(attainment(result, '11').attainment_percent, 0);
 });
 
@@ -81,15 +94,29 @@ test('distinguishes missing/uncertified targets, zero target and certified zero 
   assert.equal(attainment(result, '9').sales_vin, 0);
 });
 
-test('rejects incompatible periods, universes, identities, grouped sales and incomplete coverage', async () => {
+test('rejects incompatible periods, universes, identities, grouped sales and incomplete targets', async () => {
   for (const change of [e => { e.temporal.period_identity = '2026-09'; }, e => { e.universe.commercial_universe = 'DEALERS'; },
     e => { e.dimensions = { store_id: '99' }; }, e => { e.evidence_contract = 'p1.dimensional_quantitative_dataset'; },
-    e => { delete e.payload.observed_value; }, e => { e.coverage.filtered_n++; }]) {
+    e => { delete e.payload.observed_value; }, e => { e.payload.observed_value = null; },
+    e => { delete e.evidence_id; }, e => { e.measure.unit = 'CLP'; }, e => { e.temporal.cutoff = '2026-10-28'; }]) {
     await assert.rejects(fixture({ mutateSales: change }).load(), /INCOMPATIBLE_ATTAINMENT_SALES/);
   }
   for (const change of [e => { e.temporal.period_identity = '2026-09'; }, e => { e.universe.commercial_universe = 'COMPANY'; },
-    e => { e.dimensions.store_id = '99'; }, e => { e.coverage.complete = false; }]) {
+    e => { e.dimensions.store_id = '99'; }, e => { e.coverage.complete = false; }, e => { delete e.evidence_id; },
+    e => { e.payload.reference_type = 'ESTIMATED'; }, e => { e.payload.value = null; }, e => { e.payload.value = -1; }]) {
     await assert.rejects(fixture({ mutateTarget: change }).load(), /INCOMPATIBLE_ATTAINMENT_TARGET/);
   }
-  await assert.rejects(fixture({ mutateP2: e => { e.lineage.evidence_refs = []; } }).load(), /INVALID_ATTAINMENT_P2/);
+  const f = fixture();
+  await assert.rejects(f.load({ sales: [...f.input.sales, f.input.sales[2]] }), /INCOMPATIBLE_ATTAINMENT_SALES/);
+  assert.equal(f.calls.length, 0);
+  await assert.rejects(fixture({ mutateTarget: () => { throw new Error('TARGETS_UNAVAILABLE'); } }).load(), /TARGETS_UNAVAILABLE/);
+});
+
+test('uses P1 values without repeating authority, lineage or coverage certification on supplied sales', async () => {
+  const result = await fixture({ mutateSales: e => {
+    delete e.authority; delete e.status; delete e.lineage; delete e.evidence_version; delete e.coverage;
+  }, mutateTarget: e => { delete e.lineage; delete e.evidence_version; } }).load();
+  assert.equal(attainment(result, '8').attainment_percent, 60);
+  assert.equal(attainment(result, '8').gap_vin, -8);
+  assert.equal(result.rows.length, 7);
 });
