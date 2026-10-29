@@ -59,6 +59,17 @@ function groupedSales(f, mutate = () => {}) {
   mutate(block); f.originals.set(block.evidence_id, block);
   return { block, sales: f.input.sales.map(row => row.dimension === 'STORE' ? { ...row, evidence: block } : row) };
 }
+function totalSales(f, mutate = () => {}) {
+  return f.input.sales.map(row => {
+    if (row.dimension === 'STORE') return row;
+    // Simulate the original TOTAL contract: no period_identity, period_type or cutoff fields.
+    const e = row.evidence, evidence = { ...e, evidence_id: 'original-total-' + row.dimension,
+      evidence_contract: 'p1.quantitative_observation', payload: { value: e.payload.observed_value },
+      temporal: { date_from: e.temporal.date_from, date_to: e.temporal.date_to, date_semantics: 'fecha_factura' } };
+    mutate(evidence); f.originals.set(evidence.evidence_id, evidence);
+    return { ...row, evidence };
+  });
+}
 
 test('calculates locally with five TARGETS P1 calls, one per store including missing targets, and no P2', async () => {
   const { load, calls, originals } = fixture(), result = await load(), r = attainment(result, '8');
@@ -166,4 +177,53 @@ test('rejects missing or incompatible grouped evidence before querying targets',
     const f = fixture(), { sales } = groupedSales(f, change);
     await assert.rejects(f.load({ sales }), /INCOMPATIBLE_ATTAINMENT_SALES/); assert.equal(f.calls.length, 0);
   }
+});
+
+test('original COMPANY/DEALERS TOTALs preserve cumulative results and provenance without requesting their targets', async () => {
+  const baseline = fixture(), f = fixture(), sales = totalSales(f), saved = JSON.stringify(sales);
+  const before = await baseline.load(), after = await f.load({ sales });
+  const values = result => result.rows.map(row => {
+    const { sales_evidence_id, ...attainment } = row.payload.attainment;
+    return { ...row, payload: { attainment } };
+  });
+  assert.deepEqual(values(after), values(before)); assert.equal(JSON.stringify(sales), saved);
+  assert.deepEqual(f.calls, baseline.calls); assert.equal(f.calls.length, 5);
+  for (const row of sales.filter(row => row.dimension !== 'STORE')) {
+    const result = after.rows.find(r => r.dimension === row.dimension).payload.attainment;
+    assert.equal(result.sales_vin, row.evidence.payload.value);
+    assert.equal(result.sales_evidence_id, row.evidence.evidence_id);
+    assert.equal(result.status, 'UNSUPPORTED_TARGET_SCOPE');
+    assert.equal(result.target_vin, null); assert.equal(result.attainment_percent, null); assert.equal(result.gap_vin, null);
+    assert.ok(after.evidence.includes(row.evidence));
+  }
+  assert.ok(f.calls.every(c => c.args.source === 'TARGETS' && c.args.filters.store_id));
+  const only = fixture();
+  await only.load({ sales: totalSales(only).filter(row => row.dimension !== 'STORE') });
+  assert.equal(only.calls.length, 0);
+});
+
+test('TOTALs coexist with original STORE groupings, preserving all target states', async () => {
+  const f = fixture(), totals = totalSales(f), { block, sales: grouped } = groupedSales(f);
+  const result = await f.load({ sales: totals.map(row => row.dimension === 'STORE' ? grouped.find(g => g.dimension_id === row.dimension_id) : row) });
+  assert.equal(result.rows.length, 7); assert.equal(f.calls.length, 5);
+  for (const [id, status] of [['8', 'CALCULATED'], ['22', 'ZERO_TARGET'], ['9', 'TARGET_NOT_FOUND'], ['10', 'UNCERTIFIED_TARGET']]) {
+    assert.equal(attainment(result, id).status, status);
+    assert.equal(attainment(result, id).sales_evidence_id, block.evidence_id);
+  }
+  assert.equal(attainment(result, '8').attainment_percent, 60);
+  assert.equal(attainment(result, '11').attainment_percent, 0);
+  for (const e of result.evidence) assert.equal(e, f.originals.get(e.evidence_id));
+});
+
+test('rejects incompatible TOTAL scopes, dates or values before any remote request', async () => {
+  for (const change of [e => { e.universe.commercial_universe = 'OWN_STORES'; },
+    e => { e.dimensions = { store_id: '8' }; }, e => { e.temporal.date_from = '2026-09-01'; },
+    e => { e.temporal.date_from = '2026-10-15'; }, e => { e.temporal.date_to = '2026-10-28'; },
+    e => { e.payload.value = null; }, e => { delete e.evidence_id; }]) {
+    const f = fixture(), sales = totalSales(f, change);
+    await assert.rejects(f.load({ sales }), /INCOMPATIBLE_ATTAINMENT_SALES/);
+    assert.equal(f.calls.length, 0);
+  }
+  const f = fixture(), result = await f.load({ sales: totalSales(f, e => { e.payload.value = 0; }) });
+  assert.ok(result.rows.filter(r => r.dimension !== 'STORE').every(r => r.payload.attainment.sales_vin === 0));
 });
