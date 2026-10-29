@@ -7,7 +7,7 @@ const plan = { '2026-10': [60, 100], '2026-06': [20, 50], '2026-07': [90, 100],
   '2026-08': [30, 100], '2026-09': [60, 200], '2025-10': [50, 100] };
 function fixture(options = {}) {
   const calls = [], originals = new Map(); let active = 0, maximum = 0;
-  const load = (options.create || createMonthlyCloseTrackingRhythm)({ withP1Mcp: async callback => callback('mock'),
+  const deps = { withP1Mcp: async callback => callback('mock'),
     callP1: async (client, name, args) => {
       assert.equal(client, 'mock'); assert.equal(args.run_id, input.run_id); calls.push({ name, args });
       maximum = Math.max(maximum, ++active); await Promise.resolve(); active--;
@@ -52,8 +52,18 @@ function fixture(options = {}) {
       }
       options.mutate?.(e, name, args); originals.set(e.evidence_id, e);
       return grouped ? { source: 'SALES', period: p, cutoff: args.cutoff, commercial_universe: 'OWN_STORES', results: [{ operation: { kind: 'STORE' }, evidence: e }] } : e;
-    } });
-  return { load, calls, originals, get maximum() { return maximum; } };
+    } };
+  const load = (options.create || createMonthlyCloseTrackingRhythm)(deps);
+  // Source-helper metadata and its untouched P1 objects, simulated before invoking Ritmo.
+  const prepared = async () => {
+    const calendar = await deps.callP1('mock', 'data_observe', { run_id: input.run_id, source: 'SALES', measure: 'VIN_SALES',
+      evidence_shape: 'PERIOD_CALENDAR', period: input.period });
+    const batch = await deps.callP1('mock', 'sales_observe_many', { run_id: input.run_id, period: input.period,
+      cutoff: input.cutoff_date, commercial_universe: 'OWN_STORES', operations: [{ kind: 'STORE' }] });
+    return { run_id: input.run_id, period: input.period + '-01', cutoff_date: input.cutoff_date,
+      evidence: [calendar, ...batch.results.map(r => r.evidence)] };
+  };
+  return { load, calls, originals, prepared, get maximum() { return maximum; } };
 }
 const rhythm = (result, id = '8') => result.rows.find(row => row.dimension === 'STORE' && row.dimension_id === id).payload.rhythm;
 
@@ -123,4 +133,48 @@ test('rejects incomplete/incompatible grouped input instead of producing zero or
     e => { e.temporal.date_from = '2026-06-02'; }, e => { e.coverage.dimension_unresolved_n = 1; }]) {
     await assert.rejects(fixture({ mutate: (e, name) => { if (name === 'sales_observe_many') change(e); } }).load(input), /INCOMPLETE_RHYTHM|INCOMPATIBLE_RHYTHM|INCOMPATIBLE_ATTAINMENT/);
   }
+});
+
+test('preloaded current SALES removes two scalar requests and reuses the original calendar and STORE block', async () => {
+  const baseline = fixture(), before = await baseline.load(input), f = fixture(), sales = await f.prepared();
+  const saved = JSON.stringify(sales); f.calls.length = 0;
+  const after = await f.load({ ...input, sales });
+  const business = result => JSON.parse(JSON.stringify(result.rows,
+    (key, value) => ['sales_evidence_id', 'lineage'].includes(key) ? undefined : value));
+  assert.deepEqual(business(after), business(before)); assert.equal(JSON.stringify(sales), saved);
+  assert.equal(baseline.calls.length, 25); assert.equal(f.calls.length, 22);
+  assert.equal(f.maximum, 1);
+  assert.ok(!f.calls.some(c => c.args.source === 'SALES' && c.args.period === input.period));
+  assert.ok(!f.calls.some(c => c.args.evidence_shape === 'CUMULATIVE_PERIOD_OBSERVATION'));
+  assert.equal(f.calls.filter(c => c.args.source === 'TARGETS').length, 12);
+  const [calendar, block] = sales.evidence;
+  assert.ok(after.evidence.includes(calendar)); assert.ok(after.evidence.includes(block));
+  for (const e of after.evidence) assert.equal(e, f.originals.get(e.evidence_id));
+  for (const row of after.rows.filter(r => r.dimension === 'STORE')) {
+    const current = row.payload.rhythm.current;
+    assert.equal(current.sales_evidence_id, block.evidence_id);
+    assert.deepEqual(current.lineage.evidence_refs[0], { slot: 'observed', evidence_id: block.evidence_id,
+      evidence_contract: 'p1.dimensional_quantitative_dataset', member_id: row.dimension_id });
+  }
+});
+
+test('preloaded sales preserve zero sales, missing/zero/uncertified targets and historical exclusions', async () => {
+  for (const options of [{ zeroSales: input.period }, { missingTarget: input.period }, { zeroTarget: input.period },
+    { uncertifiedTarget: input.period }, { noSales: '2026-06' }, { shiftStart: true }]) {
+    const baseline = await fixture(options).load(input), f = fixture(options), sales = await f.prepared();
+    const result = await f.load({ ...input, sales });
+    const values = rows => JSON.parse(JSON.stringify(rows, (key, value) => ['sales_evidence_id', 'lineage'].includes(key) ? undefined : value));
+    assert.deepEqual(values(result.rows), values(baseline.rows));
+  }
+});
+
+test('rejects incompatible or incomplete prepared SALES without recertifying P1 objects', async () => {
+  const f = fixture(), sales = await f.prepared(); f.calls.length = 0;
+  for (const supplied of [{ ...sales, run_id: 'other' }, { ...sales, period: '2026-09-01' },
+    { ...sales, cutoff_date: '2026-10-28' }, { ...sales, evidence: [] }, null])
+    await assert.rejects(f.load({ ...input, sales: supplied }), /RHYTHM_PREPARED_SALES/);
+  assert.equal(f.calls.length, 0);
+  for (const e of sales.evidence) { delete e.authority; delete e.status; delete e.lineage; delete e.evidence_version; }
+  const result = await f.load({ ...input, sales });
+  assert.equal(rhythm(result).current.attainment_percent, 60);
 });
