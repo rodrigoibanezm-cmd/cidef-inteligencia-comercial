@@ -1,28 +1,41 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { createMonthlyCloseTrackingGenerator } from '../lib/monthly-close-tracking-generator.js';
 import { createMonthlyCloseTrackingStore } from '../lib/monthly-close-tracking-store.js';
+import { createMonthlyCloseTrackingSource } from '../lib/monthly-close-tracking-source.js';
+import { createMonthlyCloseTrackingYoy } from '../lib/monthly-close-tracking-yoy.js';
+import { createMonthlyCloseTrackingRhythm } from '../lib/monthly-close-tracking-rhythm.js';
+import { createMonthlyCloseTrackingAttainment } from '../lib/monthly-close-tracking-attainment.js';
 
 const input = { run_id: 'generator-test', period: '2026-10', cutoff_date: '2026-10-29',
   cutoff_at: '2026-10-29T18:00:00-03:00', store_ids: ['8'], engine_version: 'test-v1' };
 function fixture(options = {}) {
   const calls = [], originals = new Map(), publications = [], writes = [];
-  let connections = 0, closed = 0;
+  let connections = 0, closed = 0, active = 0, maximum = 0;
+  const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object'
+    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
   // Exercise the real publisher with a simulated transaction; no database connection.
   const publisher = createMonthlyCloseTrackingStore({ withDbTransaction: async callback => callback({ query: async (sql, values) => {
     writes.push({ sql, values });
     return { rows: sql.includes('clock_timestamp') ? [{ generated_at: '2026-10-29T21:01:00Z' }] : [] };
   } }) });
-  const generate = createMonthlyCloseTrackingGenerator({
-    withP1Mcp: async callback => { connections++; try { return await callback('mock'); } finally { closed++; } },
+  const deps = {
+    withP1Mcp: async callback => { connections++; try { return await callback('mock'); } finally { assert.equal(active, 0); closed++; } },
     store: { publish: async snapshot => { publications.push(snapshot); return publisher.publish(snapshot); } },
     callP1: async (client, name, args) => {
       assert.equal(client, 'mock'); assert.equal(args.run_id, input.run_id); calls.push({ name, args });
+      const token = createHash('sha256').update(JSON.stringify(canonical({ name, args }))).digest('hex');
+      active++; maximum = Math.max(maximum, active);
+      try {
+      // Yield while the request is outstanding: a sequential implementation cannot pass the overlap test.
+      await new Promise(resolve => setImmediate(resolve));
       if (name === 'p2_execute') {
         const pair = args.unit_id === 'p2.observed_pair_delta';
         const a = originals.get(args.evidence[pair ? 'baseline' : 'observed']);
         const b = originals.get(args.evidence[pair ? 'comparison' : 'reference']);
         assert.ok(a && b);
+        if (options.failRhythm && a.temporal.period_identity === '2026-09') throw new Error('RHYTHM_P2_FAILURE');
         const v = pair ? a.payload.value : a.payload.observed_value, ref = b.payload.value;
         const result = pair ? { baseline_value: v, comparison_value: ref, absolute_delta: ref - v,
           relative_delta: v ? (ref - v) / v : null, relative_delta_status: v ? 'CALCULATED' : 'ZERO_BASELINE',
@@ -30,14 +43,14 @@ function fixture(options = {}) {
           observed_value: v, reference_value: ref, absolute_deviation: v - ref,
           relative_deviation: ref ? (v - ref) / ref : null, relative_deviation_status: ref ? 'CALCULATED' : 'ZERO_REFERENCE',
           direction: v > ref ? 'ABOVE_REFERENCE' : v < ref ? 'BELOW_REFERENCE' : 'ON_REFERENCE' };
-        return { status: 'EXECUTED', result, lineage: { run_id: args.run_id, execution_id: 'exec-' + calls.length,
+        return { status: 'EXECUTED', result, lineage: { run_id: args.run_id, execution_id: 'exec-' + token,
           unit_id: args.unit_id, contract_version: args.contract_version,
           evidence_refs: Object.entries(args.evidence).map(([slot, evidence_id]) => ({ slot, evidence_id })) } };
       }
       assert.equal(name, 'data_observe');
       const p = args.period || args.filters.date_from.slice(0, 7), id = args.filters?.store_id;
       if (options.failYoy && p === '2025-10') throw new Error('MISSING_YOY_EVIDENCE');
-      const e = { source: args.source, authority: 'P1_CERTIFIED', status: 'CERTIFIED', evidence_id: 'original-' + calls.length,
+      const e = { source: args.source, authority: 'P1_CERTIFIED', status: 'CERTIFIED', evidence_id: 'original-' + token,
         evidence_version: '0.1.0', lineage: { certifier: args.source }, evidence_contract: 'p1.' + args.evidence_shape.toLowerCase() };
       const [year, month] = p.split('-').map(Number), first = p + '-01';
       if (args.evidence_shape === 'PERIOD_CALENDAR') {
@@ -67,9 +80,12 @@ function fixture(options = {}) {
         }
       }
       originals.set(e.evidence_id, e); return e;
+      } finally { active--; }
     },
-  });
-  return { generate, calls, originals, publications, writes, connectionCounts: () => [connections, closed] };
+  };
+  const generate = createMonthlyCloseTrackingGenerator(deps);
+  return { generate, deps, calls, originals, publications, writes, connectionCounts: () => [connections, closed],
+    concurrency: () => ({ active, maximum }) };
 }
 
 test('integrates real helpers and publisher, with one connection/run and a complete reconciled batch', async () => {
@@ -117,4 +133,43 @@ test('rejects invalid roster and production without publication', async () => {
   const f = fixture(); await assert.rejects(f.generate({ ...input, store_ids: ['8', '8'] }), /INVALID_SALES_SOURCE_INPUT/);
   await assert.rejects(f.generate({ ...input, environment: 'production' }), /STAGING_ONLY/);
   assert.equal(f.publications.length, 0); assert.equal(f.calls.length, 0);
+});
+
+test('overlaps exactly two remote requests and preserves sequential helper results and original evidence', async () => {
+  const f = fixture(), { snapshot } = await f.generate(input);
+  assert.deepEqual(f.concurrency(), { active: 0, maximum: 2 });
+  assert.deepEqual(f.connectionCounts(), [1, 1]);
+  const reference = fixture(), deps = reference.deps;
+  // Reference: execute the unchanged helpers sequentially, with the same simulated source.
+  const sales = await createMonthlyCloseTrackingSource(deps)(input);
+  const common = { ...input, store_ids: sales.expected_members.filter(r => r.dimension === 'STORE').map(r => r.dimension_id) };
+  const yoy = await createMonthlyCloseTrackingYoy(deps)(common);
+  const rhythm = await createMonthlyCloseTrackingRhythm(deps)(common);
+  const observed = [];
+  for (const member of sales.expected_members) observed.push({ ...member, evidence: await deps.callP1('mock', 'data_observe', {
+    run_id: input.run_id, source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'CUMULATIVE_PERIOD_OBSERVATION',
+    period: input.period, cutoff: input.cutoff_date, filters: { commercial_universe: member.dimension === 'STORE' ? 'OWN_STORES' : member.dimension,
+      ...(member.dimension === 'STORE' ? { store_id: member.dimension_id } : {}) },
+  }) });
+  const attainment = await createMonthlyCloseTrackingAttainment(deps)({ ...input, sales: observed });
+  const key = row => JSON.stringify([row.dimension, row.dimension_id]);
+  for (const row of snapshot.rows) assert.deepEqual(row.payload, Object.assign({}, ...[sales, yoy, attainment, rhythm]
+    .map(result => result.rows.find(r => key(r) === key(row)).payload)));
+  for (const result of [sales, yoy, attainment, rhythm]) for (const e of result.evidence)
+    assert.deepEqual(snapshot.sources.evidence.find(original => original.evidence_id === e.evidence_id), e);
+  assert.deepEqual(reference.concurrency(), { active: 0, maximum: 1 });
+  // Cache also deduplicates requests shared by both active chains.
+  assert.equal(f.calls.filter(c => c.args.evidence_shape === 'PERIOD_CALENDAR' && c.args.period === '2025-10').length, 1);
+});
+
+test('drains concurrent work and never publishes when either helper fails', async () => {
+  for (const options of [{ failYoy: true }, { failRhythm: true }]) {
+    const f = fixture(options);
+    await assert.rejects(f.generate(input), /MISSING_YOY_EVIDENCE|RHYTHM_P2_FAILURE/);
+    assert.equal(f.publications.length, 0); assert.equal(f.writes.length, 0);
+    assert.equal(f.concurrency().active, 0); assert.ok(f.concurrency().maximum <= 2);
+    assert.deepEqual(f.connectionCounts(), [1, 1]);
+    const completed = f.calls.length; await new Promise(resolve => setImmediate(resolve));
+    assert.equal(f.calls.length, completed);
+  }
 });
