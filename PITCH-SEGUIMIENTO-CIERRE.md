@@ -83,6 +83,14 @@ Una herramienta de seguimiento diario que responda tres preguntas:
 
 **¿Vamos mejor o peor que en cierres anteriores?**
 
+## 9. Contrato funcional
+
+- **Ámbitos:** COMPANY representa las ventas totales de la compañía; DEALERS, las ventas sell-in; STORE, las ventas de cada sucursal propia. Son vistas del negocio: no se suman COMPANY y sus desgloses. Cada venta se contabiliza una sola vez dentro de su ámbito, según la clasificación certificada de SALES P1.
+- **Metas:** utilizar exclusivamente metas mensuales oficiales y certificadas para el período y ámbito consultados. Identificar las metas faltantes o no certificadas; no inventarlas ni distribuirlas artificialmente. En esos casos, el cumplimiento y las comparaciones dependientes de la meta quedan no disponibles. Una meta cero no permite calcular el porcentaje.
+- **Ritmo de Cierre:** cumplimiento = ventas acumuladas / meta mensual, expresado como porcentaje. Comparar con el mismo día del mes comercial de cada uno de los cuatro meses anteriores y del año anterior (YoY), utilizando la meta oficial de cada período. Comparar únicamente períodos y universos equivalentes, con evidencia certificada; señalar las comparaciones no disponibles. No sustituir cumplimiento de meta por proporción del cierre vendido.
+- **Corte temporal:** utilizar el calendario comercial certificado de SALES P1. La comparación horaria queda pendiente hasta disponer de evidencia histórica certificada; registrar una hora de publicación no acredita el estado histórico del negocio a esa hora.
+- **Alertas:** identificar unidades comerciales cuyo cumplimiento esté por debajo de su trayectoria histórica comparable. Queda pendiente definir el criterio cuantitativo de alerta, incluida la referencia histórica y la regla de activación; no fijar umbrales arbitrarios ni activar alertas cuantitativas antes de acordarlo. No calcular pronósticos ni probabilidades nuevas.
+
 ---
 
 **Visión:** convertir los últimos días del mes en un proceso comercial medible, comparable y gestionable, no solamente en una revisión de resultados.
