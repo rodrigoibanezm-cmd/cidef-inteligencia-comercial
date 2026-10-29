@@ -56,12 +56,12 @@ function fixture(options = {}) {
           } else {
             const universe = filters.commercial_universe;
             const value = universe === 'COMPANY' ? 100 : universe === 'DEALERS' ? 40 : id ? (['8', '22'].includes(id) ? 30 : 0) : 60;
-            const observed = value + (options.mismatch && cumulative && period === input.period ? 1 : 0);
+            const observed = value + (options.mismatch && shape === 'QUANTITATIVE_OBSERVATION' && universe === 'COMPANY' && period === input.period ? 1 : 0);
             Object.assign(e, { grain: 'FILTERED_SALES_UNIVERSE', measure: { id: 'VIN_SALES', unit: 'VIN', aggregation: 'COUNT_RECOGNIZED_SALE' },
               universe: { commercial_universe: universe }, dimensions: id ? { store_id: id } : {},
               temporal: { date_from: filters.date_from || period + '-01', date_to: filters.date_to || cutoff, date_semantics: 'fecha_factura',
                 ...((cumulative || grouped) ? { period_identity: period, period_type: 'COMMERCIAL_MONTH', cutoff } : {}) },
-              coverage: { source_n: 200, filtered_n: observed }, payload: cumulative ? { observed_value: observed } : { value } });
+              coverage: { source_n: 200, filtered_n: observed }, payload: cumulative ? { observed_value: observed } : { value: observed } });
             if (grouped) {
               e.payload = { dimension: { id: 'STORE' }, members: ['8', '22'].map(member_id => ({ member_id, value: 30 })) };
               Object.assign(e.coverage, { dimension_resolved_n: 60, dimension_unresolved_n: 0 });
@@ -97,10 +97,9 @@ test('integrates real helpers and publisher, with one connection/run and a compl
     } else { assert.equal(row.payload.attainment.attainment_percent, null); assert.equal(row.payload.rhythm, null); }
   }
   for (const e of s.sources.evidence) assert.equal(e, f.originals.get(e.evidence_id));
-  // STORE uses the original grouping; COMPANY and DEALERS keep their cumulative contract.
+  // All current SALES observations are original TOTALs or the original shared STORE block.
   const scalars = f.calls.filter(c => c.args.evidence_shape === 'CUMULATIVE_PERIOD_OBSERVATION');
-  assert.deepEqual(scalars.map(c => c.args.filters.commercial_universe), ['COMPANY', 'DEALERS']);
-  assert.ok(scalars.every(c => c.args.filters.store_id === undefined));
+  assert.equal(scalars.length, 0);
   assert.equal(f.calls.filter(c => c.args.source === 'TARGETS' && c.args.period === input.period).length, 2);
   assert.equal(f.calls.filter(c => c.name === 'p2_execute').length, 0);
   assert.equal(s.cutoff_at, input.cutoff_at); assert.equal(s.engine_version, input.engine_version);
@@ -117,10 +116,10 @@ test('preserves explicit missing and zero target coverage in a complete snapshot
   }
 });
 
-test('shares the original current STORE block between SALES, YoY, attainment and rhythm without scalar STORE calls', async () => {
+test('reuses original TOTAL and STORE evidence without any cumulative SALES requests', async () => {
   const f = fixture(), { snapshot } = await f.generate(input);
   const current = f.calls.filter(c => c.name === 'sales_observe_many' && c.args.period === input.period);
-  assert.equal(f.calls.length, 33); assert.equal(current.length, 3);
+  assert.equal(f.calls.length, 31); assert.equal(current.length, 3);
   assert.deepEqual(current.map(c => [c.args.commercial_universe, c.args.operations]),
     [['COMPANY', [{ kind: 'TOTAL' }]], ['DEALERS', [{ kind: 'TOTAL' }]],
       ['OWN_STORES', [{ kind: 'TOTAL' }, { kind: 'STORE' }]]]);
@@ -129,22 +128,26 @@ test('shares the original current STORE block between SALES, YoY, attainment and
   for (const row of snapshot.rows) {
     const id = row.payload.yoy.comparison.evidence_id;
     assert.equal(id, row.payload.sales_mtd.evidence_id);
+    assert.equal(row.payload.attainment.sales_evidence_id, id);
     assert.ok(snapshot.sources.evidence.includes(f.originals.get(id)));
     if (row.dimension === 'STORE') {
       assert.equal(row.payload.yoy.comparison.member_id, row.dimension_id);
       assert.equal(f.originals.get(id).evidence_contract, 'p1.dimensional_quantitative_dataset');
-      assert.equal(row.payload.attainment.sales_evidence_id, id);
       assert.equal(row.payload.rhythm.current.sales_evidence_id, id);
       for (const value of [row.payload.attainment, row.payload.rhythm.current])
         assert.deepEqual(value.lineage.evidence_refs[0], { slot: 'observed', evidence_id: id,
           evidence_contract: 'p1.dimensional_quantitative_dataset', member_id: row.dimension_id });
+    } else {
+      assert.equal(f.originals.get(id).evidence_contract, 'p1.quantitative_observation');
+      assert.equal(row.payload.attainment.sales_vin, f.originals.get(id).payload.value);
+      assert.equal(row.payload.attainment.target_vin, null); assert.equal(row.payload.attainment.gap_vin, null);
     }
   }
   assert.equal(f.publications.length, 1); assert.equal(snapshot.rows.length, 4);
 });
 
 test('does not publish incompatible current observations or incomplete YoY evidence', async () => {
-  for (const [options, error] of [[{ mismatch: true }, /INCONSISTENT_CURRENT_EVIDENCE/], [{ failYoy: true }, /MISSING_YOY_EVIDENCE/],
+  for (const [options, error] of [[{ mismatch: true }, /INCOMPLETE_OR_INCOMPATIBLE_SALES_P1/], [{ failYoy: true }, /MISSING_YOY_EVIDENCE/],
     [{ invalidStorePeriod: true }, /INCOMPATIBLE_ATTAINMENT_SALES/]]) {
     const f = fixture(options); await assert.rejects(f.generate(input), error);
     assert.equal(f.publications.length, 0); assert.equal(f.writes.length, 0); assert.deepEqual(f.connectionCounts(), [1, 1]);
@@ -180,12 +183,8 @@ test('overlaps exactly two remote requests and preserves sequential helper resul
   const common = { ...input, store_ids: sales.expected_members.filter(r => r.dimension === 'STORE').map(r => r.dimension_id) };
   const yoy = await createMonthlyCloseTrackingYoy(deps)({ ...common, sales });
   const rhythm = await createMonthlyCloseTrackingRhythm(deps)({ ...common, sales });
-  const storeEvidence = sales.evidence.find(e => e.payload?.dimension?.id === 'STORE');
-  const observed = [];
-  for (const member of sales.expected_members) observed.push({ ...member, evidence: member.dimension === 'STORE' ? storeEvidence : await deps.callP1('mock', 'data_observe', {
-    run_id: input.run_id, source: 'SALES', measure: 'VIN_SALES', evidence_shape: 'CUMULATIVE_PERIOD_OBSERVATION',
-    period: input.period, cutoff: input.cutoff_date, filters: { commercial_universe: member.dimension },
-  }) });
+  const observed = sales.rows.map(({ dimension, dimension_id, payload }) => ({ dimension, dimension_id,
+    evidence: sales.evidence.find(e => e.evidence_id === payload.sales_mtd.evidence_id) }));
   const attainment = await createMonthlyCloseTrackingAttainment(deps)({ ...input, sales: observed });
   const key = row => JSON.stringify([row.dimension, row.dimension_id]);
   for (const row of snapshot.rows) assert.deepEqual(row.payload, Object.assign({}, ...[sales, yoy, attainment, rhythm]
