@@ -32,7 +32,7 @@ export async function GET(request) {
       invalid('INVALID_PARAMETERS');
     const { period, cutoff_date } = dates(Object.fromEntries(params));
     const env = environment();
-    const { rows } = await store.latest({ environment: env, period: period + '-01', cutoff_date });
+    const rows = await store.latest({ environment: env, period: period + '-01', cutoff_date });
     if (!rows.length) return bad('SNAPSHOT_NOT_FOUND', 404);
     const first = rows[0];
     if (rows.some(row => row.generation_id !== first.generation_id || row.period !== first.period ||
