@@ -413,6 +413,42 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       precurse: Number(precurseStoreMembers.get(String(store.sucursal_id))?.value || 0),
     }));
 
+    // Persist a compact model/family breakdown alongside the existing snapshot.
+    // The detailed live projection and pending-shipment endpoints remain unchanged.
+    const productRows = await db().query(`
+      SELECT kind, sucursal_id::text, modelo_id::text, marca_id::text, marca, modelo, familia,
+             SUM(units)::bigint AS units
+      FROM (
+        SELECT 'PROJECTION' AS kind, p.sucursal_id, p.modelo_id, m.marca_id,
+               ma.nombre_canonico AS marca, m.nombre_canonico AS modelo, m.familia,
+               p.projected_units AS units
+        FROM weekly_sales_projection p
+        JOIN modelos_master_v01 m ON m.modelo_id=p.modelo_id
+        JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
+        WHERE p.week_start=$1::date
+        UNION ALL
+        SELECT 'SENT_NOT_INVOICED', x.sucursal_id, x.modelo_id, m.marca_id,
+               ma.nombre_canonico, m.nombre_canonico, m.familia, x.units
+        FROM sales_sent_not_invoiced x
+        JOIN modelos_master_v01 m ON m.modelo_id=x.modelo_id
+        JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
+        WHERE x.status='PENDING'
+          AND COALESCE(x.week_start, date_trunc('week', x.sent_at AT TIME ZONE 'America/Santiago')::date)=$1::date
+      ) detail
+      GROUP BY kind,sucursal_id,modelo_id,marca_id,marca,modelo,familia
+      ORDER BY sucursal_id,kind,marca,modelo
+    `, [weekStart]);
+    const breakdown = productRows.map(row => ({ kind: row.kind, sucursal_id: String(row.sucursal_id),
+      modelo_id: String(row.modelo_id), marca_id: String(row.marca_id), marca: row.marca,
+      modelo: row.modelo, familia: row.familia, units: Number(row.units) }));
+    const byStoreBreakdown = storeId => breakdown.filter(row => row.sucursal_id === storeId);
+    const expectedProjection = Number(companyAdmin.summary?.total_units);
+    const expectedSent = Number(companyAdmin.summary?.sent_not_invoiced_units);
+    if (!Number.isSafeInteger(expectedProjection) || !Number.isSafeInteger(expectedSent) ||
+        breakdown.filter(row => row.kind === 'PROJECTION').reduce((n, row) => n + row.units, 0) !== expectedProjection ||
+        breakdown.filter(row => row.kind === 'SENT_NOT_INVOICED').reduce((n, row) => n + row.units, 0) !== expectedSent)
+      throw new Error('PRODUCT_BREAKDOWN_TOTAL_MISMATCH');
+    companyAdmin.product_breakdown = breakdown;
     const storeAdminScopes = companyAdmin.scopes, storeFinanceScopes = companyFinance.scopes;
     delete companyAdmin.scopes;
     delete companyFinance.scopes;
@@ -429,6 +465,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       const storeId = String(store.sucursal_id);
       const admin = storeAdminScopes[storeId], finance = storeFinanceScopes[storeId];
       if (!admin || !finance) throw new Error(`Missing grouped result for store ${storeId}`);
+      admin.product_breakdown = byStoreBreakdown(storeId);
       delete admin.projections;
       delete admin.sent_not_invoiced;
       admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
