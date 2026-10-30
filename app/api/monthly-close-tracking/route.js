@@ -120,13 +120,19 @@ async function dailyTables(period, cutoff_date, env, origin) {
       throw new Error(data?.error || 'INCOMPLETE_LIVE_PROJECTIONS');
     return [sid, data.projections.reduce((sum, row) => sum + Number(row.projected_units || 0), 0)];
   })));
+  const entryDay = new Intl.DateTimeFormat('en-CA', { timeZone: TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' });
+  const today = entryDay.format(new Date());
   const sent = new Map(await Promise.all(catalog.sucursales.map(async store => {
     const sid = String(store.sucursal_id);
     const response = await getNotInvoiced(new Request(`${origin}/api/weekly-projections/not-invoiced?sucursal_id=${encodeURIComponent(sid)}&week_start=2026-10-26`));
     const data = await response.json();
     if (!response.ok || data?.ok !== true || !Array.isArray(data.items))
       throw new Error(data?.error || 'INCOMPLETE_SENT_NOT_INVOICED');
-    return [sid, data.items.reduce((sum, row) => sum + Number(row.units || 0), 0)];
+    return [sid, data.items.reduce((sum, row) => {
+      const entered = row.sent_at == null ? null : new Date(row.sent_at);
+      if (!entered || !Number.isFinite(entered.getTime())) throw new Error('INVALID_SENT_ENTRY_DATE');
+      return sum + (entryDay.format(entered) === today ? Number(row.units || 0) : 0);
+    }, 0)];
   })));
   const finance = saved[0].payload.companyFinance;
   const storeFinance = new Map((finance?.stores || []).map(row => [String(row.sucursal_id), row]));
@@ -154,7 +160,8 @@ async function dailyTables(period, cutoff_date, env, origin) {
   return NextResponse.json({ ok: true, environment: env, period, cutoff_date,
     monday_date: '2026-10-26', daily_basis: 'SALE_DATE_AT_CUTOFF',
     stores: [...own.values()], dealers: [...dealers.values()], summary,
-    sources: { stores: { table: 'weekly_projection_results', updated_at: saved[0].updated_at },
+    sources: { stores: { table: 'weekly_projection_results', updated_at: saved[0].updated_at,
+      sent_not_invoiced_date: today, sent_not_invoiced_timezone: TIMEZONE },
       dealers: { dataset: work.dataset, version: work.version, filters: work.filters, run_id } } });
 }
 

@@ -11,7 +11,7 @@ const request = (value = body) => new Request('http://local/api/monthly-close-tr
 const get = (query = 'period=2026-10&cutoff_date=2026-10-29') => new Request('http://local/api/monthly-close-tracking?' + query);
 const plain = value => JSON.parse(JSON.stringify(value));
 async function fixture(options = {}) {
-  const calls = { reads: [], generates: [], branches: 0, publishes: 0, queries: [], p1: [], projections: [] };
+  const calls = { reads: [], generates: [], branches: 0, publishes: 0, queries: [], p1: [], projections: [], sent: [] };
   const finance = { stores: [{ sucursal_id: '22', cotizaciones: 7, precurse: 2 },
     { sucursal_id: '8', cotizaciones: 11, precurse: 3 }],
     periods: [{ label: 'CURRENT', cutoff_date: body.cutoff_date, cotizaciones: 20, aprobados: 999, ufi: 888 }],
@@ -45,7 +45,8 @@ async function fixture(options = {}) {
   if (options.mixed) rows[2].generation_id = 'other-generation';
   const store = { latest: async args => { calls.reads.push(plain(args)); return options.empty ? [] : rows; },
     publish: async () => { calls.publishes++; throw new Error('Unexpected direct publication'); } };
-  const context = createContext({ URL, Request, Intl, Date, process: { env: { PROJECTIONS_ENVIRONMENT: options.environment || 'staging' } } });
+  const Clock = class extends Date { constructor(...args) { super(...(args.length ? args : [options.currentDate || '2026-10-30T15:00:00Z'])); } };
+  const context = createContext({ URL, Request, Intl, Date: Clock, process: { env: { PROJECTIONS_ENVIRONMENT: options.environment || 'staging' } } });
   const exports = {
     'node:crypto': { randomUUID }, 'next/server': { NextResponse: { json: (data, init) => Response.json(data, init) } },
     '../../../lib/monthly-close-tracking-store.js': { createMonthlyCloseTrackingStore: () => store },
@@ -87,6 +88,17 @@ async function fixture(options = {}) {
     '../weekly-projections/sucursales/route.js': { GET: async () => { calls.branches++;
       return Response.json({ ok: true, sucursales: options.invalidCatalog ? [] : [
         { sucursal_id: 8, nombre_canonico: 'Plaza Norte' }, { sucursal_id: '22', nombre_canonico: 'Costanera' }] });
+    } },
+    '../weekly-projections/not-invoiced/route.js': { GET: async request => {
+      const url = new URL(request.url), sid = url.searchParams.get('sucursal_id');
+      calls.sent.push({ sid, week_start: url.searchParams.get('week_start') });
+      if(options.failSent) return Response.json({ok:false,error:'SIMULATED_SENT_FAILURE'},{status:500});
+      return Response.json({ok:true,items:options.emptySent?[]:sid==='8'?[
+        {units:2,sent_at:options.invalidSentDate?null:'2026-10-30T03:00:00Z'},
+        {units:1,sent_at:'2026-10-31T02:59:59Z'},
+        {units:100,sent_at:'2026-10-30T02:59:59Z'},
+        {units:100,sent_at:'2026-10-31T03:00:00Z'},
+      ]:[{units:1,sent_at:'2026-10-30T12:00:00-03:00'}]});
     } },
     '../weekly-projections/projections/route.js': { GET: async request => {
       const url = new URL(request.url), sid = url.searchParams.get('sucursal_id');
@@ -146,11 +158,11 @@ test('reuses saved FORUM and live projections by store, without substituting app
   const f = await fixture(), response = await f.api.GET(get(query)), data = await response.json();
   assert.equal(response.status, 200);
   assert.deepEqual(data.stores.map(r => [r.id, r.sucursal_id, r.sales, r.projected_units, r.expected_total]),
-    [['8', '8', 4, 3, 7], ['22', '22', 0, 0, 0]]);
+    [['8', '8', 4, 3, 10], ['22', '22', 0, 0, 1]]);
   const forum = (cotizaciones, precursadas) => ({ cotizaciones, precursadas, cursadas: null,
     cursadas_status: 'UNAVAILABLE_IN_PROJECTIONS', precurse_snapshot_date: '2026-10-29' });
   assert.deepEqual(data.stores.map(r => r.forum), [forum(11, 3), forum(7, 2)]);
-  assert.equal(data.summary.stores.projected_units, 3); assert.equal(data.summary.stores.expected_total, 7);
+  assert.equal(data.summary.stores.projected_units, 3); assert.equal(data.summary.stores.expected_total, 11);
   // Preserve Admin's company totals: unresolved-store FORUM is not allocated to a store.
   assert.deepEqual(data.summary.stores.forum, forum(20, 6));
   assert.deepEqual(f.calls.projections, [{ sid: '8', week_start: '2026-10-26' }, { sid: '22', week_start: '2026-10-26' }]);
@@ -266,4 +278,30 @@ test('generation failure and unavailable catalog do not publish or replace previ
   assert.equal((await (await f.api.GET(get())).json()).generation_id, 'one-generation');
   const empty = await fixture({ invalidCatalog: true }); assert.equal((await empty.api.POST(request())).status, 500);
   assert.equal(empty.calls.generates.length, 0); assert.equal(empty.calls.publishes, 0);
+});
+
+test('sent-not-invoiced adds to expected totals using existing source and same week', async()=>{
+ const query='period=2026-10&cutoff_date=2026-10-29&view=daily';
+ const f=await fixture(),r=await f.api.GET(get(query)),data=await r.json();
+ assert.equal(r.status,200);assert.deepEqual(f.calls.sent,[{sid:'8',week_start:'2026-10-26'},{sid:'22',week_start:'2026-10-26'}]);
+ assert.deepEqual(data.stores.map(s=>s.sent_not_invoiced_units),[3,1]);
+ assert.equal(data.summary.stores.sent_not_invoiced_units,4);assert.equal(data.summary.stores.expected_total,11);
+ for(const s of data.stores)assert.equal(s.expected_total,s.sales+s.projected_units+s.sent_not_invoiced_units);
+ assert.equal(f.calls.p1.length,1);assert.equal(f.calls.queries.length,2);
+ assert.ok(data.dealers.every(s=>!('sent_not_invoiced_units'in s)));
+ const empty=await fixture({emptySent:true});const zero=await(await empty.api.GET(get(query))).json();
+ assert.equal(zero.summary.stores.sent_not_invoiced_units,0);assert.equal(zero.summary.stores.expected_total,7);
+ const fail=await fixture({failSent:true});const error=await fail.api.GET(get(query));assert.equal(error.status,500);assert.equal((await error.json()).error,'SIMULATED_SENT_FAILURE');
+});
+
+test('only entries from today in Santiago are counted, independent of requested sales cutoff', async()=>{
+ const query='period=2026-10&cutoff_date=2026-10-29&view=daily';
+ const f=await fixture(),response=await f.api.GET(get(query)),data=await response.json();
+ assert.equal(response.status,200);assert.equal(data.cutoff_date,'2026-10-29');
+ assert.equal(data.sources.stores.sent_not_invoiced_date,'2026-10-30');assert.equal(data.sources.stores.sent_not_invoiced_timezone,'America/Santiago');
+ assert.deepEqual(data.stores.map(s=>s.sent_not_invoiced_units),[3,1]);
+ const nextDay=await fixture({currentDate:'2026-10-31T12:00:00Z'});const next=await(await nextDay.api.GET(get(query))).json();
+ assert.deepEqual(next.stores.map(s=>s.sent_not_invoiced_units),[100,0]);
+ assert.equal(next.summary.stores.expected_total,107);
+ const invalid=await fixture({invalidSentDate:true});const error=await invalid.api.GET(get(query));assert.equal(error.status,500);assert.equal((await error.json()).error,'INVALID_SENT_ENTRY_DATE');
 });
