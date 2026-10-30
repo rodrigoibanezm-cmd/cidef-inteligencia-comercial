@@ -134,6 +134,16 @@ async function dailyTables(period, cutoff_date, env, origin) {
       modelo: model.modelo, familia: family, ventas: 0, proyeccion: 0, enviado_no_facturado: 0, total: 0 });
     return groups.get(key);
   };
+  const ownBrandByVin = new Map(ownWork.rows.map(sale =>
+    [String(sale.vin).trim().toUpperCase(), String(sale.brand_id ?? '')]));
+  const storeBrands = new Map();
+  for (const sale of sales.details) {
+    const id = String(sale.sucursal_id);
+    if (!storeBrands.has(id)) storeBrands.set(id, { foton: 0, dongfeng: 0 });
+    const brand = ownBrandByVin.get(String(sale.vin).trim().toUpperCase());
+    if (brand === '89') storeBrands.get(id).foton++;
+    else if (brand === '71') storeBrands.get(id).dongfeng++;
+  }
   for (const sale of ownWork.rows) group('OWN_STORES', sale.brand_id, sale.model_id).ventas++;
   for (const sale of work.rows) {
     if (dealers.has(String(sale.dealer_group_id ?? ''))) group('DEALERS', sale.brand_id, sale.model_id).ventas++;
@@ -196,6 +206,9 @@ async function dailyTables(period, cutoff_date, env, origin) {
     const source = storeFinance.get(row.id);
     row.sucursal_id = row.id;
     row.sales = row.total;
+    row.foton = storeBrands.get(row.id)?.foton || 0;
+    row.dongfeng = storeBrands.get(row.id)?.dongfeng || 0;
+    if (row.foton + row.dongfeng > row.sales) throw new Error('INVALID_STORE_BRAND_TOTAL');
     row.projected_units = projected.get(row.id) || 0;
     row.sent_not_invoiced_units = sent.get(row.id) || 0;
     row.expected_total = row.sales + row.projected_units + row.sent_not_invoiced_units;
