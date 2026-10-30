@@ -74,22 +74,44 @@ async function dailyTables(period, cutoff_date, env) {
     row.total++;
   };
   for (const sale of sales.details) add(own, String(sale.sucursal_id ?? ''), sale.sucursal, sale.fecha_venta);
+  // Already grouped from certified brand IDs by Proyecciones; no second OWN_STORES fetch.
+  const brands = saved[0].payload.admin.brand_indicators?.sales;
+  const units = value => Number.isSafeInteger(value) && value >= 0;
+  if (brands?.source !== 'SALES P1' || brands.source_dataset !== 'SALES_WORK' || brands.cutoff !== cutoff_date ||
+      !Array.isArray(brands.evidence_ids) || !brands.evidence_ids.length ||
+      ![brands.company, brands.foton, brands.dongfeng].every(units) ||
+      brands.company !== sales.total_units || brands.foton + brands.dongfeng > brands.company)
+    throw new Error('INCOMPLETE_OR_INCOMPATIBLE_STORE_BRANDS');
+  const summary = { stores: { total: brands.company, foton: brands.foton, dongfeng: brands.dongfeng,
+    unidentified: brands.company - brands.foton - brands.dongfeng },
+    dealers: { total: 0, foton: 0, dongfeng: 0, unidentified: 0 } };
+  const uniqueVins = rows => {
+    const vins = rows.map(row => String(row.vin ?? '').trim().toUpperCase()).filter(Boolean);
+    if (new Set(vins).size !== vins.length) throw new Error('DUPLICATE_SALES_VIN');
+  };
+  uniqueVins(sales.details);
   const run_id = randomUUID();
   const work = await withP1Mcp(client => callP1(client, 'data_fetch', { run_id, source: 'SALES',
     filters: { commercial_universe: 'DEALERS', date_from: '2026-10-01', date_to: cutoff_date },
-    fields: ['vin', 'sale_date', 'dealer_group_id'] }));
+    fields: ['vin', 'sale_date', 'dealer_group_id', 'brand_id'] }));
   if (work?.source !== 'SALES' || work.dataset !== 'SALES_WORK' || work.grain !== 'RECOGNIZED_SALE' ||
       !Array.isArray(work.rows) || work.size?.filtered_n !== work.rows.length)
     throw new Error('INCOMPLETE_DEALER_DETAIL');
+  uniqueVins(work.rows);
   for (const sale of work.rows) {
     const id = String(sale.dealer_group_id ?? 0);
     if (!/^\d+$/.test(id)) throw new Error('UNRESOLVED_DAILY_IDENTITY');
     // October sales cannot expand the universe of dealers active in September.
-    if (dealers.has(id)) add(dealers, id, dealers.get(id).name, sale.sale_date);
+    if (dealers.has(id)) {
+      add(dealers, id, dealers.get(id).name, sale.sale_date);
+      const brand = String(sale.brand_id ?? '');
+      summary.dealers.total++;
+      summary.dealers[brand === '89' ? 'foton' : brand === '71' ? 'dongfeng' : 'unidentified']++;
+    }
   }
   return NextResponse.json({ ok: true, environment: env, period, cutoff_date,
     monday_date: '2026-10-26', daily_basis: 'SALE_DATE_AT_CUTOFF',
-    stores: [...own.values()], dealers: [...dealers.values()],
+    stores: [...own.values()], dealers: [...dealers.values()], summary,
     sources: { stores: { table: 'weekly_projection_results', updated_at: saved[0].updated_at },
       dealers: { dataset: work.dataset, version: work.version, filters: work.filters, run_id } } });
 }

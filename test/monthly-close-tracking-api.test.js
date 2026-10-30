@@ -20,13 +20,17 @@ async function fixture(options = {}) {
   ];
   const work = { source: 'SALES', dataset: 'SALES_WORK', version: '0.13', grain: 'RECOGNIZED_SALE',
     size: { filtered_n: 5 }, rows: [
-      { vin: 'E', dealer_group_id: '8', sale_date: '2026-10-20' },
-      { vin: 'F', dealer_group_id: '8', sale_date: '2026-10-27' },
+      { vin: 'E', dealer_group_id: '8', sale_date: '2026-10-20', brand_id: '89' },
+      { vin: 'F', dealer_group_id: '8', sale_date: '2026-10-27', brand_id: 71 },
       { vin: 'G', dealer_group_id: null, sale_date: '2026-10-29' },
       { vin: 'H', dealer_group_id: '10', sale_date: '2026-10-29' },
       { vin: 'I', dealer_group_id: '11', sale_date: '2026-10-29' },
     ] };
   options.mutateWork?.(work);
+  const brands = { source: 'SALES P1', source_dataset: 'SALES_WORK', cutoff: body.cutoff_date,
+    evidence_ids: ['p1-sales-brands'], company: 4, foton: 3, dongfeng: 1 };
+  options.mutateBrands?.(brands);
+  options.mutateDetails?.(details);
   const rows = ['COMPANY', 'DEALERS', 'STORE', 'STORE'].map((dimension, i) => ({
     environment: options.environment || 'staging', period: '2026-10-01', cutoff_date: '2026-10-28',
     cutoff_at: '2026-10-28T21:00:00Z', cutoff_timezone: 'America/Santiago', generation_id: 'one-generation',
@@ -52,7 +56,7 @@ async function fixture(options = {}) {
       calls.queries.push({ query, args: args && plain(args) });
       if (query.includes('weekly_projection_results')) return options.noProjection ? [] : [{ updated_at: 'saved-cut',
         payload: { admin: { sales_mtd: { date_from: '2026-10-01', cutoff_date: '2026-10-29',
-          total_units: options.incompleteProjection ? 5 : 4, details } } } }];
+          total_units: options.incompleteProjection ? 5 : 4, details }, brand_indicators: { sales: brands } } } }];
       assert.match(query, /SELECT to_jsonb\(g\) AS item FROM dealer_groups g/);
       assert.match(query, /WHERE EXISTS \(SELECT 1 FROM dealer_monthly_sellin_snapshots s/);
       assert.match(query, /s\.period=\$1 AND s\.dealer_group_id::text=COALESCE\(to_jsonb\(g\)->>'dealer_group_id',to_jsonb\(g\)->>'id'\)/);
@@ -107,15 +111,50 @@ test('daily view reuses saved own-store detail and fetches dealers once, without
   assert.equal(f.calls.queries.length, 2); assert.deepEqual(f.calls.queries[0].args, ['2026-10-26', '2026-10-29', 'staging']);
   assert.ok(f.calls.queries.every(c => /^SELECT /.test(c.query)));
   assert.equal(f.calls.p1.length, 1); assert.equal(f.calls.p1[0].name, 'data_fetch');
-  assert.deepEqual(f.calls.p1[0].args.fields, ['vin', 'sale_date', 'dealer_group_id']);
+  assert.deepEqual(f.calls.p1[0].args.fields, ['vin', 'sale_date', 'dealer_group_id', 'brand_id']);
   assert.deepEqual(f.calls.p1[0].args.filters, { commercial_universe: 'DEALERS', date_from: '2026-10-01', date_to: '2026-10-29' });
   assert.equal(f.calls.generates.length, 0); assert.equal(f.calls.publishes, 0); assert.equal(f.calls.reads.length, 0);
   assert.deepEqual(data.dealers.map(r => r.id).sort(), ['8', '9']);
   assert.equal(data.dealers.reduce((sum, r) => sum + r.total, 0), 2);
+  assert.deepEqual(data.summary, { stores: { total: 4, foton: 3, dongfeng: 1, unidentified: 0 },
+    dealers: { total: 2, foton: 1, dongfeng: 1, unidentified: 0 } });
+  for (const channel of ['stores', 'dealers']) {
+    assert.equal(data.summary[channel].total, data[channel].reduce((n, row) => n + row.total, 0));
+  }
   const empty = await fixture({ emptyActive: true });
   const emptyResult = await empty.api.GET(get('period=2026-10&cutoff_date=2026-10-29&view=daily'));
   assert.equal(emptyResult.status, 200); const emptyData = await emptyResult.json();
   assert.deepEqual(emptyData.dealers, []); assert.deepEqual(emptyData.stores, data.stores);
+  assert.deepEqual(emptyData.summary.dealers, { total: 0, foton: 0, dongfeng: 0, unidentified: 0 });
+});
+
+test('unknown brands preserve channel totals and do not alter existing daily arrays', async () => {
+  const query = 'period=2026-10&cutoff_date=2026-10-29&view=daily';
+  const baseline = await (await (await fixture()).api.GET(get(query))).json();
+  for (const brand_id of [null, '999']) {
+    const f = await fixture({ mutateBrands: b => { b.foton = 2; }, mutateWork: w => { w.rows[1].brand_id = brand_id; } });
+    const response = await f.api.GET(get(query)), data = await response.json();
+    assert.equal(response.status, 200);
+    assert.deepEqual(data.summary, { stores: { total: 4, foton: 2, dongfeng: 1, unidentified: 1 },
+      dealers: { total: 2, foton: 1, dongfeng: 0, unidentified: 1 } });
+    assert.deepEqual(data.stores, baseline.stores); assert.deepEqual(data.dealers, baseline.dealers);
+    assert.equal(f.calls.p1.length, 1); assert.equal(f.calls.queries.length, 2);
+  }
+});
+
+test('duplicate VINs and incompatible stored brand summaries are not returned as valid totals', async () => {
+  for (const options of [
+    { mutateWork: w => { w.rows[1].vin = ' e '; } },
+    { mutateDetails: rows => { rows[1].vin = ' a '; } },
+    { mutateBrands: b => { b.company = 5; } },
+    { mutateBrands: b => { b.foton = 5; } },
+    { mutateBrands: b => { b.cutoff = '2026-10-28'; } },
+    { mutateBrands: b => { delete b.evidence_ids; } },
+  ]) {
+    const f = await fixture(options), response = await f.api.GET(get('period=2026-10&cutoff_date=2026-10-29&view=daily'));
+    assert.equal(response.status, 500); assert.equal((await response.json()).ok, false);
+    assert.ok(f.calls.p1.length <= 1); assert.equal(f.calls.generates.length, 0);
+  }
 });
 
 test('daily view rejects missing cuts, incomplete details and invalid dates without producing false zeros', async () => {
