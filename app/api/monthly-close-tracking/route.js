@@ -119,7 +119,7 @@ async function dailyTables(period, cutoff_date, env, origin) {
     WHERE m.marca_id IN (71,89)`);
   const catalogByModel = new Map(catalogRows.map(row => [row.modelo_id, row]));
   const groups = new Map();
-  const group = (brandId, modelId) => {
+  const group = (channel, brandId, modelId) => {
     const model = catalogByModel.get(String(modelId ?? ''));
     if (!model || model.marca_id !== String(brandId)) throw new Error('UNRESOLVED_MODEL_CATALOG');
     // Foton's COMERCIAL family includes both mini trucks and passenger vehicles.
@@ -129,14 +129,14 @@ async function dailyTables(period, cutoff_date, env, origin) {
       model.modelo === 'VIEW GRAND' ? 'VP' : model.familia
     ) : model.familia;
     if (!family) throw new Error('UNRESOLVED_MODEL_FAMILY');
-    const key = String(modelId);
-    if (!groups.has(key)) groups.set(key, { modelo_id: key, marca_id: String(brandId), marca: model.marca,
+    const key = channel + ':' + String(modelId);
+    if (!groups.has(key)) groups.set(key, { channel, modelo_id: String(modelId), marca_id: String(brandId), marca: model.marca,
       modelo: model.modelo, familia: family, ventas: 0, proyeccion: 0, enviado_no_facturado: 0, total: 0 });
     return groups.get(key);
   };
-  for (const sale of ownWork.rows) group(sale.brand_id, sale.model_id).ventas++;
+  for (const sale of ownWork.rows) group('OWN_STORES', sale.brand_id, sale.model_id).ventas++;
   for (const sale of work.rows) {
-    if (dealers.has(String(sale.dealer_group_id ?? ''))) group(sale.brand_id, sale.model_id).ventas++;
+    if (dealers.has(String(sale.dealer_group_id ?? ''))) group('DEALERS', sale.brand_id, sale.model_id).ventas++;
   }
   const breakdown = saved[0].payload?.admin?.product_breakdown;
   if (!Array.isArray(breakdown)) throw new Error('PRODUCT_BREAKDOWN_SNAPSHOT_NOT_FOUND');
@@ -144,7 +144,7 @@ async function dailyTables(period, cutoff_date, env, origin) {
     if (!['PROJECTION', 'SENT_NOT_INVOICED'].includes(row.kind)) throw new Error('INVALID_PRODUCT_BREAKDOWN');
     const count = Number(row.units);
     if (!Number.isSafeInteger(count) || count < 0) throw new Error('INVALID_PRODUCT_UNITS');
-    group(row.marca_id, row.modelo_id)[row.kind === 'PROJECTION' ? 'proyeccion' : 'enviado_no_facturado'] += count;
+    group('OWN_STORES', row.marca_id, row.modelo_id)[row.kind === 'PROJECTION' ? 'proyeccion' : 'enviado_no_facturado'] += count;
   }
   for (const row of groups.values()) row.total = row.ventas + row.proyeccion + row.enviado_no_facturado;
   for (const sale of work.rows) {
@@ -209,14 +209,17 @@ async function dailyTables(period, cutoff_date, env, origin) {
   // Sent units on these cards are restricted to today's entries. The persisted
   // weekly breakdown has a different scope: do not mislabel it as today's sent units.
   const modelRows = [...groups.values()];
-  const familyRows = [...new Set(modelRows.map(row => row.marca + ':' + row.familia))].map(key => {
-    const rows = modelRows.filter(row => row.marca + ':' + row.familia === key);
-    return { marca: rows[0].marca, marca_id: rows[0].marca_id, familia: rows[0].familia,
+  const familyRows = [...new Set(modelRows.map(row => row.channel + ':' + row.marca + ':' + row.familia))].map(key => {
+    const rows = modelRows.filter(row => row.channel + ':' + row.marca + ':' + row.familia === key);
+    return { channel: rows[0].channel, marca: rows[0].marca, marca_id: rows[0].marca_id, familia: rows[0].familia,
       ventas: rows.reduce((n,row)=>n+row.ventas,0),
       proyeccion: rows.reduce((n,row)=>n+row.proyeccion,0),
       enviado_no_facturado: rows.reduce((n,row)=>n+row.enviado_no_facturado,0),
       total: rows.reduce((n,row)=>n+row.total,0) };
   });
+  if (modelRows.filter(row => row.channel === 'OWN_STORES').reduce((n, row) => n + row.ventas, 0) !== summary.stores.total ||
+      modelRows.filter(row => row.channel === 'DEALERS').reduce((n, row) => n + row.ventas, 0) !== summary.dealers.total)
+    throw new Error('PRODUCT_CHANNEL_SALES_TOTAL_MISMATCH');
   summary.product_models = modelRows;
   summary.product_families = familyRows;
   summary.product_sent_scope = 'WEEK_PENDING';
