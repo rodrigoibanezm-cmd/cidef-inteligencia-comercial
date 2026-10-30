@@ -146,7 +146,6 @@ async function dailyTables(period, cutoff_date, env, origin) {
     if (!Number.isSafeInteger(count) || count < 0) throw new Error('INVALID_PRODUCT_UNITS');
     if (row.kind === 'PROJECTION') group('OWN_STORES', row.marca_id, row.modelo_id).proyeccion += count;
   }
-  for (const row of groups.values()) row.total = row.ventas + row.proyeccion + row.enviado_no_facturado;
   for (const sale of work.rows) {
     const id = String(sale.dealer_group_id ?? 0);
     if (!/^\d+$/.test(id)) throw new Error('UNRESOLVED_DAILY_IDENTITY');
@@ -186,6 +185,7 @@ async function dailyTables(period, cutoff_date, env, origin) {
       return sum + count;
     }, 0)];
   })));
+  for (const row of groups.values()) row.total = row.ventas + row.proyeccion + row.enviado_no_facturado;
   const finance = saved[0].payload.companyFinance;
   const storeFinance = new Map((finance?.stores || []).map(row => [String(row.sucursal_id), row]));
   const currentFinance = finance?.periods?.find(row => row.label === 'CURRENT');
