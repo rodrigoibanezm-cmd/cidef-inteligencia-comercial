@@ -60,10 +60,10 @@ function renderClosing(){
  const unmatched=data?.period==='2026-10'&&selected().period==='2026-10'?Object.keys(OCTOBER_GOALS).filter(label=>![...names].some(([id,name])=>goals.has(id)&&goalName(name)===goalName(label))):[];
  slot.innerHTML='<div class="message'+(closingError?' error':'')+'" role="status" aria-live="polite">'+esc(closingMessage)+'</div>'+(data?'<div class="data-note">Ventas del período '+esc(data.period)+' · corte '+esc(dateLabel(data.cutoff_date))+'. Lunes: acumulado hasta el 26 inclusive.</div>'+closingTable(data.stores,true,data.period)+closingTable(data.dealers,false,data.period)+(unmatched.length?'<p class="data-note">Metas sin correspondencia única en el catálogo: '+esc(unmatched.join(', '))+'.</p>':''):'');
 }
-async function loadClosing(input){
+async function loadClosing(input,refresh=false){
  const request=++closingRequest;closingMessage='Consultando ventas diarias…';closingError=false;renderClosing();
  try{
-  const data=await json(API+'?'+new URLSearchParams({...input,view:'daily'}));
+  const data=await json(API+'?'+new URLSearchParams({...input,view:'daily',...(refresh?{refresh:'1'}:{})}));
   if(![data.summary?.stores,data.summary?.dealers].every(s=>s&&['total','foton','dongfeng','unidentified'].every(k=>finite(s[k])))||data.period!==input.period||data.cutoff_date!==input.cutoff_date||![data.stores,data.dealers].every(rows=>Array.isArray(rows)&&rows.every(row=>row.id!=null&&typeof row.name==='string'&&Array.isArray(row.daily))))throw Error('Respuesta de ventas diarias inválida.');
   if(request!==closingRequest)return;
   closingSnapshot=data;closingMessage='Ventas diarias consultadas.';closingError=false;
@@ -156,7 +156,7 @@ function cutoffInstant(day){const now=new Date();if(day===ymd(now))return now.to
  const offset=new Intl.DateTimeFormat('en-US',{timeZone:ZONE,timeZoneName:'shortOffset'}).formatToParts(new Date(day+'T12:00:00Z')).find(p=>p.type==='timeZoneName').value;
  const [,sign,hours,minutes='00']=offset.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);return day+'T23:59:59'+sign+hours.padStart(2,'0')+':'+minutes;
 }
-async function refresh(){if(busy)return;try{const input=validate();lock(true);status('Actualizando ventas diarias…');await loadClosing(input);status(closingError?closingMessage:'Ventas diarias actualizadas.',closingError)}catch(e){status('No se pudieron actualizar las ventas diarias: '+e.message,true)}finally{lock(false)}}
+async function refresh(){if(busy)return;try{const input=validate();lock(true);status('Actualizando ventas diarias…');await loadClosing(input,true);status(closingError?closingMessage:'Ventas diarias actualizadas.',closingError)}catch(e){status('No se pudieron actualizar las ventas diarias: '+e.message,true)}finally{lock(false)}}
 $('#period').value=ymd().slice(0,7);$('#cutoff').value=ymd();$('#consult').addEventListener('click',load);$('#refresh').addEventListener('click',refresh);$('#period').addEventListener('change',load);$('#cutoff').addEventListener('change',load);
 async function init(){try{const catalog=await json('/api/weekly-projections/sucursales');names=new Map((catalog.sucursales||[]).map(s=>[String(s.sucursal_id),s.nombre_canonico]))}catch{/* A missing label never suppresses a certified result; show the original store ID. */}await load()}render();init();
 </script></body></html>
