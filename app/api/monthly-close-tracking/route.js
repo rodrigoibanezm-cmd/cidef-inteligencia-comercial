@@ -45,7 +45,11 @@ async function dailyTables(period, cutoff_date, env) {
   if (saved.length !== 1 || sales?.date_from !== '2026-10-01' || sales?.cutoff_date !== cutoff_date ||
       !Array.isArray(sales.details) || sales.total_units !== sales.details.length)
     throw new Error('INCOMPLETE_PROJECTIONS_DETAIL');
-  const names = await sql.query('SELECT to_jsonb(g) AS item FROM dealer_groups g');
+  const names = await sql.query(`SELECT to_jsonb(g) AS item FROM dealer_groups g
+    WHERE EXISTS (SELECT 1 FROM dealer_monthly_sellin_snapshots s
+      WHERE s.period=$1 AND s.dealer_group_id::text=COALESCE(to_jsonb(g)->>'dealer_group_id',to_jsonb(g)->>'id')
+      GROUP BY s.dealer_group_id
+      HAVING SUM(COALESCE(s.foton_units,0)+COALESCE(s.dongfeng_units,0))>0)`, ['2026-09']);
   const dealerCatalog = names.map(({ item }) => ({ id: String(item.dealer_group_id ?? item.id ?? ''),
     name: item.nombre_canonico ?? item.nombre ?? item.name }));
   const stores = catalog.sucursales.map(s => ({ id: String(s.sucursal_id ?? ''), name: s.nombre_canonico }));
@@ -56,7 +60,7 @@ async function dailyTables(period, cutoff_date, env) {
       daily: Array.from({ length: 5 }, (_, i) => ({ date: '2026-10-' + (27 + i),
         value: '2026-10-' + (27 + i) <= cutoff_date ? 0 : null })), total: 0 }]));
   };
-  const own = index(stores), dealers = index(dealerCatalog);
+  const own = index(stores), dealers = dealerCatalog.length ? index(dealerCatalog) : new Map();
   const add = (map, id, name, day) => {
     if (typeof day !== 'string' || !/^2026-10-(0[1-9]|[12][0-9]|3[01])$/.test(day) || day > cutoff_date)
       throw new Error('INVALID_DAILY_SALE_DATE');
@@ -79,8 +83,9 @@ async function dailyTables(period, cutoff_date, env) {
     throw new Error('INCOMPLETE_DEALER_DETAIL');
   for (const sale of work.rows) {
     const id = String(sale.dealer_group_id ?? 0);
-    // Same explicit unresolved bucket and label fallback as /api/dealers.
-    add(dealers, id, id === '0' ? 'Sin dealer identificado' : 'Dealer ' + id, sale.sale_date);
+    if (!/^\d+$/.test(id)) throw new Error('UNRESOLVED_DAILY_IDENTITY');
+    // October sales cannot expand the universe of dealers active in September.
+    if (dealers.has(id)) add(dealers, id, dealers.get(id).name, sale.sale_date);
   }
   return NextResponse.json({ ok: true, environment: env, period, cutoff_date,
     monday_date: '2026-10-26', daily_basis: 'SALE_DATE_AT_CUTOFF',

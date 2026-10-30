@@ -19,10 +19,12 @@ async function fixture(options = {}) {
     { vin: 'D', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-29' },
   ];
   const work = { source: 'SALES', dataset: 'SALES_WORK', version: '0.13', grain: 'RECOGNIZED_SALE',
-    size: { filtered_n: 3 }, rows: [
+    size: { filtered_n: 5 }, rows: [
       { vin: 'E', dealer_group_id: '8', sale_date: '2026-10-20' },
       { vin: 'F', dealer_group_id: '8', sale_date: '2026-10-27' },
       { vin: 'G', dealer_group_id: null, sale_date: '2026-10-29' },
+      { vin: 'H', dealer_group_id: '10', sale_date: '2026-10-29' },
+      { vin: 'I', dealer_group_id: '11', sale_date: '2026-10-29' },
     ] };
   options.mutateWork?.(work);
   const rows = ['COMPANY', 'DEALERS', 'STORE', 'STORE'].map((dimension, i) => ({
@@ -52,8 +54,21 @@ async function fixture(options = {}) {
         payload: { admin: { sales_mtd: { date_from: '2026-10-01', cutoff_date: '2026-10-29',
           total_units: options.incompleteProjection ? 5 : 4, details } } } }];
       assert.match(query, /SELECT to_jsonb\(g\) AS item FROM dealer_groups g/);
-      return [{ item: { dealer_group_id: 8, nombre_canonico: 'Dealer ocho' } },
-        { item: { id: 9, nombre: 'Dealer sin ventas' } }];
+      assert.match(query, /WHERE EXISTS \(SELECT 1 FROM dealer_monthly_sellin_snapshots s/);
+      assert.match(query, /s\.period=\$1 AND s\.dealer_group_id::text=COALESCE\(to_jsonb\(g\)->>'dealer_group_id',to_jsonb\(g\)->>'id'\)/);
+      assert.match(query, /GROUP BY s\.dealer_group_id\s+HAVING SUM\(COALESCE\(s\.foton_units,0\)\+COALESCE\(s\.dongfeng_units,0\)\)>0/);
+      assert.deepEqual(plain(args), ['2026-09']);
+      const catalog = [{ dealer_group_id: 8, nombre_canonico: 'Dealer ocho' },
+        { id: 9, nombre: 'Dealer sin ventas' }, { id: 10, nombre: 'Dealer septiembre cero' },
+        { id: 11, nombre: 'Dealer solo octubre' }];
+      const snapshots = options.emptyActive ? [] : [
+        { id: '8', period: '2026-09', foton: 2, dongfeng: 0 },
+        { id: '9', period: '2026-09', foton: 0, dongfeng: 1 },
+        { id: '10', period: '2026-09', foton: 0, dongfeng: 0 },
+        { id: '11', period: '2026-10', foton: 3, dongfeng: 0 },
+      ];
+      const active = new Set(snapshots.filter(s => s.period === args[0] && s.foton + s.dongfeng > 0).map(s => s.id));
+      return catalog.filter(g => active.has(String(g.dealer_group_id ?? g.id))).map(item => ({ item }));
     } }) },
     '../../../lib/p1-client.js': { withP1Mcp: async callback => callback('mock-client'),
       callP1: async (client, name, args) => {
@@ -86,7 +101,6 @@ test('daily view reuses saved own-store detail and fetches dealers once, without
   ]);
   assert.deepEqual(data.dealers.map(r => [r.id, r.name, r.monday, r.daily.map(d => d.value), r.total]), [
     ['8', 'Dealer ocho', 1, [1, 0, 0, null, null], 2], ['9', 'Dealer sin ventas', 0, [0, 0, 0, null, null], 0],
-    ['0', 'Sin dealer identificado', 0, [0, 0, 1, null, null], 1],
   ]);
   for (const row of [...data.stores, ...data.dealers])
     assert.equal(row.total, row.monday + row.daily.reduce((n, d) => n + (d.value ?? 0), 0));
@@ -96,6 +110,12 @@ test('daily view reuses saved own-store detail and fetches dealers once, without
   assert.deepEqual(f.calls.p1[0].args.fields, ['vin', 'sale_date', 'dealer_group_id']);
   assert.deepEqual(f.calls.p1[0].args.filters, { commercial_universe: 'DEALERS', date_from: '2026-10-01', date_to: '2026-10-29' });
   assert.equal(f.calls.generates.length, 0); assert.equal(f.calls.publishes, 0); assert.equal(f.calls.reads.length, 0);
+  assert.deepEqual(data.dealers.map(r => r.id).sort(), ['8', '9']);
+  assert.equal(data.dealers.reduce((sum, r) => sum + r.total, 0), 2);
+  const empty = await fixture({ emptyActive: true });
+  const emptyResult = await empty.api.GET(get('period=2026-10&cutoff_date=2026-10-29&view=daily'));
+  assert.equal(emptyResult.status, 200); const emptyData = await emptyResult.json();
+  assert.deepEqual(emptyData.dealers, []); assert.deepEqual(emptyData.stores, data.stores);
 });
 
 test('daily view rejects missing cuts, incomplete details and invalid dates without producing false zeros', async () => {
