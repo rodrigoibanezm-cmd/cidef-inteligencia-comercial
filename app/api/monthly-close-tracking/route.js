@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createMonthlyCloseTrackingStore } from '../../../lib/monthly-close-tracking-store.js';
 import { createMonthlyCloseTrackingGenerator } from '../../../lib/monthly-close-tracking-generator.js';
 import { GET as getBranches } from '../weekly-projections/sucursales/route.js';
+import { GET as getProjections } from '../weekly-projections/projections/route.js';
 import { db } from '../../../lib/db.js';
 import { withP1Mcp, callP1 } from '../../../lib/p1-client.js';
 
@@ -29,7 +30,7 @@ function dates({ period, cutoff_date }) {
 
 // Presentation only: reuse the saved Proyecciones detail and the Dealers identity.
 // Monthly dealer snapshots cannot supply daily dates; fetch their existing SALES_WORK fields.
-async function dailyTables(period, cutoff_date, env) {
+async function dailyTables(period, cutoff_date, env, origin) {
   if (env !== 'staging') return bad('STAGING_ONLY', 403);
   if (period !== '2026-10' || cutoff_date < '2026-10-26' || cutoff_date > '2026-10-31')
     invalid('UNSUPPORTED_DAILY_CUT');
@@ -109,6 +110,36 @@ async function dailyTables(period, cutoff_date, env) {
       summary.dealers[brand === '89' ? 'foton' : brand === '71' ? 'dongfeng' : 'unidentified']++;
     }
   }
+  // Same live endpoint and aggregation used by weekly-projections/results.
+  const projected = new Map(await Promise.all(catalog.sucursales.map(async store => {
+    const sid = String(store.sucursal_id);
+    const response = await getProjections(new Request(`${origin}/api/weekly-projections/projections?sucursal_id=${encodeURIComponent(sid)}&week_start=2026-10-26`));
+    const data = await response.json();
+    if (!response.ok || data?.ok !== true || !Array.isArray(data.projections))
+      throw new Error(data?.error || 'INCOMPLETE_LIVE_PROJECTIONS');
+    return [sid, data.projections.reduce((sum, row) => sum + Number(row.projected_units || 0), 0)];
+  })));
+  const finance = saved[0].payload.companyFinance;
+  const storeFinance = new Map((finance?.stores || []).map(row => [String(row.sucursal_id), row]));
+  const currentFinance = finance?.periods?.find(row => row.label === 'CURRENT');
+  // Admin has approvals and UFI executed, but no unambiguous CURSE indicator.
+  const forum = (cotizaciones, precursadas) => ({ cotizaciones, precursadas, cursadas: null,
+    cursadas_status: 'UNAVAILABLE_IN_PROJECTIONS', precurse_snapshot_date: finance?.precurse?.snapshot_date || null });
+  for (const row of own.values()) {
+    const source = storeFinance.get(row.id);
+    row.sucursal_id = row.id;
+    row.sales = row.total;
+    row.projected_units = projected.get(row.id) || 0;
+    row.expected_total = row.sales + row.projected_units;
+    // Same zero defaults as renderStoreFinanceTable, only when the source exists.
+    row.forum = forum(Array.isArray(finance?.stores) ? Number(source?.cotizaciones || 0) : null,
+      Array.isArray(finance?.stores) && finance?.precurse ? Number(source?.precurse || 0) : null);
+  }
+  summary.stores.projected_units = [...projected.values()].reduce((sum, value) => sum + value, 0);
+  summary.stores.expected_total = summary.stores.total + summary.stores.projected_units;
+  // Company indicators retain Admin's totals, including any unresolved store coverage.
+  summary.stores.forum = forum(currentFinance ? Number(currentFinance.cotizaciones || 0) : null,
+    finance?.precurse ? Number(finance.precurse.value || 0) : null);
   return NextResponse.json({ ok: true, environment: env, period, cutoff_date,
     monday_date: '2026-10-26', daily_basis: 'SALE_DATE_AT_CUTOFF',
     stores: [...own.values()], dealers: [...dealers.values()], summary,
@@ -124,7 +155,7 @@ export async function GET(request) {
       invalid('INVALID_PARAMETERS');
     const { period, cutoff_date } = dates(Object.fromEntries(params));
     const env = environment();
-    if (params.get('view') === 'daily') return await dailyTables(period, cutoff_date, env);
+    if (params.get('view') === 'daily') return await dailyTables(period, cutoff_date, env, new URL(request.url).origin);
     const rows = await store.latest({ environment: env, period: period + '-01', cutoff_date });
     if (!rows.length) return bad('SNAPSHOT_NOT_FOUND', 404);
     const first = rows[0];

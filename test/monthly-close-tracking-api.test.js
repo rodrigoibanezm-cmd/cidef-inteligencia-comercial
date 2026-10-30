@@ -11,7 +11,11 @@ const request = (value = body) => new Request('http://local/api/monthly-close-tr
 const get = (query = 'period=2026-10&cutoff_date=2026-10-29') => new Request('http://local/api/monthly-close-tracking?' + query);
 const plain = value => JSON.parse(JSON.stringify(value));
 async function fixture(options = {}) {
-  const calls = { reads: [], generates: [], branches: 0, publishes: 0, queries: [], p1: [] };
+  const calls = { reads: [], generates: [], branches: 0, publishes: 0, queries: [], p1: [], projections: [] };
+  const finance = { stores: [{ sucursal_id: '22', cotizaciones: 7, precurse: 2 },
+    { sucursal_id: '8', cotizaciones: 11, precurse: 3 }],
+    periods: [{ label: 'CURRENT', cutoff_date: body.cutoff_date, cotizaciones: 20, aprobados: 999, ufi: 888 }],
+    precurse: { value: 6, snapshot_date: '2026-10-29', unresolved_store_value: 1 } };
   const details = [
     { vin: 'A', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-01' },
     { vin: 'B', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-26' },
@@ -41,7 +45,7 @@ async function fixture(options = {}) {
   if (options.mixed) rows[2].generation_id = 'other-generation';
   const store = { latest: async args => { calls.reads.push(plain(args)); return options.empty ? [] : rows; },
     publish: async () => { calls.publishes++; throw new Error('Unexpected direct publication'); } };
-  const context = createContext({ URL, Intl, Date, process: { env: { PROJECTIONS_ENVIRONMENT: options.environment || 'staging' } } });
+  const context = createContext({ URL, Request, Intl, Date, process: { env: { PROJECTIONS_ENVIRONMENT: options.environment || 'staging' } } });
   const exports = {
     'node:crypto': { randomUUID }, 'next/server': { NextResponse: { json: (data, init) => Response.json(data, init) } },
     '../../../lib/monthly-close-tracking-store.js': { createMonthlyCloseTrackingStore: () => store },
@@ -56,7 +60,8 @@ async function fixture(options = {}) {
       calls.queries.push({ query, args: args && plain(args) });
       if (query.includes('weekly_projection_results')) return options.noProjection ? [] : [{ updated_at: 'saved-cut',
         payload: { admin: { sales_mtd: { date_from: '2026-10-01', cutoff_date: '2026-10-29',
-          total_units: options.incompleteProjection ? 5 : 4, details }, brand_indicators: { sales: brands } } } }];
+          total_units: options.incompleteProjection ? 5 : 4, details }, brand_indicators: { sales: brands } },
+          ...(options.noFinance ? {} : { companyFinance: finance }) } }];
       assert.match(query, /SELECT to_jsonb\(g\) AS item FROM dealer_groups g/);
       assert.match(query, /WHERE EXISTS \(SELECT 1 FROM dealer_monthly_sellin_snapshots s/);
       assert.match(query, /s\.period=\$1 AND s\.dealer_group_id::text=COALESCE\(to_jsonb\(g\)->>'dealer_group_id',to_jsonb\(g\)->>'id'\)/);
@@ -82,6 +87,13 @@ async function fixture(options = {}) {
     '../weekly-projections/sucursales/route.js': { GET: async () => { calls.branches++;
       return Response.json({ ok: true, sucursales: options.invalidCatalog ? [] : [
         { sucursal_id: 8, nombre_canonico: 'Plaza Norte' }, { sucursal_id: '22', nombre_canonico: 'Costanera' }] });
+    } },
+    '../weekly-projections/projections/route.js': { GET: async request => {
+      const url = new URL(request.url), sid = url.searchParams.get('sucursal_id');
+      calls.projections.push({ sid, week_start: url.searchParams.get('week_start') });
+      if (options.failProjections) return Response.json({ ok: false, error: 'SIMULATED_PROJECTIONS_FAILURE' }, { status: 500 });
+      return Response.json({ ok: true, sucursal_id: sid, week_start: '2026-10-26',
+        projections: sid === '8' ? [{ projected_units: 1 }, { projected_units: 2 }] : [] });
     } },
   };
   const module = new SourceTextModule(source, { context });
@@ -116,8 +128,9 @@ test('daily view reuses saved own-store detail and fetches dealers once, without
   assert.equal(f.calls.generates.length, 0); assert.equal(f.calls.publishes, 0); assert.equal(f.calls.reads.length, 0);
   assert.deepEqual(data.dealers.map(r => r.id).sort(), ['8', '9']);
   assert.equal(data.dealers.reduce((sum, r) => sum + r.total, 0), 2);
-  assert.deepEqual(data.summary, { stores: { total: 4, foton: 3, dongfeng: 1, unidentified: 0 },
-    dealers: { total: 2, foton: 1, dongfeng: 1, unidentified: 0 } });
+  assert.deepEqual(data.summary.dealers, { total: 2, foton: 1, dongfeng: 1, unidentified: 0 });
+  assert.equal(data.summary.stores.total, 4); assert.equal(data.summary.stores.foton, 3);
+  assert.equal(data.summary.stores.dongfeng, 1); assert.equal(data.summary.stores.unidentified, 0);
   for (const channel of ['stores', 'dealers']) {
     assert.equal(data.summary[channel].total, data[channel].reduce((n, row) => n + row.total, 0));
   }
@@ -128,6 +141,32 @@ test('daily view reuses saved own-store detail and fetches dealers once, without
   assert.deepEqual(emptyData.summary.dealers, { total: 0, foton: 0, dongfeng: 0, unidentified: 0 });
 });
 
+test('reuses saved FORUM and live projections by store, without substituting approvals or UFI for CURSE', async () => {
+  const query = 'period=2026-10&cutoff_date=2026-10-29&view=daily';
+  const f = await fixture(), response = await f.api.GET(get(query)), data = await response.json();
+  assert.equal(response.status, 200);
+  assert.deepEqual(data.stores.map(r => [r.id, r.sucursal_id, r.sales, r.projected_units, r.expected_total]),
+    [['8', '8', 4, 3, 7], ['22', '22', 0, 0, 0]]);
+  const forum = (cotizaciones, precursadas) => ({ cotizaciones, precursadas, cursadas: null,
+    cursadas_status: 'UNAVAILABLE_IN_PROJECTIONS', precurse_snapshot_date: '2026-10-29' });
+  assert.deepEqual(data.stores.map(r => r.forum), [forum(11, 3), forum(7, 2)]);
+  assert.equal(data.summary.stores.projected_units, 3); assert.equal(data.summary.stores.expected_total, 7);
+  // Preserve Admin's company totals: unresolved-store FORUM is not allocated to a store.
+  assert.deepEqual(data.summary.stores.forum, forum(20, 6));
+  assert.deepEqual(f.calls.projections, [{ sid: '8', week_start: '2026-10-26' }, { sid: '22', week_start: '2026-10-26' }]);
+  assert.equal(f.calls.queries.length, 2); assert.equal(f.calls.p1.length, 1); assert.equal(f.calls.generates.length, 0);
+  assert.ok(data.dealers.every(row => !('forum' in row) && !('projected_units' in row)));
+  const missing = await fixture({ noFinance: true });
+  const unavailable = await (await missing.api.GET(get(query))).json();
+  assert.ok(unavailable.stores.every(row => row.forum.cotizaciones === null && row.forum.precursadas === null && row.forum.cursadas === null));
+  assert.equal(unavailable.summary.stores.forum.cotizaciones, null);
+  assert.equal(unavailable.summary.stores.forum.precursadas, null);
+  assert.equal(unavailable.summary.stores.projected_units, 3);
+  const failed = await fixture({ failProjections: true });
+  const error = await failed.api.GET(get(query)); assert.equal(error.status, 500);
+  assert.equal((await error.json()).error, 'SIMULATED_PROJECTIONS_FAILURE'); assert.equal(failed.calls.publishes, 0);
+});
+
 test('unknown brands preserve channel totals and do not alter existing daily arrays', async () => {
   const query = 'period=2026-10&cutoff_date=2026-10-29&view=daily';
   const baseline = await (await (await fixture()).api.GET(get(query))).json();
@@ -135,8 +174,8 @@ test('unknown brands preserve channel totals and do not alter existing daily arr
     const f = await fixture({ mutateBrands: b => { b.foton = 2; }, mutateWork: w => { w.rows[1].brand_id = brand_id; } });
     const response = await f.api.GET(get(query)), data = await response.json();
     assert.equal(response.status, 200);
-    assert.deepEqual(data.summary, { stores: { total: 4, foton: 2, dongfeng: 1, unidentified: 1 },
-      dealers: { total: 2, foton: 1, dongfeng: 0, unidentified: 1 } });
+    assert.equal(data.summary.stores.foton, 2); assert.equal(data.summary.stores.unidentified, 1);
+    assert.deepEqual(data.summary.dealers, { total: 2, foton: 1, dongfeng: 0, unidentified: 1 });
     assert.deepEqual(data.stores, baseline.stores); assert.deepEqual(data.dealers, baseline.dealers);
     assert.equal(f.calls.p1.length, 1); assert.equal(f.calls.queries.length, 2);
   }
