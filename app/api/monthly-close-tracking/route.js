@@ -4,6 +4,7 @@ import { createMonthlyCloseTrackingStore } from '../../../lib/monthly-close-trac
 import { createMonthlyCloseTrackingGenerator } from '../../../lib/monthly-close-tracking-generator.js';
 import { GET as getBranches } from '../weekly-projections/sucursales/route.js';
 import { GET as getProjections } from '../weekly-projections/projections/route.js';
+import { GET as getNotInvoiced } from '../weekly-projections/not-invoiced/route.js';
 import { db } from '../../../lib/db.js';
 import { withP1Mcp, callP1 } from '../../../lib/p1-client.js';
 
@@ -119,6 +120,14 @@ async function dailyTables(period, cutoff_date, env, origin) {
       throw new Error(data?.error || 'INCOMPLETE_LIVE_PROJECTIONS');
     return [sid, data.projections.reduce((sum, row) => sum + Number(row.projected_units || 0), 0)];
   })));
+  const sent = new Map(await Promise.all(catalog.sucursales.map(async store => {
+    const sid = String(store.sucursal_id);
+    const response = await getNotInvoiced(new Request(`${origin}/api/weekly-projections/not-invoiced?sucursal_id=${encodeURIComponent(sid)}&week_start=2026-10-26`));
+    const data = await response.json();
+    if (!response.ok || data?.ok !== true || !Array.isArray(data.items))
+      throw new Error(data?.error || 'INCOMPLETE_SENT_NOT_INVOICED');
+    return [sid, data.items.reduce((sum, row) => sum + Number(row.units || 0), 0)];
+  })));
   const finance = saved[0].payload.companyFinance;
   const storeFinance = new Map((finance?.stores || []).map(row => [String(row.sucursal_id), row]));
   const currentFinance = finance?.periods?.find(row => row.label === 'CURRENT');
@@ -130,13 +139,15 @@ async function dailyTables(period, cutoff_date, env, origin) {
     row.sucursal_id = row.id;
     row.sales = row.total;
     row.projected_units = projected.get(row.id) || 0;
-    row.expected_total = row.sales + row.projected_units;
+    row.sent_not_invoiced_units = sent.get(row.id) || 0;
+    row.expected_total = row.sales + row.projected_units + row.sent_not_invoiced_units;
     // Same zero defaults as renderStoreFinanceTable, only when the source exists.
     row.forum = forum(Array.isArray(finance?.stores) ? Number(source?.cotizaciones || 0) : null,
       Array.isArray(finance?.stores) && finance?.precurse ? Number(source?.precurse || 0) : null);
   }
   summary.stores.projected_units = [...projected.values()].reduce((sum, value) => sum + value, 0);
-  summary.stores.expected_total = summary.stores.total + summary.stores.projected_units;
+  summary.stores.sent_not_invoiced_units = [...sent.values()].reduce((sum, value) => sum + value, 0);
+  summary.stores.expected_total = summary.stores.total + summary.stores.projected_units + summary.stores.sent_not_invoiced_units;
   // Company indicators retain Admin's totals, including any unresolved store coverage.
   summary.stores.forum = forum(currentFinance ? Number(currentFinance.cotizaciones || 0) : null,
     finance?.precurse ? Number(finance.precurse.value || 0) : null);
