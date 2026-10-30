@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { SourceTextModule, SyntheticModule, createContext } from 'node:vm';
-import { createMonthlyCloseTrackingGenerator } from '../lib/monthly-close-tracking-generator.js';
 
 const source = await readFile(new URL('../app/api/monthly-close-tracking/route.js', import.meta.url), 'utf8');
 const body = { period: '2026-10', cutoff_date: '2026-10-29', cutoff_at: '2026-10-29T18:00:00-03:00' };
@@ -12,7 +11,20 @@ const request = (value = body) => new Request('http://local/api/monthly-close-tr
 const get = (query = 'period=2026-10&cutoff_date=2026-10-29') => new Request('http://local/api/monthly-close-tracking?' + query);
 const plain = value => JSON.parse(JSON.stringify(value));
 async function fixture(options = {}) {
-  const calls = { reads: [], generates: [], branches: 0, publishes: 0 };
+  const calls = { reads: [], generates: [], branches: 0, publishes: 0, queries: [], p1: [] };
+  const details = [
+    { vin: 'A', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-01' },
+    { vin: 'B', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-26' },
+    { vin: 'C', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-27' },
+    { vin: 'D', sucursal_id: '8', sucursal: 'Plaza Norte', fecha_venta: '2026-10-29' },
+  ];
+  const work = { source: 'SALES', dataset: 'SALES_WORK', version: '0.13', grain: 'RECOGNIZED_SALE',
+    size: { filtered_n: 3 }, rows: [
+      { vin: 'E', dealer_group_id: '8', sale_date: '2026-10-20' },
+      { vin: 'F', dealer_group_id: '8', sale_date: '2026-10-27' },
+      { vin: 'G', dealer_group_id: null, sale_date: '2026-10-29' },
+    ] };
+  options.mutateWork?.(work);
   const rows = ['COMPANY', 'DEALERS', 'STORE', 'STORE'].map((dimension, i) => ({
     environment: options.environment || 'staging', period: '2026-10-01', cutoff_date: '2026-10-28',
     cutoff_at: '2026-10-28T21:00:00Z', cutoff_timezone: 'America/Santiago', generation_id: 'one-generation',
@@ -21,7 +33,7 @@ async function fixture(options = {}) {
       yoy: { absolute_delta: 2 }, attainment: { attainment_percent: i < 2 ? null : 50 }, rhythm: i < 2 ? null : { current: {} } },
   }));
   if (options.mixed) rows[2].generation_id = 'other-generation';
-  const store = { latest: async args => { calls.reads.push(plain(args)); return { rows: options.empty ? [] : rows }; },
+  const store = { latest: async args => { calls.reads.push(plain(args)); return options.empty ? [] : rows; },
     publish: async () => { calls.publishes++; throw new Error('Unexpected direct publication'); } };
   const context = createContext({ URL, Intl, Date, process: { env: { PROJECTIONS_ENVIRONMENT: options.environment || 'staging' } } });
   const exports = {
@@ -29,15 +41,28 @@ async function fixture(options = {}) {
     '../../../lib/monthly-close-tracking-store.js': { createMonthlyCloseTrackingStore: () => store },
     '../../../lib/monthly-close-tracking-generator.js': { createMonthlyCloseTrackingGenerator: deps => {
       assert.equal(deps.store, store);
-      // Failure path executes the actual generator with a failing simulated P1 connection.
-      const failing = createMonthlyCloseTrackingGenerator({ store, withP1Mcp: async () => { throw new Error('SIMULATED_P1_FAILURE'); } });
       return async args => { calls.generates.push(plain(args));
-        if (options.failGeneration) return failing(args);
+        if (options.failGeneration) throw new Error('SIMULATED_P1_FAILURE');
         return { publication: { generation_id: 'new-generation', generated_at: '2026-10-29T21:01:00Z', rows: 4 } };
       };
     } },
+    '../../../lib/db.js': { db: () => ({ query: async (query, args) => {
+      calls.queries.push({ query, args: args && plain(args) });
+      if (query.includes('weekly_projection_results')) return options.noProjection ? [] : [{ updated_at: 'saved-cut',
+        payload: { admin: { sales_mtd: { date_from: '2026-10-01', cutoff_date: '2026-10-29',
+          total_units: options.incompleteProjection ? 5 : 4, details } } } }];
+      assert.match(query, /SELECT to_jsonb\(g\) AS item FROM dealer_groups g/);
+      return [{ item: { dealer_group_id: 8, nombre_canonico: 'Dealer ocho' } },
+        { item: { id: 9, nombre: 'Dealer sin ventas' } }];
+    } }) },
+    '../../../lib/p1-client.js': { withP1Mcp: async callback => callback('mock-client'),
+      callP1: async (client, name, args) => {
+        assert.equal(client, 'mock-client'); calls.p1.push({ name, args: plain(args) });
+        return { ...work, filters: args.filters };
+      } },
     '../weekly-projections/sucursales/route.js': { GET: async () => { calls.branches++;
-      return Response.json({ ok: true, sucursales: options.invalidCatalog ? [] : [{ sucursal_id: 8 }, { sucursal_id: '22' }] });
+      return Response.json({ ok: true, sucursales: options.invalidCatalog ? [] : [
+        { sucursal_id: 8, nombre_canonico: 'Plaza Norte' }, { sucursal_id: '22', nombre_canonico: 'Costanera' }] });
     } },
   };
   const module = new SourceTextModule(source, { context });
@@ -49,8 +74,51 @@ async function fixture(options = {}) {
     }, { context });
   });
   await module.evaluate();
-  return { api: module.namespace, calls, rows };
+  return { api: module.namespace, calls, rows, work };
 }
+
+test('daily view reuses saved own-store detail and fetches dealers once, without generation', async () => {
+  const f = await fixture(), response = await f.api.GET(get('period=2026-10&cutoff_date=2026-10-29&view=daily'));
+  const data = await response.json();
+  assert.equal(response.status, 200); assert.equal(data.monday_date, '2026-10-26');
+  assert.deepEqual(data.stores.map(r => [r.id, r.name, r.monday, r.daily.map(d => d.value), r.total]), [
+    ['8', 'Plaza Norte', 2, [1, 0, 1, null, null], 4], ['22', 'Costanera', 0, [0, 0, 0, null, null], 0],
+  ]);
+  assert.deepEqual(data.dealers.map(r => [r.id, r.name, r.monday, r.daily.map(d => d.value), r.total]), [
+    ['8', 'Dealer ocho', 1, [1, 0, 0, null, null], 2], ['9', 'Dealer sin ventas', 0, [0, 0, 0, null, null], 0],
+    ['0', 'Sin dealer identificado', 0, [0, 0, 1, null, null], 1],
+  ]);
+  for (const row of [...data.stores, ...data.dealers])
+    assert.equal(row.total, row.monday + row.daily.reduce((n, d) => n + (d.value ?? 0), 0));
+  assert.equal(f.calls.queries.length, 2); assert.deepEqual(f.calls.queries[0].args, ['2026-10-26', '2026-10-29', 'staging']);
+  assert.ok(f.calls.queries.every(c => /^SELECT /.test(c.query)));
+  assert.equal(f.calls.p1.length, 1); assert.equal(f.calls.p1[0].name, 'data_fetch');
+  assert.deepEqual(f.calls.p1[0].args.fields, ['vin', 'sale_date', 'dealer_group_id']);
+  assert.deepEqual(f.calls.p1[0].args.filters, { commercial_universe: 'DEALERS', date_from: '2026-10-01', date_to: '2026-10-29' });
+  assert.equal(f.calls.generates.length, 0); assert.equal(f.calls.publishes, 0); assert.equal(f.calls.reads.length, 0);
+});
+
+test('daily view rejects missing cuts, incomplete details and invalid dates without producing false zeros', async () => {
+  const query = 'period=2026-10&cutoff_date=2026-10-29&view=daily';
+  const missing = await fixture({ noProjection: true });
+  const response = await missing.api.GET(get(query));
+  assert.equal(response.status, 404); assert.equal((await response.json()).error, 'PROJECTIONS_SNAPSHOT_NOT_FOUND');
+  assert.equal(missing.calls.p1.length, 0);
+  for (const options of [{ incompleteProjection: true }, { invalidCatalog: true },
+    { mutateWork: w => w.rows.pop() }, { mutateWork: w => w.rows[0].sale_date = '2026-10-30' },
+    { mutateWork: w => w.rows[0].dealer_group_id = 'invalid' }]) {
+    const f = await fixture(options), result = await f.api.GET(get(query));
+    assert.equal(result.status, 500); assert.equal((await result.json()).ok, false);
+    assert.equal(f.calls.generates.length, 0); assert.equal(f.calls.publishes, 0);
+  }
+  for (const query of ['period=2026-09&cutoff_date=2026-09-29&view=daily',
+    'period=2026-10&cutoff_date=2026-10-25&view=daily', 'period=2026-10&cutoff_date=2026-10-29&view=other']) {
+    const f = await fixture(); assert.equal((await f.api.GET(get(query))).status, 400);
+    assert.equal(f.calls.queries.length, 0); assert.equal(f.calls.p1.length, 0);
+  }
+  const prod = await fixture({ environment: 'production' });
+  assert.equal((await prod.api.GET(get(query))).status, 403); assert.equal(prod.calls.queries.length, 0);
+});
 
 test('GET reads one generation via the store, includes all dimensions and metadata, and never generates', async () => {
   const f = await fixture(), response = await f.api.GET(get()), data = await response.json();

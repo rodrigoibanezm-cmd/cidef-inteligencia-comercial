@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { createMonthlyCloseTrackingStore } from '../../../lib/monthly-close-tracking-store.js';
 import { createMonthlyCloseTrackingGenerator } from '../../../lib/monthly-close-tracking-generator.js';
 import { GET as getBranches } from '../weekly-projections/sucursales/route.js';
+import { db } from '../../../lib/db.js';
+import { withP1Mcp, callP1 } from '../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
 const store = createMonthlyCloseTrackingStore();
@@ -25,13 +27,77 @@ function dates({ period, cutoff_date }) {
   return { period, cutoff_date };
 }
 
+// Presentation only: reuse the saved Proyecciones detail and the Dealers identity.
+// Monthly dealer snapshots cannot supply daily dates; fetch their existing SALES_WORK fields.
+async function dailyTables(period, cutoff_date, env) {
+  if (env !== 'staging') return bad('STAGING_ONLY', 403);
+  if (period !== '2026-10' || cutoff_date < '2026-10-26' || cutoff_date > '2026-10-31')
+    invalid('UNSUPPORTED_DAILY_CUT');
+  const response = await getBranches(), catalog = await response.json();
+  if (!response.ok || catalog?.ok !== true || !Array.isArray(catalog.sucursales) || !catalog.sucursales.length)
+    throw new Error('INCOMPLETE_STORE_CATALOG');
+  const sql = db();
+  const saved = await sql.query(`SELECT payload, updated_at::text FROM weekly_projection_results
+    WHERE week_start=$1::date AND cutoff_date=$2::date AND environment=$3 AND scope_key='COMPANY'`,
+  ['2026-10-26', cutoff_date, env]);
+  if (!saved.length) return bad('PROJECTIONS_SNAPSHOT_NOT_FOUND', 404);
+  const sales = saved[0].payload?.admin?.sales_mtd;
+  if (saved.length !== 1 || sales?.date_from !== '2026-10-01' || sales?.cutoff_date !== cutoff_date ||
+      !Array.isArray(sales.details) || sales.total_units !== sales.details.length)
+    throw new Error('INCOMPLETE_PROJECTIONS_DETAIL');
+  const names = await sql.query('SELECT to_jsonb(g) AS item FROM dealer_groups g');
+  const dealerCatalog = names.map(({ item }) => ({ id: String(item.dealer_group_id ?? item.id ?? ''),
+    name: item.nombre_canonico ?? item.nombre ?? item.name }));
+  const stores = catalog.sucursales.map(s => ({ id: String(s.sucursal_id ?? ''), name: s.nombre_canonico }));
+  const index = entries => {
+    if (!entries.length || entries.some(r => !/^\d+$/.test(r.id) || typeof r.name !== 'string' || !r.name.trim()) ||
+        new Set(entries.map(r => r.id)).size !== entries.length) throw new Error('INVALID_DAILY_CATALOG');
+    return new Map(entries.map(r => [r.id, { ...r, monday: 0,
+      daily: Array.from({ length: 5 }, (_, i) => ({ date: '2026-10-' + (27 + i),
+        value: '2026-10-' + (27 + i) <= cutoff_date ? 0 : null })), total: 0 }]));
+  };
+  const own = index(stores), dealers = index(dealerCatalog);
+  const add = (map, id, name, day) => {
+    if (typeof day !== 'string' || !/^2026-10-(0[1-9]|[12][0-9]|3[01])$/.test(day) || day > cutoff_date)
+      throw new Error('INVALID_DAILY_SALE_DATE');
+    if (!map.has(id)) {
+      if (!/^\d+$/.test(id) || typeof name !== 'string' || !name.trim()) throw new Error('UNRESOLVED_DAILY_IDENTITY');
+      map.set(id, index([{ id, name }]).get(id));
+    }
+    const row = map.get(id);
+    if (day <= '2026-10-26') row.monday++;
+    else row.daily.find(d => d.date === day).value++;
+    row.total++;
+  };
+  for (const sale of sales.details) add(own, String(sale.sucursal_id ?? ''), sale.sucursal, sale.fecha_venta);
+  const run_id = randomUUID();
+  const work = await withP1Mcp(client => callP1(client, 'data_fetch', { run_id, source: 'SALES',
+    filters: { commercial_universe: 'DEALERS', date_from: '2026-10-01', date_to: cutoff_date },
+    fields: ['vin', 'sale_date', 'dealer_group_id'] }));
+  if (work?.source !== 'SALES' || work.dataset !== 'SALES_WORK' || work.grain !== 'RECOGNIZED_SALE' ||
+      !Array.isArray(work.rows) || work.size?.filtered_n !== work.rows.length)
+    throw new Error('INCOMPLETE_DEALER_DETAIL');
+  for (const sale of work.rows) {
+    const id = String(sale.dealer_group_id ?? 0);
+    // Same explicit unresolved bucket and label fallback as /api/dealers.
+    add(dealers, id, id === '0' ? 'Sin dealer identificado' : 'Dealer ' + id, sale.sale_date);
+  }
+  return NextResponse.json({ ok: true, environment: env, period, cutoff_date,
+    monday_date: '2026-10-26', daily_basis: 'SALE_DATE_AT_CUTOFF',
+    stores: [...own.values()], dealers: [...dealers.values()],
+    sources: { stores: { table: 'weekly_projection_results', updated_at: saved[0].updated_at },
+      dealers: { dataset: work.dataset, version: work.version, filters: work.filters, run_id } } });
+}
+
 export async function GET(request) {
   try {
     const params = new URL(request.url).searchParams;
-    if ([...params.keys()].some(k => !['period', 'cutoff_date'].includes(k) || params.getAll(k).length !== 1))
+    if ([...params.keys()].some(k => !['period', 'cutoff_date', 'view'].includes(k) || params.getAll(k).length !== 1) ||
+        (params.has('view') && params.get('view') !== 'daily'))
       invalid('INVALID_PARAMETERS');
     const { period, cutoff_date } = dates(Object.fromEntries(params));
     const env = environment();
+    if (params.get('view') === 'daily') return await dailyTables(period, cutoff_date, env);
     const rows = await store.latest({ environment: env, period: period + '-01', cutoff_date });
     if (!rows.length) return bad('SNAPSHOT_NOT_FOUND', 404);
     const first = rows[0];
