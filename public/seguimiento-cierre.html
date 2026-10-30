@@ -16,7 +16,10 @@ let snapshot=null,names=new Map(),busy=false;
 let closingSnapshot=null,closingMessage='Consultando ventas diarias…',closingError=false,closingRequest=0;
 const OCTOBER_GOALS=Object.freeze({'Plaza Norte':40,'Plaza Oeste':40,'Plaza Vespucio':45,'Bellavista':50,'Concepción':25,'Plaza Sur':47,'Costanera':23,'Pajaritos':35,'Plaza Egaña':30,'Antofagasta':41,'Vicuña Mackenna':35,'Las Condes':10,'La Florida':7,'Quilín':12});
 const closingDays=['2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-10-31'];
-const goalName=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\b(cidef|sucursal)\b/g,'').replace(/\s+/g,' ').trim();
+function goalName(value){
+ const name=String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\b(cidef|sucursal)\b/g,'').replace(/\s+/g,' ').trim().replace(/^mall /,'');
+ return ({'cenco costanera':'costanera','cenco florida':'la florida','paseo quilin':'quilin'})[name]||name;
+}
 function goalsById(){const goals=new Map();for(const [label,value] of Object.entries(OCTOBER_GOALS)){const matches=[...names].filter(([,name])=>goalName(name)===goalName(label));if(matches.length===1)goals.set(matches[0][0],value)}return goals}
 const finite=v=>typeof v==='number'&&Number.isFinite(v);
 const fmt=(v,suffix='')=>finite(v)?new Intl.NumberFormat('es-CL',{maximumFractionDigits:1}).format(v)+suffix:NA;
