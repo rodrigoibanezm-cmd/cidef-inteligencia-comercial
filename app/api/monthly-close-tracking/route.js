@@ -257,12 +257,36 @@ async function dailyTables(period, cutoff_date, env, origin) {
 export async function GET(request) {
   try {
     const params = new URL(request.url).searchParams;
-    if ([...params.keys()].some(k => !['period', 'cutoff_date', 'view'].includes(k) || params.getAll(k).length !== 1) ||
-        (params.has('view') && params.get('view') !== 'daily'))
+    if ([...params.keys()].some(k => !['period', 'cutoff_date', 'view', 'refresh'].includes(k) || params.getAll(k).length !== 1) ||
+        (params.has('view') && params.get('view') !== 'daily') ||
+        (params.has('refresh') && (params.get('refresh') !== '1' || params.get('view') !== 'daily')))
       invalid('INVALID_PARAMETERS');
     const { period, cutoff_date } = dates(Object.fromEntries(params));
     const env = environment();
-    if (params.get('view') === 'daily') return await dailyTables(period, cutoff_date, env, new URL(request.url).origin);
+    if (params.get('view') === 'daily') {
+      if (env !== 'staging') return bad('STAGING_ONLY', 403);
+      const sql = db();
+      if (params.get('refresh') !== '1') {
+        const cached = await sql.query(`SELECT payload->'closing_daily' AS detail
+          FROM weekly_projection_results
+          WHERE environment=$1 AND week_start='2026-10-26'::date
+            AND cutoff_date<=$2::date AND scope_key='COMPANY'
+            AND payload ? 'closing_daily'
+          ORDER BY cutoff_date DESC LIMIT 1`, [env, cutoff_date]);
+        if (!cached.length) return bad('CLOSING_DAILY_SNAPSHOT_NOT_FOUND', 404);
+        return NextResponse.json(cached[0].detail);
+      }
+      const calculated = await dailyTables(period, cutoff_date, env, new URL(request.url).origin);
+      if (!calculated.ok) return calculated;
+      const data = await calculated.json();
+      const updated = await sql.query(`UPDATE weekly_projection_results
+        SET payload=jsonb_set(payload,'{closing_daily}',$1::jsonb,true)
+        WHERE environment=$2 AND week_start='2026-10-26'::date
+          AND cutoff_date=$3::date AND scope_key='COMPANY'
+        RETURNING scope_key`, [JSON.stringify(data), env, cutoff_date]);
+      if (updated.length !== 1) throw new Error('CLOSING_SNAPSHOT_SAVE_FAILED');
+      return NextResponse.json(data);
+    }
     const rows = await store.latest({ environment: env, period: period + '-01', cutoff_date });
     if (!rows.length) return bad('SNAPSHOT_NOT_FOUND', 404);
     const first = rows[0];
