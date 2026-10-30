@@ -144,7 +144,7 @@ async function dailyTables(period, cutoff_date, env, origin) {
     if (!['PROJECTION', 'SENT_NOT_INVOICED'].includes(row.kind)) throw new Error('INVALID_PRODUCT_BREAKDOWN');
     const count = Number(row.units);
     if (!Number.isSafeInteger(count) || count < 0) throw new Error('INVALID_PRODUCT_UNITS');
-    group('OWN_STORES', row.marca_id, row.modelo_id)[row.kind === 'PROJECTION' ? 'proyeccion' : 'enviado_no_facturado'] += count;
+    if (row.kind === 'PROJECTION') group('OWN_STORES', row.marca_id, row.modelo_id).proyeccion += count;
   }
   for (const row of groups.values()) row.total = row.ventas + row.proyeccion + row.enviado_no_facturado;
   for (const sale of work.rows) {
@@ -178,7 +178,12 @@ async function dailyTables(period, cutoff_date, env, origin) {
     return [sid, data.items.reduce((sum, row) => {
       const entered = row.sent_at == null ? null : new Date(row.sent_at);
       if (!entered || !Number.isFinite(entered.getTime())) throw new Error('INVALID_SENT_ENTRY_DATE');
-      return sum + (entryDay.format(entered) === today ? Number(row.units || 0) : 0);
+      if (entryDay.format(entered) !== today) return sum;
+      const count = Number(row.units || 0);
+      if (!Number.isSafeInteger(count) || count < 0) throw new Error('INVALID_SENT_PRODUCT_UNITS');
+      const model = catalogByModel.get(String(row.modelo_id ?? ''));
+      group('OWN_STORES', model?.marca_id, row.modelo_id).enviado_no_facturado += count;
+      return sum + count;
     }, 0)];
   })));
   const finance = saved[0].payload.companyFinance;
@@ -206,8 +211,10 @@ async function dailyTables(period, cutoff_date, env, origin) {
     .reduce((total, row) => total + Number(row.units), 0);
   if (breakdownSum('PROJECTION') !== summary.stores.projected_units)
     throw new Error('PROJECTION_MODEL_TOTAL_MISMATCH');
-  // Sent units on these cards are restricted to today's entries. The persisted
-  // weekly breakdown has a different scope: do not mislabel it as today's sent units.
+  if ([...groups.values()].filter(row => row.channel === 'OWN_STORES')
+      .reduce((n, row) => n + row.enviado_no_facturado, 0) !== summary.stores.sent_not_invoiced_units)
+    throw new Error('SENT_TODAY_MODEL_TOTAL_MISMATCH');
+  // Sent model detail uses only today's live pending entries, matching the headline.
   const modelRows = [...groups.values()];
   const familyRows = [...new Set(modelRows.map(row => row.channel + ':' + row.marca + ':' + row.familia))].map(key => {
     const rows = modelRows.filter(row => row.channel + ':' + row.marca + ':' + row.familia === key);
@@ -222,7 +229,7 @@ async function dailyTables(period, cutoff_date, env, origin) {
     throw new Error('PRODUCT_CHANNEL_SALES_TOTAL_MISMATCH');
   summary.product_models = modelRows;
   summary.product_families = familyRows;
-  summary.product_sent_scope = 'WEEK_PENDING';
+  summary.product_sent_scope = 'TODAY_ONLY';
   // Company indicators retain Admin's totals, including any unresolved store coverage.
   summary.stores.forum = forum(currentFinance ? Number(currentFinance.cotizaciones || 0) : null,
     finance?.precurse ? Number(finance.precurse.value || 0) : null);
