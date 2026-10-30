@@ -148,14 +148,6 @@ async function dailyTables(period, cutoff_date, env, origin) {
   for (const sale of work.rows) {
     if (dealers.has(String(sale.dealer_group_id ?? ''))) group('DEALERS', sale.brand_id, sale.model_id).ventas++;
   }
-  const breakdown = saved[0].payload?.admin?.product_breakdown;
-  if (!Array.isArray(breakdown)) throw new Error('PRODUCT_BREAKDOWN_SNAPSHOT_NOT_FOUND');
-  for (const row of breakdown) {
-    if (!['PROJECTION', 'SENT_NOT_INVOICED'].includes(row.kind)) throw new Error('INVALID_PRODUCT_BREAKDOWN');
-    const count = Number(row.units);
-    if (!Number.isSafeInteger(count) || count < 0) throw new Error('INVALID_PRODUCT_UNITS');
-    if (row.kind === 'PROJECTION') group('OWN_STORES', row.marca_id, row.modelo_id).proyeccion += count;
-  }
   for (const sale of work.rows) {
     const id = String(sale.dealer_group_id ?? 0);
     if (!/^\d+$/.test(id)) throw new Error('UNRESOLVED_DAILY_IDENTITY');
@@ -174,7 +166,13 @@ async function dailyTables(period, cutoff_date, env, origin) {
     const data = await response.json();
     if (!response.ok || data?.ok !== true || !Array.isArray(data.projections))
       throw new Error(data?.error || 'INCOMPLETE_LIVE_PROJECTIONS');
-    return [sid, data.projections.reduce((sum, row) => sum + Number(row.projected_units || 0), 0)];
+    return [sid, data.projections.reduce((sum, row) => {
+      const count = Number(row.projected_units || 0);
+      if (!Number.isSafeInteger(count) || count < 0) throw new Error('INVALID_PROJECTION_UNITS');
+      const model = catalogByModel.get(String(row.modelo_id ?? ''));
+      group('OWN_STORES', model?.marca_id, row.modelo_id).proyeccion += count;
+      return sum + count;
+    }, 0)];
   })));
   const entryDay = new Intl.DateTimeFormat('en-CA', { timeZone: TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' });
   const today = entryDay.format(new Date());
@@ -219,11 +217,6 @@ async function dailyTables(period, cutoff_date, env, origin) {
   summary.stores.projected_units = [...projected.values()].reduce((sum, value) => sum + value, 0);
   summary.stores.sent_not_invoiced_units = [...sent.values()].reduce((sum, value) => sum + value, 0);
   summary.stores.expected_total = summary.stores.total + summary.stores.projected_units + summary.stores.sent_not_invoiced_units;
-  // Projections are live on the existing cards; the saved model breakdown must reconcile.
-  const breakdownSum = kind => breakdown.filter(row => row.kind === kind)
-    .reduce((total, row) => total + Number(row.units), 0);
-  if (breakdownSum('PROJECTION') !== summary.stores.projected_units)
-    throw new Error('PROJECTION_MODEL_TOTAL_MISMATCH');
   if ([...groups.values()].filter(row => row.channel === 'OWN_STORES')
       .reduce((n, row) => n + row.enviado_no_facturado, 0) !== summary.stores.sent_not_invoiced_units)
     throw new Error('SENT_TODAY_MODEL_TOTAL_MISMATCH');
