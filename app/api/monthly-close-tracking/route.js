@@ -247,6 +247,19 @@ async function dailyTables(period, cutoff_date, env, origin) {
       dealers: { dataset: work.dataset, version: work.version, filters: work.filters, run_id } } });
 }
 
+async function sqlReadMonthly(sql, env, period, cutoff_date) {
+  return sql.query(`WITH latest AS (
+    SELECT cutoff_date,generation_id FROM monthly_close_tracking_snapshots s
+    WHERE environment=$1 AND period=$2::date AND cutoff_date<=$3::date
+      AND dimension='COMPANY' AND dimension_id<>'CLOSING_DAILY'
+    ORDER BY cutoff_date DESC,cutoff_at DESC,generated_at DESC,generation_id DESC LIMIT 1
+  ) SELECT r.environment,r.period::text,r.cutoff_date::text,r.cutoff_at,r.cutoff_timezone,
+      r.generation_id,r.dimension,r.dimension_id,r.payload,r.sources,r.engine_version,r.generated_at
+    FROM monthly_close_tracking_snapshots r JOIN latest l
+      ON r.cutoff_date=l.cutoff_date AND r.generation_id=l.generation_id
+    WHERE r.environment=$1 AND r.period=$2::date AND r.dimension_id<>'CLOSING_DAILY'
+    ORDER BY r.dimension,r.dimension_id`, [env, period+'-01', cutoff_date]);
+}
 export async function GET(request) {
   try {
     const params = new URL(request.url).searchParams;
@@ -260,27 +273,29 @@ export async function GET(request) {
       if (env !== 'staging') return bad('STAGING_ONLY', 403);
       const sql = db();
       if (params.get('refresh') !== '1') {
-        const cached = await sql.query(`SELECT payload->'closing_daily' AS detail
-          FROM weekly_projection_results
-          WHERE environment=$1 AND week_start='2026-10-26'::date
-            AND cutoff_date<=$2::date AND scope_key='COMPANY'
-            AND payload ? 'closing_daily'
-          ORDER BY cutoff_date DESC LIMIT 1`, [env, cutoff_date]);
+        const cached = await sql.query(`SELECT payload->'detail' AS detail
+          FROM monthly_close_tracking_snapshots
+          WHERE environment=$1 AND period=$2::date AND cutoff_date<=$3::date
+            AND dimension='COMPANY' AND dimension_id='CLOSING_DAILY'
+          ORDER BY cutoff_date DESC,generated_at DESC LIMIT 1`, [env, period+'-01', cutoff_date]);
         if (!cached.length) return bad('CLOSING_DAILY_SNAPSHOT_NOT_FOUND', 404);
         return NextResponse.json(cached[0].detail);
       }
       const calculated = await dailyTables(period, cutoff_date, env, new URL(request.url).origin);
       if (!calculated.ok) return calculated;
       const data = await calculated.json();
-      const updated = await sql.query(`UPDATE weekly_projection_results
-        SET payload=jsonb_set(payload,'{closing_daily}',$1::jsonb,true)
-        WHERE environment=$2 AND week_start='2026-10-26'::date
-          AND cutoff_date=$3::date AND scope_key='COMPANY'
-        RETURNING scope_key`, [JSON.stringify(data), env, cutoff_date]);
-      if (updated.length !== 1) throw new Error('CLOSING_SNAPSHOT_SAVE_FAILED');
+      // Independent immutable daily generation: refreshing projections cannot erase it.
+      const stamp = cutoff_date+'T12:00:00-03:00';
+      await sql.query(`INSERT INTO monthly_close_tracking_snapshots
+        (environment,period,cutoff_date,cutoff_at,cutoff_timezone,generation_id,
+         dimension,dimension_id,payload,sources,engine_version)
+        VALUES ($1,$2::date,$3::date,$4::timestamptz,'America/Santiago',$5::uuid,
+          'COMPANY','CLOSING_DAILY',$6::jsonb,$7::jsonb,$8)`,
+        [env,period+'-01',cutoff_date,stamp,randomUUID(),JSON.stringify({detail:data}),
+         JSON.stringify(data.sources||{}),VERSION]);
       return NextResponse.json(data);
     }
-    const rows = await store.latest({ environment: env, period: period + '-01', cutoff_date });
+    const rows = await sqlReadMonthly(db(), env, period, cutoff_date);
     if (!rows.length) return bad('SNAPSHOT_NOT_FOUND', 404);
     const first = rows[0];
     if (rows.some(row => row.generation_id !== first.generation_id || row.period !== first.period ||
