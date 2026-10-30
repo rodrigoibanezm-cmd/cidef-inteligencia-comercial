@@ -104,7 +104,7 @@ function productDetail(channel){
     '<tr class="family-row"><td>Total '+name+'</td>'+cells(total)+'</tr></tbody></table></div>';
  });
  return '<div class="product-detail">'+pieces.join('')+
-   (scope==='OWN_STORES'?'<div class="data-note">Enviado no facturado por modelo: pendientes de la semana. El indicador superior considera solo ingresos de hoy.</div>':'')+'</div>';
+   (scope==='OWN_STORES'?'<div class="data-note">Enviado no facturado: únicamente pendientes ingresados hoy.</div>':'')+'</div>';
 }
 function hero(channel,title,isStore){
  const data=closingSnapshot,summary=data?.summary?.[channel],rows=data?.[channel]||[],meta=isStore&&data?.period==='2026-10'?469:null;
