@@ -91,7 +91,7 @@ function productDetail(channel){
  if(!Array.isArray(models)||!Array.isArray(families))return '<div class="data-note">Desglose por modelo pendiente de actualización del snapshot.</div>';
  const scope=channel==='stores'?'OWN_STORES':'DEALERS';
  const brandIds=[['89','Foton'],['71','Dongfeng']];
- const keys=['ventas','proyeccion','enviado_no_facturado','total'];
+ const keys=['total','ventas','proyeccion','enviado_no_facturado'];
  const cells=row=>keys.map(key=>'<td>'+fmt(row[key])+'</td>').join('');
  const pieces=brandIds.map(([id,name])=>{
   const familyRows=families.filter(row=>row.channel===scope&&String(row.marca_id)===id);
@@ -103,7 +103,7 @@ function productDetail(channel){
   }).join('');
   const brandModels=models.filter(row=>row.channel===scope&&String(row.marca_id)===id);
   const total=Object.fromEntries(keys.map(key=>[key,brandModels.reduce((n,row)=>n+Number(row[key]||0),0)]));
-  return '<h3>'+name+'</h3><div class="table-wrap"><table class="table"><thead><tr><th>Familia / Modelo</th><th>Ventas</th><th>Proyección</th><th>Enviado no facturado</th><th>Total</th></tr></thead><tbody>'+familyBlock+
+  return '<h3>'+name+'</h3><div class="table-wrap"><table class="table"><thead><tr><th>Familia / Modelo</th><th>Total</th><th>Ventas</th><th>Proyección</th><th>Enviado no facturado</th></tr></thead><tbody>'+familyBlock+
     '<tr class="family-row"><td>Total '+name+'</td>'+cells(total)+'</tr></tbody></table></div>';
  });
  return '<div class="product-detail">'+pieces.join('')+
