@@ -28,7 +28,7 @@
 const API='/api/monthly-close-tracking',$=s=>document.querySelector(s),NA='—',ZONE='America/Santiago';
 let snapshot=null,names=new Map(),busy=false;
 let closingSnapshot=null,closingMessage='Consultando ventas diarias…',closingError=false,closingRequest=0;
-const OCTOBER_GOALS=Object.freeze({'Plaza Norte':40,'Plaza Oeste':40,'Plaza Vespucio':45,'Bellavista':50,'Concepción':32,'Plaza Sur':47,'Costanera':23,'Pajaritos':35,'Plaza Egaña':30,'Antofagasta':41,'Vicuña Mackenna':32,'Las Condes':10,'La Florida':7,'Quilín':12,'Plaza Alameda':25});
+const OCTOBER_GOALS=Object.freeze({'Plaza Norte':40,'Plaza Oeste':40,'Plaza Vespucio':45,'Bellavista':50,'Concepción':32,'Plaza Sur':47,'Costanera':23,'Pajaritos':35,'Plaza Egaña':30,'Antofagasta':41,'Vicuña Mackenna':25,'Las Condes':10,'La Florida':7,'Quilín':12,'Plaza Alameda':25});
 const closingDays=['2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-10-31'];
 function goalName(value){
  const name=String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\b(cidef|sucursal)\b/g,'').replace(/\s+/g,' ').trim().replace(/^mall /,'');
@@ -147,7 +147,7 @@ document.addEventListener('click',event=>{
  });
 });
 function hero(channel,title,isStore){
- const data=closingSnapshot,summary=data?.summary?.[channel],rows=data?.[channel]||[],meta=isStore&&data?.period==='2026-10'?469:null;
+ const data=closingSnapshot,summary=data?.summary?.[channel],rows=data?.[channel]||[],meta=isStore&&data?.period==='2026-10'?462:null;
  const sum=field=>{const values=rows.map(field);return data&&values.every(finite)?values.reduce((a,b)=>a+b,0):null};
  const days=[{label:'Lun 26 · Acumulado',value:sum(row=>row.monday)},...closingDays.map((date,i)=>({label:['Mar 27','Mié 28','Jue 29','Vie 30','Sáb 31'][i],value:!data||date>data.cutoff_date?null:sum(row=>row.daily.find(d=>d.date===date)?.value)}))];
  let accumulated=0;
