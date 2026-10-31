@@ -156,7 +156,9 @@ async function dailyTables(period, cutoff_date, env, origin) {
       add(dealers, id, dealers.get(id).name, sale.sale_date);
       const brand = String(sale.brand_id ?? '');
       summary.dealers.total++;
-      summary.dealers[brand === '89' ? 'foton' : brand === '71' ? 'dongfeng' : 'unidentified']++;
+      const bucket = brand === '89' ? 'foton' : brand === '71' ? 'dongfeng' : 'unidentified';
+      summary.dealers[bucket]++;
+      dealers.get(id)[bucket] = (dealers.get(id)[bucket] || 0) + 1;
     }
   }
   // Same live endpoint and aggregation used by weekly-projections/results.
