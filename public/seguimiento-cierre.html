@@ -71,13 +71,11 @@ function ownStoreTable(rows,period){
 }
 function closingTable(rows,isStore,period){
  if(isStore)return ownStoreTable(rows,period);
- const goals=goalsById(),useGoals=period==='2026-10'&&selected().period==='2026-10';
- const values=row=>[row.monday,...closingDays.map(day=>row.daily.find(d=>d.date===day)?.value),row.total,...(isStore?[useGoals?goals.get(String(row.id)):null]:[])];
- const body=rows.map(row=>'<tr data-closing-id="'+esc(row.id)+'"><td>'+esc(row.name)+'</td>'+values(row).map(value=>'<td class="num">'+fmt(value)+'</td>').join('')+'</tr>').join('');
- const sum=column=>{const items=rows.map(row=>values(row)[column]);return items.length&&items.every(finite)?items.reduce((a,b)=>a+b,0):null};
- const totals=Array.from({length:7},(_,column)=>sum(column));
- if(isStore){const assigned=rows.map(row=>useGoals?goals.get(String(row.id)):null).filter(finite);totals.push(assigned.length?assigned.reduce((a,b)=>a+b,0):null)}
- return '<section class="section" aria-label="'+(isStore?'Seguimiento diario de sucursales':'Seguimiento diario de dealers')+'"><div class="section-head"><h2>'+ (isStore?'Sucursales propias · seguimiento diario':'Dealers · seguimiento diario')+'</h2></div><div class="table-wrap"><table class="table"><thead><tr><th scope="col">'+(isStore?'Sucursal':'Dealer')+'</th>'+['Lun 26 · Acumulado','Mar 27','Mié 28','Jue 29','Vie 30','Sáb 31','Total',...(isStore?['Meta']:[])].map(label=>'<th scope="col" class="num">'+label+'</th>').join('')+'</tr></thead><tbody>'+body+'</tbody><tfoot><tr><th scope="row">TOTAL</th>'+totals.map(value=>'<td class="num"><strong>'+fmt(value)+'</strong></td>').join('')+'</tr></tfoot></table></div></section>';
+ const value=row=>fmt(row.total)+' ('+fmt(row.foton??0)+'/'+fmt(row.dongfeng??0)+')';
+ const totals=rows.reduce((a,row)=>({total:a.total+row.total,foton:a.foton+(row.foton||0),dongfeng:a.dongfeng+(row.dongfeng||0)}),{total:0,foton:0,dongfeng:0});
+ return '<section class="section" aria-label="Consolidado de dealers"><div class="section-head"><h2>Dealers · Consolidado</h2></div><div class="table-wrap"><table class="table"><thead><tr><th scope="col">Dealer</th><th scope="col" class="num">Ventas (F/D)</th></tr></thead><tbody>'+
+ rows.map(row=>'<tr data-closing-id="'+esc(row.id)+'"><td>'+esc(row.name)+'</td><td class="num">'+value(row)+'</td></tr>').join('')+
+ '</tbody><tfoot><tr><th scope="row">TOTAL</th><td class="num"><strong>'+value(totals)+'</strong></td></tr></tfoot></table></div></section>';
 }
 function renderClosing(){
  const slot=$('#closingTables');if(!slot)return;
