@@ -301,7 +301,18 @@ export async function GET(request) {
       };
     }));
     const projections = liveByStore.flatMap(x => x.projections);
-    const sent = liveByStore.flatMap(x => x.sent);
+    // Match Seguimiento de Cierre: only pending entries recorded today in Santiago.
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date());
+    const dayInSantiago = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    const sent = liveByStore.flatMap(x => x.sent).filter(row => {
+      const date = row.sent_at == null ? null : new Date(row.sent_at);
+      if (!date || !Number.isFinite(date.getTime())) throw new Error('INVALID_SENT_ENTRY_DATE');
+      return dayInSantiago.format(date) === today;
+    });
     const payload = cached.payload.admin;
     const yoyPeriod = payload.historical_context.periods.find(p=>p.label==='YOY');
     // Legacy snapshots lack seller details; an absent array is never an observed zero.
