@@ -4,6 +4,17 @@
 .navigation{display:flex;gap:16px;margin-bottom:18px}.navigation a{color:#596579;font-size:13px}.snapshot-meta{margin-top:14px;overflow-wrap:anywhere}.message{margin-top:14px;min-height:20px;font-size:13px}.message.error{color:#9b2c2c}.detail-link{background:none;border:0;color:#172033;text-decoration:underline;cursor:pointer;font:inherit}.hero-value.unavailable{font-size:22px}button:disabled{opacity:.55;cursor:wait}.daily-table{margin-top:10px}.rhythm-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:14px;align-items:start}.rhythm-grid .table-wrap{border:0}.snapshot-meta summary{cursor:pointer}.snapshot-meta pre{white-space:pre-wrap;max-height:260px;overflow:auto;font-size:11px}.empty[hidden]{display:none}
 .closing-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.closing-kpis span{display:block;font-size:12px;color:#667286}.closing-kpis strong{display:block;font-size:32px;line-height:1.2;margin-top:6px;overflow-wrap:anywhere}.closing-brands{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;font-size:14px}.product-detail{margin:12px 0 16px}.product-detail h3{margin:14px 0 6px;font-size:14px}.product-detail .table{font-size:12px;font-variant-numeric:tabular-nums}.product-detail .table th,.product-detail .table td{padding:7px 6px}.product-detail .table th:not(:first-child),.product-detail .table td:not(:first-child){text-align:center!important}.product-detail .family-row{font-weight:750;background:#eef2f8}.product-detail .model-row td:first-child{padding-left:18px;color:#596579}.product-detail .table th:first-child{white-space:normal}.product-detail .model-row[hidden]{display:none}.family-toggle{border:0;background:transparent;padding:0;color:inherit;font:inherit;font-weight:750;cursor:pointer;text-align:left}.family-toggle:hover{text-decoration:underline}
 .own-closing .section-head{border-left:4px solid #2563eb;padding-left:12px;align-items:center}.own-closing .table{table-layout:fixed;min-width:1040px;font-variant-numeric:tabular-nums}.own-closing .table th,.own-closing .table td{padding:10px 8px;border-right:1px solid #e5eaf1}.own-closing .table .num{text-align:center!important}.own-closing .table th:first-child,.own-closing .table td:first-child{width:27%;padding-left:16px}.own-closing thead th{background:#192f4c;color:#fff;font-weight:600;white-space:normal}.own-closing thead th:last-child,.own-closing td:last-child{border-right:0}.own-closing tbody tr:nth-child(even){background:#f4f6f9}.own-closing .table td:nth-child(5){font-weight:750}.own-closing .table tfoot th,.own-closing .table tfoot td{background:#eaf0f7;border-top:2px solid #cbd5e1;font-weight:750}.own-closing .gap-negative{color:#dc2626;font-weight:750}.own-closing .gap-positive{color:#2563eb;font-weight:750}
+.mobile-own-table{display:none}
+@media(max-width:700px){
+ .own-closing>.table-wrap:not(.mobile-own-table){display:none}
+ .own-closing .mobile-own-table{display:block}
+ .mobile-own-table .table{min-width:650px;table-layout:auto}
+ .mobile-own-table .table th:first-child,.mobile-own-table .table td:first-child{position:sticky;left:0;z-index:1;width:172px;min-width:172px;max-width:172px;white-space:normal;background:#fff}
+ .mobile-own-table .table thead th:first-child{z-index:3;background:#192f4c}
+ .mobile-own-table .table tbody tr:nth-child(even) th:first-child{background:#f4f6f9}
+ .mobile-own-table .table tfoot th:first-child{background:#eaf0f7}
+ .mobile-own-table .table td,.mobile-own-table .table th{white-space:nowrap}
+}
 .store-progress{margin:18px 0}.store-progress-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px}.store-progress-track{display:flex;height:16px;background:#edf0f4;border-radius:8px;overflow:hidden}.store-progress-track span{flex-shrink:0}.store-progress-sales{background:#2563eb}.store-progress-projected{background:#63b7be}.store-progress-sent{background:#e5aa42}.store-progress-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;font-size:12px}.store-progress-metrics strong{display:block;margin-top:5px;font-size:19px}.store-progress-metrics span{overflow-wrap:anywhere}.store-progress-metrics i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
 @media(max-width:800px){.hero-grid,.grid,.refs,.rhythm-grid{grid-template-columns:1fr}.filters{width:100%;display:grid;grid-template-columns:1fr 1fr}.filters select,.filters input{min-width:0;width:100%}.shell{padding:18px}.hero{padding:18px}}@media(max-width:440px){.filters{grid-template-columns:1fr}h1{font-size:27px}}
 </style></head><body><main class="shell">
@@ -31,6 +42,21 @@ const esc=(v='')=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 const ymd=(d=new Date())=>new Intl.DateTimeFormat('en-CA',{timeZone:ZONE,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
 const dateLabel=v=>typeof v==='string'?v.slice(0,10).split('-').reverse().join('-'):NA;
 const storeName=id=>names.get(String(id))||'Sucursal '+id;
+function ownStoreMobile(rows,ordered,totals){
+ const name=value=>String(value).replace(/^CIDEF\s+/i,'');
+ const sales=row=>fmt(row.sales)+' ('+fmt(row.foton)+'/'+fmt(row.dongfeng)+')';
+ const tr=({row,values})=>'<tr><th scope="row">'+esc(name(row.name))+'</th>'+
+   '<td class="num">'+signed(values[5])+'</td><td class="num">'+fmt(values[3])+'</td>'+
+   '<td class="num">'+fmt(values[4])+'</td><td class="num">'+sales(row)+'</td></tr>';
+ const sumF=rows.reduce((n,row)=>n+Number(row.foton||0),0);
+ const sumD=rows.reduce((n,row)=>n+Number(row.dongfeng||0),0);
+ return '<div class="table-wrap mobile-own-table"><table class="table"><thead><tr>'+
+   '<th>Sucursal</th><th>Brecha</th><th>Total</th><th>Meta</th><th>Ventas (F/D)</th>'+
+   '</tr></thead><tbody>'+ordered.map(tr).join('')+'</tbody><tfoot><tr><th>TOTAL</th>'+
+   '<td class="num">'+signed(totals[5])+'</td><td class="num">'+fmt(totals[3])+'</td>'+
+   '<td class="num">'+fmt(totals[4])+'</td><td class="num">'+fmt(totals[0])+
+   ' ('+fmt(sumF)+'/'+fmt(sumD)+')</td></tr></tfoot></table></div>';
+}
 function ownStoreTable(rows,period){
  const goals=goalsById(),useGoals=period==='2026-10'&&selected().period==='2026-10';
  const values=row=>{const goal=useGoals?goals.get(String(row.id)):null;return [row.sales,row.projected_units,row.sent_not_invoiced_units,row.expected_total,goal,finite(row.expected_total)&&finite(goal)?row.expected_total-goal:null,row.forum?.cotizaciones,row.forum?.precursadas]};
@@ -41,7 +67,7 @@ function ownStoreTable(rows,period){
  const body=ordered.map(({row,values})=>'<tr data-closing-id="'+esc(row.id)+'"><td>'+esc(row.name)+'</td>'+salesCell(values[0],row.foton,row.dongfeng)+values.slice(1).map((value,i)=>cell(value,i+1)).join('')+'</tr>').join('');
  const totals=Array.from({length:8},(_,column)=>{const items=rows.map(row=>values(row)[column]);const available=column===4?items.filter(finite):items;return available.length&&available.every(finite)?available.reduce((a,b)=>a+b,0):null});
  const dates=[...new Set(rows.map(row=>row.forum?.precurse_snapshot_date).filter(Boolean))];
- return '<section class="section own-closing" aria-label="Seguimiento de sucursales"><div class="section-head"><h2>Tiendas Propias · Seguimiento comercial</h2><div class="muted">Brecha = Total − Meta</div></div><div class="table-wrap"><table class="table"><thead><tr><th scope="col">Sucursal</th>'+['Ventas (F/D)','Proyección','Enviado no facturado','Total','Meta','Brecha ↑','Cotizaciones','Precursadas'].map((label,column)=>'<th scope="col" class="num"'+(column===5?' aria-sort="ascending"':'')+'>'+label+'</th>').join('')+'</tr></thead><tbody>'+body+'</tbody><tfoot><tr><th scope="row">TOTAL</th>'+salesCell(totals[0],rows.reduce((n,row)=>n+(row.foton||0),0),rows.reduce((n,row)=>n+(row.dongfeng||0),0))+totals.slice(1).map((value,i)=>cell(value,i+1)).join('')+'</tr></tfoot></table></div>'+(dates.length?'<div class="data-note">Precursadas · snapshot '+esc(dates.map(dateLabel).join(', '))+'</div>':'')+'</section>';
+ return '<section class="section own-closing" aria-label="Seguimiento de sucursales"><div class="section-head"><h2>Tiendas Propias · Seguimiento comercial</h2><div class="muted">Brecha = Total − Meta</div></div><div class="table-wrap"><table class="table"><thead><tr><th scope="col">Sucursal</th>'+['Ventas (F/D)','Proyección','Enviado no facturado','Total','Meta','Brecha ↑','Cotizaciones','Precursadas'].map((label,column)=>'<th scope="col" class="num"'+(column===5?' aria-sort="ascending"':'')+'>'+label+'</th>').join('')+'</tr></thead><tbody>'+body+'</tbody><tfoot><tr><th scope="row">TOTAL</th>'+salesCell(totals[0],rows.reduce((n,row)=>n+(row.foton||0),0),rows.reduce((n,row)=>n+(row.dongfeng||0),0))+totals.slice(1).map((value,i)=>cell(value,i+1)).join('')+'</tr></tfoot></table></div>'+ownStoreMobile(rows,ordered,totals)+(dates.length?'<div class="data-note">Precursadas · snapshot '+esc(dates.map(dateLabel).join(', '))+'</div>':'')+'</section>';
 }
 function closingTable(rows,isStore,period){
  if(isStore)return ownStoreTable(rows,period);
