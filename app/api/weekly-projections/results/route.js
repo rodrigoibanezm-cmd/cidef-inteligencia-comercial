@@ -431,18 +431,18 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
              SUM(units)::bigint AS units
       FROM (
         SELECT 'PROJECTION' AS kind, p.sucursal_id, p.modelo_id, m.marca_id,
-               ma.nombre_canonico AS marca, m.nombre_canonico AS modelo, m.familia,
+               COALESCE(ma.nombre_canonico, 'Sin marca') AS marca, COALESCE(m.nombre_canonico, 'Sin modelo') AS modelo, m.familia,
                p.projected_units AS units
         FROM weekly_sales_projection p
-        JOIN modelos_master_v01 m ON m.modelo_id=p.modelo_id
-        JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
+        LEFT JOIN modelos_master_v01 m ON m.modelo_id=p.modelo_id
+        LEFT JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
         WHERE p.week_start=$1::date
         UNION ALL
         SELECT 'SENT_NOT_INVOICED', x.sucursal_id, x.modelo_id, m.marca_id,
-               ma.nombre_canonico, m.nombre_canonico, m.familia, x.units
+               COALESCE(ma.nombre_canonico, 'Sin marca'), COALESCE(m.nombre_canonico, 'Sin modelo'), m.familia, x.units
         FROM sales_sent_not_invoiced x
-        JOIN modelos_master_v01 m ON m.modelo_id=x.modelo_id
-        JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
+        LEFT JOIN modelos_master_v01 m ON m.modelo_id=x.modelo_id
+        LEFT JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
         WHERE x.status='PENDING'
           AND COALESCE(x.week_start, date_trunc('week', x.sent_at AT TIME ZONE 'America/Santiago')::date)=$1::date
       ) detail
