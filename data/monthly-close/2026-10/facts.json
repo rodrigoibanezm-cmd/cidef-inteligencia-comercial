@@ -4061,9 +4061,37 @@
         },
         "seller_detail": {
           "status": "RECONCILED",
-          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "basis": "Ventas SALES antes de NC; nómina Proyecciones por persona_id, con asignaciones manuales de octubre confirmadas por el usuario.",
           "roster_count": 3,
           "rows": [
+            {
+              "id": "242",
+              "name": "Jessica Guapacha",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 3,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                3
+              ]
+            },
+            {
+              "id": "243",
+              "name": "Leidy Puerta",
+              "kind": "ROSTER",
+              "sales": 2,
+              "foton": 2,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                2
+              ]
+            },
             {
               "id": "244",
               "name": "Ada Gonzalez",
@@ -4079,45 +4107,17 @@
               ]
             },
             {
-              "id": "242",
-              "name": "Jessica Guapacha",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
-              "history": [
-                null,
-                null,
-                null,
-                0
-              ]
-            },
-            {
-              "id": "243",
-              "name": "Leidy Puerta",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
-              "history": [
-                null,
-                null,
-                null,
-                0
-              ]
-            },
-            {
               "id": "outside-roster",
               "name": "Fuera de nómina / sin resolver",
               "kind": "OUTSIDE_ROSTER",
-              "sales": 8,
-              "foton": 7,
+              "sales": 3,
+              "foton": 2,
               "dongfeng": 1,
               "history": [
                 null,
                 null,
                 null,
-                8
+                3
               ]
             }
           ]
@@ -4548,7 +4548,7 @@
         },
         "seller_detail": {
           "status": "RECONCILED",
-          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "basis": "Ventas SALES antes de NC; nómina Proyecciones por persona_id, con asignaciones manuales de octubre confirmadas por el usuario.",
           "roster_count": 6,
           "rows": [
             {
@@ -4625,28 +4625,28 @@
               "id": "249",
               "name": "PALACIOS EGUILUZ LILLIAN",
               "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
+              "sales": 3,
+              "foton": 1,
+              "dongfeng": 2,
               "history": [
                 0,
                 0,
                 0,
-                0
+                3
               ]
             },
             {
               "id": "outside-roster",
               "name": "Fuera de nómina / sin resolver",
               "kind": "OUTSIDE_ROSTER",
-              "sales": 3,
-              "foton": 1,
-              "dongfeng": 2,
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
               "history": [
                 4,
                 8,
                 0,
-                3
+                0
               ]
             }
           ]
@@ -5546,7 +5546,7 @@
       "roster_environment": "staging",
       "roster_read_at": "2026-11-03T08:57:33.157476+00:00",
       "roster_sha256": "17e13044938454b6753b14c66c9c61a18bb3f95e14b20b15c64374528791d968",
-      "identity_policy": "persona_id de Proyecciones = seller_id SALES/P1. No se fusionan nombres similares ni IDs distintos. Fuera de nómina o identidad no resuelta se conserva en fila separada.",
+      "identity_policy": "persona_id de Proyecciones = seller_id SALES/P1. No se fusionan nombres similares ni IDs distintos. Fuera de nómina o identidad no resuelta se conserva en fila separada. Excepción explícita: manual_assignments identifica ocho VIN de octubre asignados por instrucción del usuario.",
       "history_policy": "Misma tienda y vendedor en cada mes; ausencia de historia de tienda permanece null. La nómina actual no acredita dotación histórica.",
       "sales_source": {
         "2026-07": {
@@ -5641,6 +5641,55 @@
           },
           "sha256": "ed398c992d379ebea3f5c875d12710dc8a0eb423247af92aa122d6b9bfe32e30"
         }
+      },
+      "manual_assignments": {
+        "period": "2026-10",
+        "authority": "USER_CONFIRMED",
+        "scope": "MONTHLY_CLOSE_SNAPSHOT_ONLY",
+        "reason": "Asignación manual solicitada por Rodrigo de ocho ventas con usuario ERP conocido; conserva la fuente SALES sin modificar maestros.",
+        "assignments": [
+          {
+            "store_id": "78",
+            "seller_id": "242",
+            "name": "Jessica Guapacha",
+            "erp_user": "JGUAPACHA",
+            "vins": [
+              "LVAV2AVB1VE201486",
+              "LVAV2JVB3TE224801",
+              "LVAV2JVB5VE202124"
+            ],
+            "sales": 3,
+            "foton": 3,
+            "dongfeng": 0
+          },
+          {
+            "store_id": "78",
+            "seller_id": "243",
+            "name": "Leidy Puerta",
+            "erp_user": "LPUERTA",
+            "vins": [
+              "LVAV2MAB3VU602888",
+              "LVAV2MAB2VU601103"
+            ],
+            "sales": 2,
+            "foton": 2,
+            "dongfeng": 0
+          },
+          {
+            "store_id": "8",
+            "seller_id": "249",
+            "name": "PALACIOS EGUILUZ LILLIAN",
+            "erp_user": "LPALACIOS",
+            "vins": [
+              "LMXA14AG2VZ351364",
+              "LVAV2MAB2TU315118",
+              "LGJE5EE09TM545069"
+            ],
+            "sales": 3,
+            "foton": 1,
+            "dongfeng": 2
+          }
+        ]
       }
     }
   }
