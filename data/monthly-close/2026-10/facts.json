@@ -366,30 +366,61 @@
       "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
     },
     "rvm_share": {
-      "status": "PRELIMINARY",
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM/P1 · P2 proportion_across_periods",
+      "run_id": "monthly-share-2026-10-20261103",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+      "evidence_ids": [
+        "p1.rvm.f9cd276347aef9978703f9d6",
+        "p1.rvm.baba20316c9796b2ae261603"
+      ],
       "value": 3.1494925416260338,
       "unit": "PERCENT",
       "period": "2026-10",
-      "source": "P1 RVM",
-      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente.",
-      "authority": "CALCULATED_PREVIEW",
-      "note": "CIDEF 872 / mercado total 27687. Recalcular con P2."
+      "cutoff": "2026-10-31",
+      "part_value": 872,
+      "universe_value": 27687
     },
     "rvm_foton_share": {
-      "status": "PENDING_CERTIFICATION",
-      "value": null,
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM/P1 · P2 proportion_across_periods",
+      "run_id": "monthly-share-2026-10-20261103",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "execution_id": "088f9c0b-d1b7-4976-8be1-bee7119e274c",
+      "evidence_ids": [
+        "p1.rvm.cf6d9df866d15c04436bc884",
+        "p1.rvm.baba20316c9796b2ae261603"
+      ],
+      "value": 2.4560262939285584,
       "unit": "PERCENT",
       "period": "2026-10",
-      "source": "RVM",
-      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+      "cutoff": "2026-10-31",
+      "part_value": 680,
+      "universe_value": 27687
     },
     "rvm_dongfeng_share": {
-      "status": "PENDING_CERTIFICATION",
-      "value": null,
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM/P1 · P2 proportion_across_periods",
+      "run_id": "monthly-share-2026-10-20261103",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "execution_id": "2858b4c4-bb5f-4eb9-a95e-c7cc2226c8d8",
+      "evidence_ids": [
+        "p1.rvm.dff70447f901651f421acdc7",
+        "p1.rvm.baba20316c9796b2ae261603"
+      ],
+      "value": 0.6934662476974753,
       "unit": "PERCENT",
       "period": "2026-10",
-      "source": "RVM",
-      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+      "cutoff": "2026-10-31",
+      "part_value": 192,
+      "universe_value": 27687
     },
     "rvm_ytd_share": {
       "status": "PENDING_CERTIFICATION",
@@ -940,16 +971,192 @@
       ]
     },
     "rvm_share": {
-      "status": "PENDING_CERTIFICATION",
-      "points": [],
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM/P1 · P2 proportion_across_periods",
+      "run_id": "monthly-share-2026-10-20261103",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+      "evidence_ids": [
+        "p1.rvm.f9cd276347aef9978703f9d6",
+        "p1.rvm.baba20316c9796b2ae261603"
+      ],
       "unit": "PERCENT",
-      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 3.365423509424804,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+            "evidence_ids": [
+              "p1.rvm.f9cd276347aef9978703f9d6",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 832,
+            "universe_value": 24722
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 3.7137940923429884,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+            "evidence_ids": [
+              "p1.rvm.f9cd276347aef9978703f9d6",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 1036,
+            "universe_value": 27896
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 3.346348704378973,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+            "evidence_ids": [
+              "p1.rvm.f9cd276347aef9978703f9d6",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 1037,
+            "universe_value": 30989
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 3.1494925416260338,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+            "evidence_ids": [
+              "p1.rvm.f9cd276347aef9978703f9d6",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 872,
+            "universe_value": 27687
+          }
+        }
+      ]
     },
     "rvm_foton_share": {
-      "status": "PENDING_CERTIFICATION",
-      "points": [],
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM/P1 · P2 proportion_across_periods",
+      "run_id": "monthly-share-2026-10-20261103",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "execution_id": "088f9c0b-d1b7-4976-8be1-bee7119e274c",
+      "evidence_ids": [
+        "p1.rvm.cf6d9df866d15c04436bc884",
+        "p1.rvm.baba20316c9796b2ae261603"
+      ],
       "unit": "PERCENT",
-      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 2.5766523744033654,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "088f9c0b-d1b7-4976-8be1-bee7119e274c",
+            "evidence_ids": [
+              "p1.rvm.cf6d9df866d15c04436bc884",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 637,
+            "universe_value": 24722
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 2.677803269285919,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "088f9c0b-d1b7-4976-8be1-bee7119e274c",
+            "evidence_ids": [
+              "p1.rvm.cf6d9df866d15c04436bc884",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 747,
+            "universe_value": 27896
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 2.5396108296492304,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "088f9c0b-d1b7-4976-8be1-bee7119e274c",
+            "evidence_ids": [
+              "p1.rvm.cf6d9df866d15c04436bc884",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 787,
+            "universe_value": 30989
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 2.4560262939285584,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "088f9c0b-d1b7-4976-8be1-bee7119e274c",
+            "evidence_ids": [
+              "p1.rvm.cf6d9df866d15c04436bc884",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 680,
+            "universe_value": 27687
+          }
+        }
+      ]
     },
     "forum_quotations": {
       "status": "CERTIFIED",
@@ -1229,10 +1436,98 @@
       ]
     },
     "rvm_dongfeng_share": {
-      "status": "PENDING_CERTIFICATION",
-      "points": [],
+      "status": "CERTIFIED",
+      "authority": "P2_EXECUTED",
+      "source": "RVM/P1 · P2 proportion_across_periods",
+      "run_id": "monthly-share-2026-10-20261103",
+      "contract": "p2.proportion_across_periods",
+      "contract_version": "0.1.0",
+      "execution_id": "2858b4c4-bb5f-4eb9-a95e-c7cc2226c8d8",
+      "evidence_ids": [
+        "p1.rvm.dff70447f901651f421acdc7",
+        "p1.rvm.baba20316c9796b2ae261603"
+      ],
       "unit": "PERCENT",
-      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 0.7887711350214384,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "2858b4c4-bb5f-4eb9-a95e-c7cc2226c8d8",
+            "evidence_ids": [
+              "p1.rvm.dff70447f901651f421acdc7",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 195,
+            "universe_value": 24722
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 1.0359908230570691,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "2858b4c4-bb5f-4eb9-a95e-c7cc2226c8d8",
+            "evidence_ids": [
+              "p1.rvm.dff70447f901651f421acdc7",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 289,
+            "universe_value": 27896
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 0.8067378747297429,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "2858b4c4-bb5f-4eb9-a95e-c7cc2226c8d8",
+            "evidence_ids": [
+              "p1.rvm.dff70447f901651f421acdc7",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 250,
+            "universe_value": 30989
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 0.6934662476974753,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P2_EXECUTED",
+            "source": "RVM/P1 · P2 proportion_across_periods",
+            "run_id": "monthly-share-2026-10-20261103",
+            "contract": "p2.proportion_across_periods",
+            "contract_version": "0.1.0",
+            "execution_id": "2858b4c4-bb5f-4eb9-a95e-c7cc2226c8d8",
+            "evidence_ids": [
+              "p1.rvm.dff70447f901651f421acdc7",
+              "p1.rvm.baba20316c9796b2ae261603"
+            ],
+            "part_value": 192,
+            "universe_value": 27687
+          }
+        }
+      ]
     },
     "sales_foton_own": {
       "status": "PENDING_CERTIFICATION",
@@ -1918,11 +2213,58 @@
       },
       "rvm_share": {
         "label": "vs septiembre",
+        "baseline": {
+          "status": "CERTIFIED",
+          "authority": "P2_EXECUTED",
+          "source": "RVM/P1 · P2 proportion_across_periods",
+          "run_id": "monthly-share-2026-10-20261103",
+          "contract": "p2.proportion_across_periods",
+          "contract_version": "0.1.0",
+          "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+          "evidence_ids": [
+            "p1.rvm.f9cd276347aef9978703f9d6",
+            "p1.rvm.baba20316c9796b2ae261603"
+          ],
+          "value": 3.346348704378973,
+          "unit": "PERCENT",
+          "period": "2026-09"
+        },
+        "current": {
+          "status": "CERTIFIED",
+          "authority": "P2_EXECUTED",
+          "source": "RVM/P1 · P2 proportion_across_periods",
+          "run_id": "monthly-share-2026-10-20261103",
+          "contract": "p2.proportion_across_periods",
+          "contract_version": "0.1.0",
+          "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+          "evidence_ids": [
+            "p1.rvm.f9cd276347aef9978703f9d6",
+            "p1.rvm.baba20316c9796b2ae261603"
+          ],
+          "value": 3.1494925416260338,
+          "unit": "PERCENT",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "part_value": 872,
+          "universe_value": 27687
+        },
         "delta": {
-          "status": "PENDING_CERTIFICATION"
+          "status": "PRELIMINARY",
+          "authority": "SNAPSHOT_DERIVED_FROM_P2",
+          "source": "Variación aritmética entre porcentajes certificados P2; sin ejecución P2 específica de delta",
+          "run_id": "monthly-share-2026-10-20261103",
+          "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+          "value": -0.19685616275293905,
+          "unit": "PP"
         },
         "relative": {
-          "status": "PENDING_CERTIFICATION"
+          "status": "PRELIMINARY",
+          "authority": "SNAPSHOT_DERIVED_FROM_P2",
+          "source": "Variación aritmética entre porcentajes certificados P2; sin ejecución P2 específica de delta",
+          "run_id": "monthly-share-2026-10-20261103",
+          "execution_id": "effa9071-1353-4ab4-a4ec-e796ee034efd",
+          "value": -0.058827151663942416,
+          "unit": "RATIO"
         }
       },
       "rvm_ytd_share": {
