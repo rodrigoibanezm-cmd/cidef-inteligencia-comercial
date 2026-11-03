@@ -46,7 +46,7 @@ function StoreSellerDetail({ store }) {
   return <table className="mc-store-seller-table" aria-label={"Vendedores · " + store.name}>
     <colgroup>{[44,10,10,10,26].map((width, i) => <col key={i} style={{width:width + "%"}}/>)}</colgroup>
     <thead><tr>{["Vendedor", "Total mes", "Foton", "Dongfeng", "Tendencia · jul–oct"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
-    <tbody>{detail.rows.map(seller => <tr key={seller.id} className={seller.kind === "OUTSIDE_ROSTER" ? "mc-seller-unassigned" : undefined}>
+    <tbody>{detail.rows.filter(seller => Number(seller.sales) > 0).map(seller => <tr key={seller.id} className={seller.kind === "OUTSIDE_ROSTER" ? "mc-seller-unassigned" : undefined}>
       <th scope="row" title={seller.kind === "OUTSIDE_ROSTER" ? "Ventas de la tienda con vendedor fuera de la nómina actual de Proyecciones o sin identidad resuelta" : undefined}>{seller.name}</th>
       <td><strong>{numberText(seller.sales)}</strong></td><td>{numberText(seller.foton)}</td><td>{numberText(seller.dongfeng)}</td>
       <td><StoreCloseTrend values={seller.history}/></td>
