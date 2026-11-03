@@ -48,13 +48,18 @@ export default function ExecutiveTotals({ facts }) {
 
       </article>;
     })}</div>
-    {facts.rvm_yoy_comparison && <section className="mc-executive-card" aria-label="Crecimiento interanual RVM" style={{marginTop:20}}>
+    {facts.rvm_yoy_comparison && <section className="mc-executive-card" aria-label="Inscripciones RVM y crecimiento interanual" style={{marginTop:20}}>
       <h3>Mercado vs. CIDEF · inscripciones RVM</h3>
-      <p>Octubre 2026 frente a octubre 2025 · misma fuente y período</p>
-      <div className="mc-description-totals">
-        <article><span>Mercado total</span><strong>+{facts.rvm_yoy_comparison.market.variation_percent.toLocaleString("es-CL")}%</strong><small>{count(facts.rvm_yoy_comparison.market.previous)} → {count(facts.rvm_yoy_comparison.market.current)} inscritos</small></article>
-        <article><span>CIDEF · Foton + DFM</span><strong>+{facts.rvm_yoy_comparison.cidef.variation_percent.toLocaleString("es-CL")}%</strong><small>{count(facts.rvm_yoy_comparison.cidef.previous)} → {count(facts.rvm_yoy_comparison.cidef.current)} inscritos</small></article>
-        <article><span>Diferencia CIDEF vs. mercado</span><strong>+{facts.rvm_yoy_comparison.difference_pp.toLocaleString("es-CL")} pp</strong><small>Variación interanual</small></article>
+      <p>Octubre 2026 frente a octubre 2025</p>
+      <div className="mc-description-totals" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(190px, 1fr))",gap:16}}>
+        {[["Mercado total","market"],["Compañía · Foton + DFM","cidef"],["DFM","dfm"],["Foton","foton"]].map(([label,key]) => {
+          const item = facts.rvm_yoy_comparison[key];
+          return <article key={key}>
+            <span>{label}</span>
+            <strong>{count(item.current)}</strong>
+            <div><strong style={{fontSize:"1.2rem"}}>+{item.variation_percent.toLocaleString("es-CL")}%</strong><small> vs. octubre 2025 ({count(item.previous)})</small></div>
+          </article>;
+        })}
       </div>
       <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas.</small>
     </section>}
