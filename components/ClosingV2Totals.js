@@ -1,5 +1,5 @@
 import { valueText } from "../lib/monthly-close-v2-view";
-import { Comparison, FourMonthTrend } from "./MonthlyCloseV2Metric";
+import MonthlyCloseV2Metric, { Comparison, FourMonthTrend } from "./MonthlyCloseV2Metric";
 import CommercialProductDetail, { CommercialDetailProvider } from "./ClosingV2ProductDetail";
 
 // All numbers and series originate in the period snapshot, never calculated here.
@@ -77,6 +77,7 @@ export default function ExecutiveTotals({ facts }) {
         <div className="mc-rvm-index-desktop"><FourMonthTrend {...rvmChart} wide/></div>
         <div className="mc-rvm-index-mobile"><FourMonthTrend {...rvmChart}/></div>
       </section>
+      <section className="mc-kpis" aria-label="Participación de mercado RVM" style={{gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))"}}>{facts.cards.filter(config => ["rvm_share", "rvm_ytd_share"].includes(config.id)).map(config => <MonthlyCloseV2Metric key={config.id} data={facts} config={config}/>)}</section>
       <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas. Compañía = Foton + DFM.</small>
     </section>}
     <div className="mc-executive-heading mc-trends-heading"><div><span className="eyebrow">EVOLUCIÓN COMERCIAL</span><h2>Últimos cuatro meses · base julio = 100</h2></div></div>

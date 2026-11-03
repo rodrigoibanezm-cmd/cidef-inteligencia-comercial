@@ -21,7 +21,6 @@ export default function CierreMensual() {
       <div className="forum-exec-header"><div><h2>FORUM · Desempeño del financiamiento</h2><p>Octubre 2026 · observaciones P1 y comparativos P2</p></div><span>FORUM</span></div>
       <div className="forum-exec-grid">{facts.company.forum_cards.map(config => <MonthlyCloseV2Metric key={config.id} data={facts} config={config}/>)}</div>
     </section>
-    <section className="mc-kpis" aria-label="Indicadores RVM">{facts.cards.filter(config => config.id.startsWith("rvm_")).map(config => <MonthlyCloseV2Metric key={config.id} data={facts} config={config}/>)}</section>
     <MonthlyCloseV2Ranking period="2026-10" categories={facts.rankings.categories} forum={null}/>
     <StoreCloseTable data={facts.store_close}/>
   </main>;
