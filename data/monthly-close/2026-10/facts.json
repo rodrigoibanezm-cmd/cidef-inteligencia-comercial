@@ -2292,22 +2292,16 @@
     }
   },
   "financial_adjustments": {
-    "prior_period_credit_notes": {
-      "value": -9,
-      "unit": "VIN",
+    "credit_notes": {
       "period": "2026-10",
-      "source": "Seguimiento de Cierre Comercial",
-      "scope": "prior-month credit notes",
-      "status": "USER_PROVIDED",
-      "note": "NC contables de períodos anteriores; excluidas de las 55 NC del cierre de Finanzas de octubre"
-    },
-    "adjusted_total": {
-      "value": 901,
-      "unit": "VIN",
-      "period": "2026-10",
-      "status": "DERIVED_FROM_USER_PROVIDED",
-      "formula": "finanzas_ventas neto octubre (910) + NC de meses anteriores (-9)",
-      "source": "FINANZAS + Seguimiento de Cierre"
+      "unit": "NC",
+      "company": 55,
+      "own_stores": 9,
+      "dealers": 46,
+      "source": "finanzas_ventas + distribución por canal informada por el usuario",
+      "status": "USER_PROVIDED_CHANNEL_ALLOCATION",
+      "formula": "dealers = company - own_stores",
+      "note": "Las 9 NC de Tiendas Propias están incluidas en las 55 de compañía. Dealers es el saldo (46). Las NC ya se descuentan en las 910 unidades netas de Finanzas; no aplicar una resta adicional de 9."
     }
   },
   "channel_sales_p1": {
@@ -3058,3 +3052,4 @@
     }
   }
 }
+

@@ -5,9 +5,9 @@ import CommercialProductDetail, { CommercialDetailProvider } from "./ClosingV2Pr
 // All numbers and series originate in the period snapshot, never calculated here.
 export default function ExecutiveTotals({ facts }) {
   const value = id => valueText(facts.indicators[id]);
-  const adjustments = facts.financial_adjustments;
+  const creditNotes = facts.financial_adjustments?.credit_notes;
   const p1 = facts.channel_sales_p1?.metrics || {};
-  const count = x => typeof x === "number" ? x.toLocaleString("es-CL") : "Pendiente";
+  const count = x => Number.isFinite(x) ? x.toLocaleString("es-CL") : "Pendiente";
   const channelValue = (section, id) => section.id === "sales_company" ? value(id) : valueText(p1[id + "_p1"]);
   const sections = [
     { label: "Compañía", id: "sales_company", foton: "sales_foton", dongfeng: "sales_dongfeng" },
@@ -20,14 +20,11 @@ export default function ExecutiveTotals({ facts }) {
       const yoy = facts.company?.yoy?.[section.id];
       const commercialYoy = facts.channel_sales_p1?.yoy?.[section.id];
       const rvmYoy = facts.rvm_yoy_comparison?.cidef?.variation_percent;
+      const nc = creditNotes?.[section.id === "sales_company" ? "company" : section.id === "sales_own" ? "own_stores" : "dealers"];
       return <article className="mc-executive-card" key={section.id}>
         <h3>{section.label}</h3>
         <div className="mc-executive-value">{channelValue(section, section.id)}<span>{section.p1 ? " ventas P1 · antes de NC" : " unidades netas"}</span></div>
-        {section.id === "sales_company" && adjustments && <div className="mc-executive-adjustment">
-          <div><span>Vendido neto del mes</span><strong>{value("sales_company")}</strong></div>
-          <div className="mc-executive-nc"><span>NC de meses anteriores · Tiendas Propias</span><strong>{count(adjustments.prior_period_credit_notes?.value)}</strong></div>
-          <div className="mc-executive-adjusted"><span>Total financiero ajustado</span><strong>{count(adjustments.adjusted_total?.value)}</strong></div>
-        </div>}
+        <div className="mc-executive-adjustment"><div className="mc-executive-nc"><span>Notas de crédito del mes</span><strong>{Number.isFinite(nc) ? "−" + count(nc) : "Pendiente"}</strong></div></div>
         <div className="mc-executive-brands">
           <div><span>Foton</span><strong>{channelValue(section, section.foton)}</strong></div>
           <div><span>Dongfeng</span><strong>{channelValue(section, section.dongfeng)}</strong></div>
@@ -89,6 +86,7 @@ export default function ExecutiveTotals({ facts }) {
         <small>{section.p1 ? "Fuente SALES/P1 · antes de NC contables" : "Julio–septiembre SALES/P1 · octubre Finanzas"}</small>
       </article>)}
     </div>
-    <p className="mc-executive-foot">Compañía: 910 unidades netas Finanzas. Tiendas Propias (458) y Dealers (507): 965 ventas P1 antes de descontar NC; no son el desglose neto contable. Las 9 NC de períodos anteriores corresponden a Tiendas Propias; las 55 NC de octubre aún no tienen desglose neto certificado por canal.</p>
+    <p className="mc-executive-foot">Compañía: 910 unidades netas Finanzas, con 55 NC ya descontadas. Distribución informada: 9 de Tiendas Propias y 46 de Dealers por diferencia. Las ventas P1 de Tiendas Propias (458) y Dealers (507) se muestran antes de NC; no se aplica una resta adicional a compañía.</p>
   </section></CommercialDetailProvider>;
 }
+
