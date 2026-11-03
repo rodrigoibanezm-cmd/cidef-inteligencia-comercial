@@ -48,6 +48,16 @@ export default function ExecutiveTotals({ facts }) {
 
       </article>;
     })}</div>
+    {facts.rvm_yoy_comparison && <section className="mc-executive-card" aria-label="Crecimiento interanual RVM" style={{marginTop:20}}>
+      <h3>Mercado vs. CIDEF · inscripciones RVM</h3>
+      <p>Octubre 2026 frente a octubre 2025 · misma fuente y período</p>
+      <div className="mc-description-totals">
+        <article><span>Mercado total</span><strong>+{facts.rvm_yoy_comparison.market.variation_percent.toLocaleString("es-CL")}%</strong><small>{count(facts.rvm_yoy_comparison.market.previous)} → {count(facts.rvm_yoy_comparison.market.current)} inscritos</small></article>
+        <article><span>CIDEF · Foton + DFM</span><strong>+{facts.rvm_yoy_comparison.cidef.variation_percent.toLocaleString("es-CL")}%</strong><small>{count(facts.rvm_yoy_comparison.cidef.previous)} → {count(facts.rvm_yoy_comparison.cidef.current)} inscritos</small></article>
+        <article><span>Diferencia CIDEF vs. mercado</span><strong>+{facts.rvm_yoy_comparison.difference_pp.toLocaleString("es-CL")} pp</strong><small>Variación interanual</small></article>
+      </div>
+      <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas.</small>
+    </section>}
     <div className="mc-executive-heading mc-trends-heading"><div><span className="eyebrow">EVOLUCIÓN COMERCIAL</span><h2>Últimos cuatro meses · base julio = 100</h2></div></div>
     <div className="mc-executive-grid mc-executive-trends">
       {sections.map(section => <article className="mc-executive-card mc-trend-card" key={section.id}>
