@@ -48,20 +48,29 @@ export default function ExecutiveTotals({ facts }) {
 
       </article>;
     })}</div>
-    {facts.rvm_yoy_comparison && <section className="mc-executive-card" aria-label="Inscripciones RVM y crecimiento interanual" style={{marginTop:20}}>
+    {facts.rvm_yoy_comparison && <section className="mc-executive-card" aria-label="Inscripciones RVM, variación mensual e interanual" style={{marginTop:20}}>
       <h3>Mercado vs. CIDEF · inscripciones RVM</h3>
-      <p>Octubre 2026 frente a octubre 2025</p>
+      <p>Octubre 2026 · variación interanual vs. octubre 2025 y mensual vs. septiembre 2026</p>
       <div className="mc-description-totals" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(190px, 1fr))",gap:16}}>
         {[["Mercado total","market"],["Compañía · Foton + DFM","cidef"],["DFM","dfm"],["Foton","foton"]].map(([label,key]) => {
           const item = facts.rvm_yoy_comparison[key];
+          const percent = value => (value > 0 ? "+" : "") + value.toLocaleString("es-CL") + "%";
           return <article key={key}>
             <span>{label}</span>
             <strong>{count(item.current)}</strong>
-            <div><strong style={{fontSize:"1.2rem"}}>+{item.variation_percent.toLocaleString("es-CL")}%</strong><small> vs. octubre 2025 ({count(item.previous)})</small></div>
+            <div><strong style={{fontSize:"1.15rem"}}>{percent(item.variation_percent)}</strong><small> interanual</small></div>
+            <div><strong style={{fontSize:"1.15rem"}}>{percent(item.variation_mom_percent)}</strong><small> vs. septiembre</small></div>
           </article>;
         })}
       </div>
-      <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas.</small>
+      <div className="mc-description-table" style={{overflowX:"auto",marginTop:16}}>
+        <table>
+          <thead><tr><th>Inscripciones RVM</th>{facts.rvm_yoy_comparison.monthly_history.periods.map(p => <th key={p}>{({ "07":"Julio","08":"Agosto","09":"Septiembre","10":"Octubre" })[p.slice(-2)]}</th>)}</tr></thead>
+          <tbody>{[["Mercado total","market"],["Compañía","cidef"],["DFM","dfm"],["Foton","foton"]].map(([label,key]) =>
+            <tr key={key}><th scope="row">{label}</th>{facts.rvm_yoy_comparison.monthly_history.series[key].map((n,i) => <td key={i}>{count(n)}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+      <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas. Compañía = Foton + DFM.</small>
     </section>}
     <div className="mc-executive-heading mc-trends-heading"><div><span className="eyebrow">EVOLUCIÓN COMERCIAL</span><h2>Últimos cuatro meses · base julio = 100</h2></div></div>
     <div className="mc-executive-grid mc-executive-trends">
