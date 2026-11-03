@@ -2411,5 +2411,27 @@
     "description": "Datos certificados reutilizados y cálculos provisionales para diseño. Auditoría final por Codex.",
     "rvm_share_calculation": "872/27687",
     "ranking_reference": "Septiembre 2026; no implica ranking octubre"
+  },
+  "rvm_yoy_comparison": {
+    "source": "RVM/P1",
+    "basis": "INSCRIPCIONES",
+    "period": "2026-10",
+    "previous_period": "2025-10",
+    "market": {
+      "previous": 23531,
+      "current": 27687,
+      "variation_percent": 17.7
+    },
+    "cidef": {
+      "previous": 552,
+      "current": 872,
+      "variation_percent": 58,
+      "brands": [
+        "FOTON",
+        "DFM"
+      ]
+    },
+    "difference_pp": 40.3,
+    "note": "Comparación interanual de inscripciones RVM. CIDEF considera exclusivamente marcas FOTON y DFM, no DONGFENG/DONG FENG ni ventas contables."
   }
 }
