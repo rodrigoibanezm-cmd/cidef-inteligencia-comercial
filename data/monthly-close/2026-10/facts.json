@@ -5692,5 +5692,457 @@
         ]
       }
     }
+  },
+  "dealer_close": {
+    "period": "2026-10",
+    "cutoff": "2026-10-31",
+    "status": "RECONCILED",
+    "source": "SALES/P1",
+    "basis": "Sell-in de dealers; ventas reconocidas antes de NC",
+    "dimension": "DEALER_GROUP",
+    "periods": [
+      "2026-07",
+      "2026-08",
+      "2026-09",
+      "2026-10"
+    ],
+    "previous_year_period": "2025-10",
+    "previous_month_period": "2026-09",
+    "row_scope": "Unión de grupos con ventas en octubre 2025 o julio–octubre 2026; identidad canónica dealer_group_id, sin fusionar nombres.",
+    "missing_member_policy": "Dataset mensual completo: ausencia del grupo equivale a cero ventas en ese universo y corte; no acredita actividad o membresía histórica del grupo.",
+    "unresolved_policy": "Ventas sin dealer_group_id se muestran en fila separada y permanecen en todos los totales.",
+    "name_source": {
+      "endpoint": "GET /api/dealers?year=2026",
+      "authority": "dealer_groups leído por endpoint existente",
+      "usage": "Solo IDs y nombres; cifras obtenidas de SALES/P1 al cierre de cada mes."
+    },
+    "run_id": "dealer-close-2026-10-20261103",
+    "monthly_evidence": {
+      "2025-10": {
+        "evidence_id": "p1.sales.b68d3c2e2b41b8ea6c2eaef4",
+        "total": 481,
+        "dimension_unresolved_n": 1,
+        "dataset": "SALES_WORK",
+        "version": "0.13",
+        "filters": {
+          "commercial_universe": "DEALERS",
+          "date_from": "2025-10-01",
+          "date_to": "2025-10-31"
+        },
+        "work_sha256": "27d63a56af1bc4cb619888e16dd46284c1b5b3d8b822db74e5588660650b55d0"
+      },
+      "2026-07": {
+        "evidence_id": "p1.sales.3991cc1b96206115f73a0d34",
+        "total": 490,
+        "dimension_unresolved_n": 0,
+        "dataset": "SALES_WORK",
+        "version": "0.13",
+        "filters": {
+          "commercial_universe": "DEALERS",
+          "date_from": "2026-07-01",
+          "date_to": "2026-07-31"
+        },
+        "work_sha256": "418d0dd854ee189c6cd869937f7c366ef86c67fff575d140d12429d2cb17e8f0"
+      },
+      "2026-08": {
+        "evidence_id": "p1.sales.cf69d828fb0861188e52abaa",
+        "total": 645,
+        "dimension_unresolved_n": 0,
+        "dataset": "SALES_WORK",
+        "version": "0.13",
+        "filters": {
+          "commercial_universe": "DEALERS",
+          "date_from": "2026-08-01",
+          "date_to": "2026-08-31"
+        },
+        "work_sha256": "fafc41480d3b0520e757a19c58238c68c1124803449dbe1f7fc8bd30fba18c44"
+      },
+      "2026-09": {
+        "evidence_id": "p1.sales.4044063295b7cffba567f3b6",
+        "total": 661,
+        "dimension_unresolved_n": 0,
+        "dataset": "SALES_WORK",
+        "version": "0.13",
+        "filters": {
+          "commercial_universe": "DEALERS",
+          "date_from": "2026-09-01",
+          "date_to": "2026-09-30"
+        },
+        "work_sha256": "77bee87da2414fbb99e3549123654d1eca2050c9d09673aea12864e51c85659d"
+      },
+      "2026-10": {
+        "evidence_id": "p1.sales.5f132b9d3dd278cda2e314db",
+        "total": 507,
+        "dimension_unresolved_n": 1,
+        "dataset": "SALES_WORK",
+        "version": "0.13",
+        "filters": {
+          "commercial_universe": "DEALERS",
+          "date_from": "2026-10-01",
+          "date_to": "2026-10-31"
+        },
+        "work_sha256": "6ec5907b348d2df4ac715c5e379d153b513b19ddb86da3a3ec214bb01c6a83a2"
+      }
+    },
+    "rows": [
+      {
+        "id": "19",
+        "name": "ROSSELOT",
+        "sales": 117,
+        "foton": 98,
+        "dongfeng": 19,
+        "previous_year_sales": 167,
+        "previous_month_sales": 274,
+        "history": [
+          152,
+          112,
+          274,
+          117
+        ]
+      },
+      {
+        "id": "1",
+        "name": "FORCENTER",
+        "sales": 55,
+        "foton": 53,
+        "dongfeng": 2,
+        "previous_year_sales": 37,
+        "previous_month_sales": 16,
+        "history": [
+          15,
+          45,
+          16,
+          55
+        ]
+      },
+      {
+        "id": "15",
+        "name": "SALAZAR E ISRAEL",
+        "sales": 51,
+        "foton": 51,
+        "dongfeng": 0,
+        "previous_year_sales": 0,
+        "previous_month_sales": 14,
+        "history": [
+          10,
+          77,
+          14,
+          51
+        ]
+      },
+      {
+        "id": "10",
+        "name": "AUTOMOTORA COLON",
+        "sales": 48,
+        "foton": 33,
+        "dongfeng": 15,
+        "previous_year_sales": 65,
+        "previous_month_sales": 40,
+        "history": [
+          45,
+          61,
+          40,
+          48
+        ]
+      },
+      {
+        "id": "4",
+        "name": "PORTILLO SUR",
+        "sales": 45,
+        "foton": 31,
+        "dongfeng": 14,
+        "previous_year_sales": 28,
+        "previous_month_sales": 45,
+        "history": [
+          20,
+          42,
+          45,
+          45
+        ]
+      },
+      {
+        "id": "2",
+        "name": "CARPOINT",
+        "sales": 40,
+        "foton": 31,
+        "dongfeng": 9,
+        "previous_year_sales": 5,
+        "previous_month_sales": 38,
+        "history": [
+          35,
+          53,
+          38,
+          40
+        ]
+      },
+      {
+        "id": "21",
+        "name": "PIAMONTE",
+        "sales": 31,
+        "foton": 23,
+        "dongfeng": 8,
+        "previous_year_sales": 0,
+        "previous_month_sales": 33,
+        "history": [
+          16,
+          37,
+          33,
+          31
+        ]
+      },
+      {
+        "id": "8",
+        "name": "VEGAARTUS",
+        "sales": 27,
+        "foton": 22,
+        "dongfeng": 5,
+        "previous_year_sales": 11,
+        "previous_month_sales": 1,
+        "history": [
+          19,
+          14,
+          1,
+          27
+        ]
+      },
+      {
+        "id": "5",
+        "name": "AUTOS OGAZ",
+        "sales": 20,
+        "foton": 16,
+        "dongfeng": 4,
+        "previous_year_sales": 7,
+        "previous_month_sales": 12,
+        "history": [
+          22,
+          34,
+          12,
+          20
+        ]
+      },
+      {
+        "id": "12",
+        "name": "GELLONA",
+        "sales": 19,
+        "foton": 18,
+        "dongfeng": 1,
+        "previous_year_sales": 22,
+        "previous_month_sales": 9,
+        "history": [
+          29,
+          12,
+          9,
+          19
+        ]
+      },
+      {
+        "id": "22",
+        "name": "KLASSIK CAR",
+        "sales": 18,
+        "foton": 12,
+        "dongfeng": 6,
+        "previous_year_sales": 30,
+        "previous_month_sales": 55,
+        "history": [
+          32,
+          36,
+          55,
+          18
+        ]
+      },
+      {
+        "id": "11",
+        "name": "AUTOMOTORA AUSTRAL",
+        "sales": 14,
+        "foton": 9,
+        "dongfeng": 5,
+        "previous_year_sales": 27,
+        "previous_month_sales": 23,
+        "history": [
+          29,
+          31,
+          23,
+          14
+        ]
+      },
+      {
+        "id": "13",
+        "name": "CARMONA Y CIA",
+        "sales": 8,
+        "foton": 6,
+        "dongfeng": 2,
+        "previous_year_sales": 7,
+        "previous_month_sales": 54,
+        "history": [
+          23,
+          25,
+          54,
+          8
+        ]
+      },
+      {
+        "id": "18",
+        "name": "CURIFOR",
+        "sales": 6,
+        "foton": 5,
+        "dongfeng": 1,
+        "previous_year_sales": 0,
+        "previous_month_sales": 8,
+        "history": [
+          32,
+          37,
+          8,
+          6
+        ]
+      },
+      {
+        "id": "6",
+        "name": "RENTAL BASILIO",
+        "sales": 4,
+        "foton": 2,
+        "dongfeng": 2,
+        "previous_year_sales": 4,
+        "previous_month_sales": 5,
+        "history": [
+          2,
+          7,
+          5,
+          4
+        ]
+      },
+      {
+        "id": "16",
+        "name": "ROMANINI",
+        "sales": 3,
+        "foton": 2,
+        "dongfeng": 1,
+        "previous_year_sales": 0,
+        "previous_month_sales": 6,
+        "history": [
+          1,
+          10,
+          6,
+          3
+        ]
+      },
+      {
+        "id": "7",
+        "name": "CITY MOTOR",
+        "sales": 0,
+        "foton": 0,
+        "dongfeng": 0,
+        "previous_year_sales": 14,
+        "previous_month_sales": 0,
+        "history": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "id": "17",
+        "name": "GRASS Y ARUESTE",
+        "sales": 0,
+        "foton": 0,
+        "dongfeng": 0,
+        "previous_year_sales": 27,
+        "previous_month_sales": 0,
+        "history": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "id": "20",
+        "name": "IMPORT EXPORT",
+        "sales": 0,
+        "foton": 0,
+        "dongfeng": 0,
+        "previous_year_sales": 0,
+        "previous_month_sales": 2,
+        "history": [
+          1,
+          3,
+          2,
+          0
+        ]
+      },
+      {
+        "id": "3",
+        "name": "MELHUISH",
+        "sales": 0,
+        "foton": 0,
+        "dongfeng": 0,
+        "previous_year_sales": 25,
+        "previous_month_sales": 0,
+        "history": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "id": "29",
+        "name": "SOCIEDAD REAL Y CIA",
+        "sales": 0,
+        "foton": 0,
+        "dongfeng": 0,
+        "previous_year_sales": 0,
+        "previous_month_sales": 26,
+        "history": [
+          0,
+          0,
+          26,
+          0
+        ]
+      },
+      {
+        "id": "9",
+        "name": "VARAS HERMANOS",
+        "sales": 0,
+        "foton": 0,
+        "dongfeng": 0,
+        "previous_year_sales": 4,
+        "previous_month_sales": 0,
+        "history": [
+          4,
+          9,
+          0,
+          0
+        ]
+      },
+      {
+        "id": "UNRESOLVED",
+        "name": "Sin dealer identificado",
+        "sales": 1,
+        "foton": 1,
+        "dongfeng": 0,
+        "previous_year_sales": 1,
+        "previous_month_sales": 0,
+        "history": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "totals": {
+      "sales": 507,
+      "foton": 413,
+      "dongfeng": 94,
+      "previous_year_sales": 481,
+      "previous_month_sales": 661,
+      "history": [
+        490,
+        645,
+        661,
+        507
+      ]
+    }
   }
 }

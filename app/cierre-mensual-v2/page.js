@@ -21,16 +21,17 @@ export default function CierreMensual() {
       <div className="forum-exec-grid">{facts.company.forum_cards.map(config => <MonthlyCloseV2Metric key={config.id} data={facts} config={config}/>)}</div>
     </section>
     <StoreCloseTable data={facts.store_close}/>
+    <DealerCloseTable data={facts.dealer_close}/>
     <MonthlyCloseV2Ranking period="2026-10" categories={facts.rankings.categories} forum={null}/>
   </main>;
 }
 
-function StoreCloseTrend({ values }) {
+function StoreCloseTrend({ values, compact = false }) {
   if (!Array.isArray(values) || values.length !== 4) return <span>Pendiente</span>;
   const valid = values.filter(Number.isFinite), min = Math.min(...valid), span = Math.max(...valid) - min || 1;
-  const x = i => 14 + i * 44, y = value => 24 - (value - min) / span * 10;
+  const x = i => 14 + i * 44, y = value => (compact ? 18 : 24) - (value - min) / span * (compact ? 6 : 10);
   const months = ["Jul", "Ago", "Sep", "Oct"];
-  return <svg className="mc-store-spark" viewBox="0 0 160 26" role="img" aria-label={months.map((month, i) => month + ": " + numberText(values[i])).join("; ")}>
+  return <svg className="mc-store-spark" viewBox={compact ? "0 0 160 20" : "0 0 160 26"} style={compact ? {height:20} : undefined} role="img" aria-label={months.map((month, i) => month + ": " + numberText(values[i])).join("; ")}>
     {values.map((value, i) => <g key={months[i]}>
       {Number.isFinite(value) && Number.isFinite(values[i - 1]) && <line x1={x(i - 1)} y1={y(values[i - 1])} x2={x(i)} y2={y(value)} stroke="#2563eb" strokeWidth="2"/>}
       {Number.isFinite(value) && <circle cx={x(i)} cy={y(value)} r="2" fill="#2563eb"/>}
@@ -86,3 +87,21 @@ function StoreCloseTable({ data }) {
 }
 
 
+function DealerCloseTable({ data }) {
+  if (data?.status !== "RECONCILED" || !Array.isArray(data.rows)) return null;
+  const row = (item, total = false) => <tr key={item.id || "total"}>
+    <th scope="row">{total ? "TOTAL DEALERS" : item.name}</th>
+    <td><strong>{numberText(item.sales)}</strong></td><td>{numberText(item.foton)}</td><td>{numberText(item.dongfeng)}</td>
+    <td>{numberText(item.previous_year_sales)}</td><td>{numberText(item.previous_month_sales)}</td>
+    <td><StoreCloseTrend values={item.history} compact/></td>
+  </tr>;
+  return <section className="mc-description mc-store-close mc-dealer-close" aria-label="Cierre mensual por dealer">
+    <style>{`.mc-dealer-close th:first-child{width:30%}.mc-dealer-close tbody tr:nth-child(even){background:#f4f6f9}.mc-dealer-close tfoot th{font-weight:750}`}</style>
+    <div className="mc-panel-head"><h2>Dealers · Cierre por dealer</h2><span>Octubre 2026 · corte 31/10</span></div>
+    <div className="mc-description-table"><table>
+      <colgroup>{[30,10,9,9,11,11,20].map((width, i) => <col key={i} style={{width:width + "%"}}/>)}</colgroup>
+      <thead><tr>{["Dealer", "Total octubre", "Foton", "Dongfeng", "Octubre 2025", "Septiembre 2026", "Tendencia · jul–oct"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
+      <tbody>{data.rows.map(item => row(item))}</tbody><tfoot>{row(data.totals, true)}</tfoot>
+    </table></div>
+  </section>;
+}
