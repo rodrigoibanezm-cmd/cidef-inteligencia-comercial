@@ -2420,7 +2420,8 @@
     "market": {
       "previous": 23531,
       "current": 27687,
-      "variation_percent": 17.7
+      "variation_percent": 17.7,
+      "variation_mom_percent": -10.7
     },
     "cidef": {
       "previous": 552,
@@ -2429,19 +2430,70 @@
       "brands": [
         "FOTON",
         "DFM"
-      ]
+      ],
+      "variation_mom_percent": -15.9
     },
     "difference_pp": 40.3,
     "note": "Comparación interanual de inscripciones RVM. CIDEF considera exclusivamente marcas FOTON y DFM, no DONGFENG/DONG FENG ni ventas contables.",
     "foton": {
       "previous": 380,
       "current": 680,
-      "variation_percent": 78.9
+      "variation_percent": 78.9,
+      "variation_mom_percent": -13.6
     },
     "dfm": {
       "previous": 172,
       "current": 192,
-      "variation_percent": 11.6
+      "variation_percent": 11.6,
+      "variation_mom_percent": -23.2
+    },
+    "monthly_history": {
+      "periods": [
+        "2026-07",
+        "2026-08",
+        "2026-09",
+        "2026-10"
+      ],
+      "series": {
+        "market": [
+          24722,
+          27896,
+          30989,
+          27687
+        ],
+        "cidef": [
+          832,
+          1036,
+          1037,
+          872
+        ],
+        "dfm": [
+          195,
+          289,
+          250,
+          192
+        ],
+        "foton": [
+          637,
+          747,
+          787,
+          680
+        ]
+      },
+      "source": "RVM/P1",
+      "basis": "INSCRIPCIONES",
+      "status": "CERTIFIED",
+      "brand_scope": "FOTON + DFM, sin unir DONGFENG/DONG FENG",
+      "evidence_ids": {
+        "market": [
+          "p1.rvm.1d9802806b9cecb63774a166",
+          "p1.rvm.668ff1949d16418b5ea650dd",
+          "p1.rvm.7634ace603346b11fa665773",
+          "p1.rvm.8edc24754f3e65b0fa73cbf6"
+        ],
+        "brands_july": "p1.rvm.460f076002b6b072374ecfd3",
+        "brands_august": "p1.rvm.2f43c3dcc8505c919b869508"
+      }
     }
   }
 }
