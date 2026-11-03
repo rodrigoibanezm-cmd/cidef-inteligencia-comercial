@@ -3533,6 +3533,111 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 6,
+          "rows": [
+            {
+              "id": "232",
+              "name": "TAMPOA GUANIPA VIRGINIA CENOBIA",
+              "kind": "ROSTER",
+              "sales": 22,
+              "foton": 17,
+              "dongfeng": 5,
+              "history": [
+                15,
+                20,
+                30,
+                22
+              ]
+            },
+            {
+              "id": "41",
+              "name": "GONZALEZ PEÑAILILLO CATALINA SOFIA",
+              "kind": "ROSTER",
+              "sales": 7,
+              "foton": 7,
+              "dongfeng": 0,
+              "history": [
+                3,
+                3,
+                11,
+                7
+              ]
+            },
+            {
+              "id": "38",
+              "name": "GALLEGOS MIRANDA CARLA FERNARDA",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 3,
+              "dongfeng": 2,
+              "history": [
+                0,
+                0,
+                1,
+                5
+              ]
+            },
+            {
+              "id": "145",
+              "name": "ALAMOS PALMA LUISA FRANCISCA",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 3,
+              "dongfeng": 0,
+              "history": [
+                7,
+                3,
+                6,
+                3
+              ]
+            },
+            {
+              "id": "231",
+              "name": "SANCHEZ GALAVIS RAQUEL VICTORIA",
+              "kind": "ROSTER",
+              "sales": 2,
+              "foton": 2,
+              "dongfeng": 0,
+              "history": [
+                4,
+                10,
+                3,
+                2
+              ]
+            },
+            {
+              "id": "95",
+              "name": "MUÑOZ ROJAS GUILLERMO JOSE",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                5,
+                4,
+                0,
+                0
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                1,
+                0
+              ]
+            }
+          ]
         }
       },
       {
@@ -3580,6 +3685,97 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 6,
+          "rows": [
+            {
+              "id": "131",
+              "name": "VALBUENA ZAMBRANO JOSE GABRIEL",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 2,
+              "dongfeng": 3,
+              "history": [
+                0,
+                2,
+                5,
+                5
+              ]
+            },
+            {
+              "id": "106",
+              "name": "COVARRUBIAS DEE IVAN IGNACIO",
+              "kind": "ROSTER",
+              "sales": 4,
+              "foton": 1,
+              "dongfeng": 3,
+              "history": [
+                4,
+                4,
+                6,
+                4
+              ]
+            },
+            {
+              "id": "180",
+              "name": "HERRERA FERNANDEZ NICOLAS ALEXIS",
+              "kind": "ROSTER",
+              "sales": 4,
+              "foton": 4,
+              "dongfeng": 0,
+              "history": [
+                6,
+                6,
+                4,
+                4
+              ]
+            },
+            {
+              "id": "58",
+              "name": "CARO URREA DANILO ANDRES",
+              "kind": "ROSTER",
+              "sales": 2,
+              "foton": 1,
+              "dongfeng": 1,
+              "history": [
+                6,
+                6,
+                4,
+                2
+              ]
+            },
+            {
+              "id": "141",
+              "name": "KATHERINE MONARES",
+              "kind": "ROSTER",
+              "sales": 1,
+              "foton": 0,
+              "dongfeng": 1,
+              "history": [
+                6,
+                3,
+                3,
+                1
+              ]
+            },
+            {
+              "id": "136",
+              "name": "KELVIN CEBALLOS",
+              "kind": "ROSTER",
+              "sales": 1,
+              "foton": 1,
+              "dongfeng": 0,
+              "history": [
+                1,
+                2,
+                2,
+                1
+              ]
+            }
+          ]
         }
       },
       {
@@ -3609,6 +3805,111 @@
           "baseline_value": null,
           "comparison_value": 19,
           "relative_delta": null
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 6,
+          "rows": [
+            {
+              "id": "193",
+              "name": "PEDRO IVO MILOVIC",
+              "kind": "ROSTER",
+              "sales": 8,
+              "foton": 4,
+              "dongfeng": 4,
+              "history": [
+                0,
+                3,
+                6,
+                8
+              ]
+            },
+            {
+              "id": "239",
+              "name": "SEBASTIAN VELASQUEZ",
+              "kind": "ROSTER",
+              "sales": 4,
+              "foton": 3,
+              "dongfeng": 1,
+              "history": [
+                0,
+                4,
+                3,
+                4
+              ]
+            },
+            {
+              "id": "250",
+              "name": "Mery Rodriguez",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 3,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                0,
+                3
+              ]
+            },
+            {
+              "id": "189",
+              "name": "ORLANDO HERRERA",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 0,
+              "dongfeng": 3,
+              "history": [
+                2,
+                6,
+                5,
+                3
+              ]
+            },
+            {
+              "id": "241",
+              "name": "MERIBETH SOTOMAYOR",
+              "kind": "ROSTER",
+              "sales": 1,
+              "foton": 1,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                2,
+                1
+              ]
+            },
+            {
+              "id": "251",
+              "name": "Viviana Espejo",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                5,
+                11,
+                7,
+                0
+              ]
+            }
+          ]
         }
       },
       {
@@ -3656,6 +3957,83 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 4,
+          "rows": [
+            {
+              "id": "36",
+              "name": "CRISTIAN DIAZ",
+              "kind": "ROSTER",
+              "sales": 12,
+              "foton": 11,
+              "dongfeng": 1,
+              "history": [
+                11,
+                13,
+                7,
+                12
+              ]
+            },
+            {
+              "id": "161",
+              "name": "MARIN GRUSIC MAURICIO JAVIER",
+              "kind": "ROSTER",
+              "sales": 11,
+              "foton": 9,
+              "dongfeng": 2,
+              "history": [
+                12,
+                10,
+                6,
+                11
+              ]
+            },
+            {
+              "id": "57",
+              "name": "BASANTA GUEVARA DOUGLAS JOSE",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 7,
+              "dongfeng": 2,
+              "history": [
+                10,
+                12,
+                14,
+                9
+              ]
+            },
+            {
+              "id": "234",
+              "name": "YANINA GARCIA",
+              "kind": "ROSTER",
+              "sales": 8,
+              "foton": 3,
+              "dongfeng": 5,
+              "history": [
+                6,
+                8,
+                6,
+                8
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                0,
+                5,
+                0,
+                0
+              ]
+            }
+          ]
         }
       },
       {
@@ -3680,6 +4058,69 @@
           "baseline_value": null,
           "comparison_value": 8,
           "relative_delta": null
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 3,
+          "rows": [
+            {
+              "id": "244",
+              "name": "Ada Gonzalez",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                0
+              ]
+            },
+            {
+              "id": "242",
+              "name": "Jessica Guapacha",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                0
+              ]
+            },
+            {
+              "id": "243",
+              "name": "Leidy Puerta",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                0
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 8,
+              "foton": 7,
+              "dongfeng": 1,
+              "history": [
+                null,
+                null,
+                null,
+                8
+              ]
+            }
+          ]
         }
       },
       {
@@ -3727,6 +4168,97 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 5,
+          "rows": [
+            {
+              "id": "44",
+              "name": "MAC-FARLANE MACERATTA CLAUDIA MADDALENA",
+              "kind": "ROSTER",
+              "sales": 10,
+              "foton": 9,
+              "dongfeng": 1,
+              "history": [
+                14,
+                12,
+                10,
+                10
+              ]
+            },
+            {
+              "id": "240",
+              "name": "JUAN ANTONIO DIAZ CARDENAS",
+              "kind": "ROSTER",
+              "sales": 8,
+              "foton": 5,
+              "dongfeng": 3,
+              "history": [
+                0,
+                0,
+                7,
+                8
+              ]
+            },
+            {
+              "id": "229",
+              "name": "RIFFO PAILLAO VICTOR JOHN",
+              "kind": "ROSTER",
+              "sales": 6,
+              "foton": 4,
+              "dongfeng": 2,
+              "history": [
+                7,
+                8,
+                6,
+                6
+              ]
+            },
+            {
+              "id": "157",
+              "name": "MANUEL ALEXANDER FORT BELMONTE",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 4,
+              "dongfeng": 1,
+              "history": [
+                0,
+                6,
+                2,
+                5
+              ]
+            },
+            {
+              "id": "238",
+              "name": "DIETER ALEXANDER GUILLEN INFANTE",
+              "kind": "ROSTER",
+              "sales": 2,
+              "foton": 2,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                3,
+                2
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 1,
+              "foton": 1,
+              "dongfeng": 0,
+              "history": [
+                5,
+                9,
+                0,
+                1
+              ]
+            }
+          ]
         }
       },
       {
@@ -3751,6 +4283,69 @@
           "baseline_value": null,
           "comparison_value": 6,
           "relative_delta": null
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 3,
+          "rows": [
+            {
+              "id": "247",
+              "name": "DANIELA ORTIZ",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                0
+              ]
+            },
+            {
+              "id": "246",
+              "name": "GENESIS CAMACHO",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                0
+              ]
+            },
+            {
+              "id": "245",
+              "name": "SOLANGEL HERNANDEZ",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                0
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 6,
+              "foton": 4,
+              "dongfeng": 2,
+              "history": [
+                null,
+                null,
+                null,
+                6
+              ]
+            }
+          ]
         }
       },
       {
@@ -3796,6 +4391,111 @@
               "evidence_id": "p1.sales.00bdc46a6a1a4ca7919c2e86",
               "evidence_contract": "p1.quantitative_observation",
               "evidence_version": "0.1.0"
+            }
+          ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 7,
+          "rows": [
+            {
+              "id": "214",
+              "name": "RAMIREZ OCHOA STHEFANY JHOJANA",
+              "kind": "ROSTER",
+              "sales": 10,
+              "foton": 7,
+              "dongfeng": 3,
+              "history": [
+                4,
+                5,
+                3,
+                10
+              ]
+            },
+            {
+              "id": "144",
+              "name": "RIFFO OVIEDO KARIN MARCELA",
+              "kind": "ROSTER",
+              "sales": 10,
+              "foton": 3,
+              "dongfeng": 7,
+              "history": [
+                0,
+                0,
+                6,
+                10
+              ]
+            },
+            {
+              "id": "110",
+              "name": "BASTIAS GONZALEZ JUAN CARLOS",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 2,
+              "dongfeng": 1,
+              "history": [
+                8,
+                7,
+                5,
+                3
+              ]
+            },
+            {
+              "id": "196",
+              "name": "DUQUE RODRIGUEZ RONNA NOHEMI",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 1,
+              "dongfeng": 2,
+              "history": [
+                4,
+                9,
+                1,
+                3
+              ]
+            },
+            {
+              "id": "86",
+              "name": "YOUNG GALLE FRANCISCO EDUARDO",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 2,
+              "dongfeng": 1,
+              "history": [
+                2,
+                6,
+                4,
+                3
+              ]
+            },
+            {
+              "id": "190",
+              "name": "OLIVEROS BOHORQUEZ OMAR FRANCISCO",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                4,
+                8,
+                0,
+                0
+              ]
+            },
+            {
+              "id": "175",
+              "name": "WAGNER GONZALEZ MATIAS ALEJANDRO",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                3,
+                7,
+                0,
+                0
+              ]
             }
           ]
         }
@@ -3845,6 +4545,111 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 6,
+          "rows": [
+            {
+              "id": "226",
+              "name": "GONZALEZ NAVARRETE VALERIA IGNACIA",
+              "kind": "ROSTER",
+              "sales": 11,
+              "foton": 7,
+              "dongfeng": 4,
+              "history": [
+                11,
+                11,
+                3,
+                11
+              ]
+            },
+            {
+              "id": "16",
+              "name": "ANGELICA MARIA MORENO DE MATOS",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 8,
+              "dongfeng": 1,
+              "history": [
+                10,
+                9,
+                6,
+                9
+              ]
+            },
+            {
+              "id": "150",
+              "name": "DURAN BLANCO LUIS RAUL",
+              "kind": "ROSTER",
+              "sales": 8,
+              "foton": 7,
+              "dongfeng": 1,
+              "history": [
+                9,
+                14,
+                6,
+                8
+              ]
+            },
+            {
+              "id": "56",
+              "name": "DIEGO LEANDRO ARAYA MONDACA",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 4,
+              "dongfeng": 1,
+              "history": [
+                8,
+                12,
+                7,
+                5
+              ]
+            },
+            {
+              "id": "215",
+              "name": "RIQUELME VILLATORO SERGIO NICOLAS",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 2,
+              "dongfeng": 3,
+              "history": [
+                0,
+                2,
+                5,
+                5
+              ]
+            },
+            {
+              "id": "249",
+              "name": "PALACIOS EGUILUZ LILLIAN",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 3,
+              "foton": 1,
+              "dongfeng": 2,
+              "history": [
+                4,
+                8,
+                0,
+                3
+              ]
+            }
+          ]
         }
       },
       {
@@ -3892,6 +4697,125 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 7,
+          "rows": [
+            {
+              "id": "188",
+              "name": "OSVALDO FARIAS",
+              "kind": "ROSTER",
+              "sales": 7,
+              "foton": 6,
+              "dongfeng": 1,
+              "history": [
+                0,
+                4,
+                8,
+                7
+              ]
+            },
+            {
+              "id": "156",
+              "name": "CARDENAS ALVARADO MARIA CRISTINA",
+              "kind": "ROSTER",
+              "sales": 6,
+              "foton": 4,
+              "dongfeng": 2,
+              "history": [
+                11,
+                11,
+                6,
+                6
+              ]
+            },
+            {
+              "id": "148",
+              "name": "CARDENAS SUAREZ LISMARY LISSETT",
+              "kind": "ROSTER",
+              "sales": 6,
+              "foton": 3,
+              "dongfeng": 3,
+              "history": [
+                6,
+                0,
+                1,
+                6
+              ]
+            },
+            {
+              "id": "62",
+              "name": "JEREZ CORTEZ DIEGO ANDRES",
+              "kind": "ROSTER",
+              "sales": 6,
+              "foton": 3,
+              "dongfeng": 3,
+              "history": [
+                8,
+                15,
+                8,
+                6
+              ]
+            },
+            {
+              "id": "103",
+              "name": "VALENZUELA CERDA HECTOR ALEJANDRO",
+              "kind": "ROSTER",
+              "sales": 6,
+              "foton": 3,
+              "dongfeng": 3,
+              "history": [
+                5,
+                5,
+                6,
+                6
+              ]
+            },
+            {
+              "id": "129",
+              "name": "ROCA DE LA BARRA JUAN FRANCISCO",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 5,
+              "dongfeng": 0,
+              "history": [
+                4,
+                8,
+                4,
+                5
+              ]
+            },
+            {
+              "id": "235",
+              "name": "YOSELIN GARCIA",
+              "kind": "ROSTER",
+              "sales": 4,
+              "foton": 1,
+              "dongfeng": 3,
+              "history": [
+                0,
+                5,
+                4,
+                4
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                4,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
         }
       },
       {
@@ -3921,6 +4845,55 @@
           "baseline_value": null,
           "comparison_value": 13,
           "relative_delta": null
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 2,
+          "rows": [
+            {
+              "id": "1",
+              "name": "ALEXANDER JOHAN ALBORNOZ",
+              "kind": "ROSTER",
+              "sales": 7,
+              "foton": 6,
+              "dongfeng": 1,
+              "history": [
+                1,
+                2,
+                1,
+                7
+              ]
+            },
+            {
+              "id": "220",
+              "name": "USBALDINE OCTAVIO MEDINA TORREALBA",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 2,
+              "dongfeng": 3,
+              "history": [
+                2,
+                3,
+                2,
+                5
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 1,
+              "foton": 1,
+              "dongfeng": 0,
+              "history": [
+                7,
+                9,
+                2,
+                1
+              ]
+            }
+          ]
         }
       },
       {
@@ -3966,6 +4939,97 @@
               "evidence_id": "p1.sales.7acc3da7185a63d919742406",
               "evidence_contract": "p1.quantitative_observation",
               "evidence_version": "0.1.0"
+            }
+          ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 6,
+          "rows": [
+            {
+              "id": "17",
+              "name": "ORTA MEDINA ADRIANA ALEJANDRA",
+              "kind": "ROSTER",
+              "sales": 11,
+              "foton": 7,
+              "dongfeng": 4,
+              "history": [
+                12,
+                14,
+                1,
+                11
+              ]
+            },
+            {
+              "id": "181",
+              "name": "IBAÑEZ ARAVENA NADIA SCARLETTE",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 5,
+              "dongfeng": 4,
+              "history": [
+                8,
+                8,
+                7,
+                9
+              ]
+            },
+            {
+              "id": "205",
+              "name": "PALMA ORTA RICARDO ALEJANDRO",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 6,
+              "dongfeng": 3,
+              "history": [
+                8,
+                15,
+                7,
+                9
+              ]
+            },
+            {
+              "id": "155",
+              "name": "MAGLYS CARABALLO",
+              "kind": "ROSTER",
+              "sales": 8,
+              "foton": 4,
+              "dongfeng": 4,
+              "history": [
+                8,
+                9,
+                9,
+                8
+              ]
+            },
+            {
+              "id": "47",
+              "name": "MORALES JIMENEZ CYNDI CAROLINA",
+              "kind": "ROSTER",
+              "sales": 8,
+              "foton": 8,
+              "dongfeng": 0,
+              "history": [
+                3,
+                9,
+                6,
+                8
+              ]
+            },
+            {
+              "id": "166",
+              "name": "PANIAGUA BADILLA MAXIMO DANGUELLO",
+              "kind": "ROSTER",
+              "sales": 3,
+              "foton": 3,
+              "dongfeng": 0,
+              "history": [
+                5,
+                4,
+                0,
+                3
+              ]
             }
           ]
         }
@@ -4015,6 +5079,125 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 7,
+          "rows": [
+            {
+              "id": "159",
+              "name": "MARINA MARLENS GUTIERREZ GUTIERREZ",
+              "kind": "ROSTER",
+              "sales": 7,
+              "foton": 7,
+              "dongfeng": 0,
+              "history": [
+                7,
+                13,
+                7,
+                7
+              ]
+            },
+            {
+              "id": "68",
+              "name": "EVELYN ASTUDILLO MENESES",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 5,
+              "dongfeng": 0,
+              "history": [
+                7,
+                5,
+                6,
+                5
+              ]
+            },
+            {
+              "id": "76",
+              "name": "FELIX ACOSTA RODRIGUEZ",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 2,
+              "dongfeng": 3,
+              "history": [
+                9,
+                6,
+                11,
+                5
+              ]
+            },
+            {
+              "id": "80",
+              "name": "FELIPE HERRERA TORRES",
+              "kind": "ROSTER",
+              "sales": 4,
+              "foton": 3,
+              "dongfeng": 1,
+              "history": [
+                7,
+                1,
+                6,
+                4
+              ]
+            },
+            {
+              "id": "121",
+              "name": "JAVIERA GARRIDO FLORES",
+              "kind": "ROSTER",
+              "sales": 1,
+              "foton": 1,
+              "dongfeng": 0,
+              "history": [
+                11,
+                4,
+                0,
+                1
+              ]
+            },
+            {
+              "id": "248",
+              "name": "ROSARIO MORENO SANTIS",
+              "kind": "ROSTER",
+              "sales": 1,
+              "foton": 1,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            {
+              "id": "252",
+              "name": "SEBASTIAN SANTANDER",
+              "kind": "ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 7,
+              "foton": 6,
+              "dongfeng": 1,
+              "history": [
+                2,
+                14,
+                0,
+                7
+              ]
+            }
+          ]
         }
       },
       {
@@ -4062,6 +5245,97 @@
               "evidence_version": "0.1.0"
             }
           ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 5,
+          "rows": [
+            {
+              "id": "77",
+              "name": "FRANCISCA JAVIERA FLORES FIGUEROA",
+              "kind": "ROSTER",
+              "sales": 16,
+              "foton": 12,
+              "dongfeng": 4,
+              "history": [
+                12,
+                19,
+                5,
+                16
+              ]
+            },
+            {
+              "id": "71",
+              "name": "EDUARDO MESIAS",
+              "kind": "ROSTER",
+              "sales": 10,
+              "foton": 6,
+              "dongfeng": 4,
+              "history": [
+                5,
+                11,
+                6,
+                10
+              ]
+            },
+            {
+              "id": "69",
+              "name": "EVELYN CONTRERAS",
+              "kind": "ROSTER",
+              "sales": 10,
+              "foton": 7,
+              "dongfeng": 3,
+              "history": [
+                6,
+                11,
+                3,
+                10
+              ]
+            },
+            {
+              "id": "137",
+              "name": "CORTEZ PEÑA KARIN DANIELA",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 4,
+              "dongfeng": 5,
+              "history": [
+                11,
+                14,
+                10,
+                9
+              ]
+            },
+            {
+              "id": "200",
+              "name": "ROSSANA GONZALEZ",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 3,
+              "dongfeng": 6,
+              "history": [
+                2,
+                6,
+                6,
+                9
+              ]
+            },
+            {
+              "id": "outside-roster",
+              "name": "Fuera de nómina / sin resolver",
+              "kind": "OUTSIDE_ROSTER",
+              "sales": 0,
+              "foton": 0,
+              "dongfeng": 0,
+              "history": [
+                8,
+                14,
+                0,
+                0
+              ]
+            }
+          ]
         }
       },
       {
@@ -4107,6 +5381,83 @@
               "evidence_id": "p1.sales.ed442c3ad2cd229fc9a1cd84",
               "evidence_contract": "p1.quantitative_observation",
               "evidence_version": "0.1.0"
+            }
+          ]
+        },
+        "seller_detail": {
+          "status": "RECONCILED",
+          "basis": "Ventas SALES antes de NC; identidad y nombre de nómina por persona_id exacto",
+          "roster_count": 5,
+          "rows": [
+            {
+              "id": "45",
+              "name": "MALUENDA LEIVA CLAUDIA VIVIANA",
+              "kind": "ROSTER",
+              "sales": 13,
+              "foton": 9,
+              "dongfeng": 4,
+              "history": [
+                6,
+                9,
+                12,
+                13
+              ]
+            },
+            {
+              "id": "223",
+              "name": "CABEZA ARCIA VIRGINIA CAROLINA",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 7,
+              "dongfeng": 2,
+              "history": [
+                6,
+                9,
+                4,
+                9
+              ]
+            },
+            {
+              "id": "170",
+              "name": "RIVERA RICON MAXIMO JAVIER",
+              "kind": "ROSTER",
+              "sales": 9,
+              "foton": 6,
+              "dongfeng": 3,
+              "history": [
+                7,
+                6,
+                5,
+                9
+              ]
+            },
+            {
+              "id": "104",
+              "name": "ALARCON PINILLA IVÁN ENRIQUE",
+              "kind": "ROSTER",
+              "sales": 6,
+              "foton": 4,
+              "dongfeng": 2,
+              "history": [
+                8,
+                13,
+                6,
+                6
+              ]
+            },
+            {
+              "id": "52",
+              "name": "VALENZUELA VERGARA CAROLINA EUGENIA",
+              "kind": "ROSTER",
+              "sales": 5,
+              "foton": 4,
+              "dongfeng": 1,
+              "history": [
+                5,
+                9,
+                6,
+                5
+              ]
             }
           ]
         }
@@ -4182,6 +5533,115 @@
           "sales": 1
         }
       ]
+    },
+    "seller_detail_source": {
+      "periods": [
+        "2026-07",
+        "2026-08",
+        "2026-09",
+        "2026-10"
+      ],
+      "run_id": "store-sellers-close-2026-10-20261103",
+      "roster_source": "GET /api/weekly-projections/vendedores?sucursal_id={store_id}",
+      "roster_environment": "staging",
+      "roster_read_at": "2026-11-03T08:57:33.157476+00:00",
+      "roster_sha256": "17e13044938454b6753b14c66c9c61a18bb3f95e14b20b15c64374528791d968",
+      "identity_policy": "persona_id de Proyecciones = seller_id SALES/P1. No se fusionan nombres similares ni IDs distintos. Fuera de nómina o identidad no resuelta se conserva en fila separada.",
+      "history_policy": "Misma tienda y vendedor en cada mes; ausencia de historia de tienda permanece null. La nómina actual no acredita dotación histórica.",
+      "sales_source": {
+        "2026-07": {
+          "source": "SALES",
+          "version": "0.13",
+          "operation": "FETCH",
+          "filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-07-01",
+            "date_to": "2026-07-31"
+          },
+          "size": {
+            "source_n": 23332,
+            "filtered_n": 409
+          },
+          "lineage": {
+            "recognition": "ventas_context_v01",
+            "commercial_scope": "ventas_commercial_context_v01",
+            "commercial_authority": "certified_recognized_sale",
+            "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+            "organizational_identity": "existing MASTER organizational resolvers",
+            "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver"
+          },
+          "sha256": "373be860ac092e91e2b78cfa192c9b53a719244d6fd5b450273221ddba1af6b6"
+        },
+        "2026-08": {
+          "source": "SALES",
+          "version": "0.13",
+          "operation": "FETCH",
+          "filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-08-01",
+            "date_to": "2026-08-31"
+          },
+          "size": {
+            "source_n": 23886,
+            "filtered_n": 554
+          },
+          "lineage": {
+            "recognition": "ventas_context_v01",
+            "commercial_scope": "ventas_commercial_context_v01",
+            "commercial_authority": "certified_recognized_sale",
+            "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+            "organizational_identity": "existing MASTER organizational resolvers",
+            "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver"
+          },
+          "sha256": "10ba4fd3b2440319e81cfecabdb081e702b27296786058abf13a4c48e49513ed"
+        },
+        "2026-09": {
+          "source": "SALES",
+          "version": "0.13",
+          "operation": "FETCH",
+          "filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-09-01",
+            "date_to": "2026-09-30"
+          },
+          "size": {
+            "source_n": 24258,
+            "filtered_n": 372
+          },
+          "lineage": {
+            "recognition": "ventas_context_v01",
+            "commercial_scope": "ventas_commercial_context_v01",
+            "commercial_authority": "certified_recognized_sale",
+            "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+            "organizational_identity": "existing MASTER organizational resolvers",
+            "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver"
+          },
+          "sha256": "966c1f6f685aa588566bf33f352158479d2b8104a4e7b067b8bef587c3379fa3"
+        },
+        "2026-10": {
+          "source": "SALES",
+          "version": "0.13",
+          "operation": "FETCH",
+          "filters": {
+            "commercial_universe": "OWN_STORES",
+            "date_from": "2026-10-01",
+            "date_to": "2026-10-31"
+          },
+          "size": {
+            "source_n": 24716,
+            "filtered_n": 458
+          },
+          "lineage": {
+            "recognition": "ventas_context_v01",
+            "commercial_scope": "ventas_commercial_context_v01",
+            "commercial_authority": "certified_recognized_sale",
+            "product_identity": "certified ventas_raw SKU aliases; unresolved version never excludes the sale",
+            "organizational_identity": "existing MASTER organizational resolvers",
+            "seller_membership": "existing date-effective VENDEDOR_CIDEF resolver"
+          },
+          "sha256": "ed398c992d379ebea3f5c875d12710dc8a0eb423247af92aa122d6b9bfe32e30"
+        }
+      }
     }
   }
 }
