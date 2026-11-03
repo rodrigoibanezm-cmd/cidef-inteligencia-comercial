@@ -1,0 +1,2415 @@
+{
+  "schema_version": "2.0",
+  "period": "2026-10",
+  "status": "PARTIAL_CERTIFIED",
+  "provenance": {
+    "provider": "Azure",
+    "sources": {
+      "current": "finanzas_ventas",
+      "historical": "SALES/P1 September certified snapshot",
+      "forum": "FORUM/P1 · MCP Azure",
+      "rvm": "RVM/P1 · solo preliminar 2026-10-18; cierre pendiente"
+    },
+    "rule": "Usar Finanzas para cada período disponible; SALES/P1 para períodos sin Finanzas",
+    "note": "Totales contables de referencia conservados. Adaptador Finanzas implementado sin desplegar: certificación P1 y desgloses pendientes. FORUM observado por MCP y comparativos P2 con traza P3. RVM no dispone de cierre completo de octubre.",
+    "run_id": "finanzas-cierre-2026-10-20261102",
+    "evidence_file": "certification-evidence.json"
+  },
+  "indicators": {
+    "sales_company": {
+      "status": "CERTIFIED",
+      "value": 910,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "finanzas_ventas",
+      "authority": "FINANZAS_AZURE",
+      "label": "Ventas compañía"
+    },
+    "sales_own": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas propias"
+    },
+    "sales_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas dealers"
+    },
+    "sales_foton": {
+      "status": "CERTIFIED",
+      "value": 691,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "finanzas_ventas",
+      "authority": "FINANZAS_AZURE",
+      "label": "Ventas Foton"
+    },
+    "sales_foton_own": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas propias Foton"
+    },
+    "sales_foton_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas dealers Foton"
+    },
+    "sales_dongfeng": {
+      "status": "CERTIFIED",
+      "value": 219,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "finanzas_ventas",
+      "authority": "FINANZAS_AZURE",
+      "label": "Ventas Dongfeng"
+    },
+    "sales_dongfeng_own": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas propias Dongfeng"
+    },
+    "sales_dongfeng_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas dealers Dongfeng"
+    },
+    "sales_finance_resolved": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas con financiera identificada"
+    },
+    "sales_finance_unresolved": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VIN",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "source": "FINANZAS / P1 (pendiente de clasificación)",
+      "authority": "PENDING",
+      "label": "Ventas sin financiera resuelta"
+    },
+    "forum_quotations": {
+      "status": "CERTIFIED",
+      "value": 6177,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:QUOTATIONS:2026-10:2026-10-31:1793665077441",
+      "contract": "P1_FACTUAL_OBSERVATION",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "scalar_QUOTATIONS_2026-10",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "forum_quotations_own": {
+      "status": "CERTIFIED",
+      "value": 2592,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:QUOTATIONS:NETWORK:2026-10:2026-10:2026-10-31:1793664965668",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_QUOTATIONS_network",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_quotations_dealers": {
+      "status": "CERTIFIED",
+      "value": 3585,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:QUOTATIONS:NETWORK:2026-10:2026-10:2026-10-31:1793664965668",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_QUOTATIONS_network",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_applications": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_applications_own": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_applications_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_curses": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_curses_own": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_curses_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_ufis": {
+      "status": "CERTIFIED",
+      "value": 313,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:UFIS:2026-10:2026-10-31:1793665078454",
+      "contract": "P1_FACTUAL_OBSERVATION",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "scalar_UFIS_2026-10",
+      "value_path": [
+        "payload",
+        "value"
+      ]
+    },
+    "forum_ufis_own": {
+      "status": "CERTIFIED",
+      "value": 155,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:UFIS:NETWORK:2026-10:2026-10:2026-10-31:1793664965499",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_UFIS_network",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_ufis_dealers": {
+      "status": "CERTIFIED",
+      "value": 158,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:UFIS:NETWORK:2026-10:2026-10:2026-10-31:1793664965499",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_UFIS_network",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_snapshot_operations": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_precurse_september": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": null,
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_snapshot_states": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": null,
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "rvm_market": {
+      "status": "CERTIFIED",
+      "value": 27687,
+      "unit": "VEHICLE",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente.",
+      "authority": "P1_CERTIFIED",
+      "cutoff": "2026-10-31",
+      "evidence_id": "p1.rvm.8edc24754f3e65b0fa73cbf6"
+    },
+    "rvm_portfolio": {
+      "status": "CERTIFIED",
+      "value": 872,
+      "unit": "VEHICLE",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente.",
+      "authority": "P1_CERTIFIED",
+      "cutoff": "2026-10-31",
+      "evidence_id": "p1.rvm.61db1b06f6033b819eef420c"
+    },
+    "rvm_foton": {
+      "status": "CERTIFIED",
+      "value": 680,
+      "unit": "VEHICLE",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente.",
+      "authority": "P1_CERTIFIED",
+      "cutoff": "2026-10-31",
+      "evidence_id": "p1.rvm.61db1b06f6033b819eef420c"
+    },
+    "rvm_dongfeng": {
+      "status": "CERTIFIED",
+      "value": 192,
+      "unit": "VEHICLE",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente.",
+      "authority": "P1_CERTIFIED",
+      "cutoff": "2026-10-31",
+      "evidence_id": "p1.rvm.6fb760e3fb82068389ebe66f"
+    },
+    "rvm_market_ytd": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VEHICLE",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_portfolio_ytd": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "VEHICLE",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_share": {
+      "status": "PRELIMINARY",
+      "value": 3.1494925416260338,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "P1 RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente.",
+      "authority": "CALCULATED_PREVIEW",
+      "note": "CIDEF 872 / mercado total 27687. Recalcular con P2."
+    },
+    "rvm_foton_share": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_dongfeng_share": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_ytd_share": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_dongfeng_evolution": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": null,
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_brand_ytd": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": null,
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "historical_brand_channels": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": null,
+      "period": "2026-10",
+      "source": "RVM"
+    },
+    "yoy": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": null,
+      "period": "2026-10",
+      "source": "RVM"
+    },
+    "forum_penetration": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "p3_trace_read": {
+      "status": "CERTIFIED",
+      "value": true,
+      "source": "P3",
+      "authority": "P3_JOURNAL",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "p3"
+    },
+    "forum_penetration_own": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_penetration_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "rvm_foton_ytd_share": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "rvm_dongfeng_ytd_share": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "RVM",
+      "reason": "MCP solo dispone de RVM preliminar al 18/10/2026; cierre mensual completo pendiente."
+    },
+    "forum_quotations_foton": {
+      "status": "CERTIFIED",
+      "value": 4179,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-10:2026-10:2026-10-31:1793664787304",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_q",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_quotations_dongfeng": {
+      "status": "CERTIFIED",
+      "value": 1912,
+      "unit": "OPERATION",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-10:2026-10:2026-10-31:1793664787304",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_q",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_ufis_foton": {
+      "status": "CERTIFIED",
+      "value": 224,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:UFIS:BRAND:2026-10:2026-10:2026-10-31:1793664787322",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_u",
+      "value_path": [
+        "payload",
+        "members",
+        0,
+        "value"
+      ]
+    },
+    "forum_ufis_dongfeng": {
+      "status": "CERTIFIED",
+      "value": 88,
+      "unit": "VEHICLE_UNIT",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "authority": "P1_CERTIFIED",
+      "source": "FORUM",
+      "evidence_id": "FORUM:UFIS:BRAND:2026-10:2026-10:2026-10-31:1793664787322",
+      "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+      "contract_version": "0.12",
+      "run_id": "finanzas-cierre-2026-10-20261102",
+      "evidence_ref": "forum_u",
+      "value_path": [
+        "payload",
+        "members",
+        1,
+        "value"
+      ]
+    },
+    "forum_penetration_foton": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "FORUM"
+    },
+    "forum_penetration_dongfeng": {
+      "status": "PENDING_CERTIFICATION",
+      "value": null,
+      "unit": "PERCENT",
+      "period": "2026-10",
+      "source": "FORUM"
+    }
+  },
+  "series": {
+    "sales_company": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 899,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 899,
+            "unit": "VIN",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-26T19:24:08.397Z",
+            "evidence_ref": "sales_company_series",
+            "value_path": [
+              "payload",
+              "observations",
+              1,
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.period_observation_series",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.5a2308f169f1cf211341af40"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 1199,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 1199,
+            "unit": "VIN",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-26T23:41:18.382Z",
+            "evidence_ref": "company_aug_company",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.a98135e14707656aa865bcf4"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 1034,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 1034,
+            "unit": "VIN",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-26T23:41:28.208Z",
+            "evidence_ref": "company_sep_company",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.c33c8f63933371710dbb01f3"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 910,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 910,
+            "unit": "VIN",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "source": "finanzas_ventas",
+            "authority": "FINANZAS_AZURE",
+            "label": "Ventas compañía"
+          }
+        }
+      ]
+    },
+    "sales_own": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "VIN",
+      "reason": "Pendiente de observar octubre por fuente correspondiente"
+    },
+    "sales_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "VIN",
+      "reason": "Pendiente de observar octubre por fuente correspondiente"
+    },
+    "sales_foton": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 720,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 720,
+            "unit": "VIN",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-26T19:24:08.397Z",
+            "evidence_ref": "sales_foton_series",
+            "value_path": [
+              "payload",
+              "observations",
+              1,
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.period_observation_series",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.35c75165714aa39e7a06da98"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 858,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 858,
+            "unit": "VIN",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-26T23:42:20.256Z",
+            "evidence_ref": "company_aug_foton",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.7c5f50588f75fb1e79d7c93f"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 831,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 831,
+            "unit": "VIN",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-26T23:42:29.653Z",
+            "evidence_ref": "company_sep_foton",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.6e647065368be725af428d4d"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 691,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 691,
+            "unit": "VIN",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "source": "finanzas_ventas",
+            "authority": "FINANZAS_AZURE",
+            "label": "Ventas Foton"
+          }
+        }
+      ]
+    },
+    "sales_dongfeng": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 179,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 179,
+            "unit": "VIN",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-26T19:24:08.397Z",
+            "evidence_ref": "sales_dongfeng_series",
+            "value_path": [
+              "payload",
+              "observations",
+              1,
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.period_observation_series",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.7cf1ea385f4ac7b27d92f7f4"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 341,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 341,
+            "unit": "VIN",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-26T23:42:39.890Z",
+            "evidence_ref": "company_aug_dongfeng",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.4e33fc0ae44f3bcc49ccb923"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 203,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 203,
+            "unit": "VIN",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-26T23:42:49.363Z",
+            "evidence_ref": "company_sep_dongfeng",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.sales.91b59f99fcd60671a8ca4988"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 219,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 219,
+            "unit": "VIN",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "source": "finanzas_ventas",
+            "authority": "FINANZAS_AZURE",
+            "label": "Ventas Dongfeng"
+          }
+        }
+      ]
+    },
+    "rvm_market": {
+      "status": "CERTIFIED",
+      "unit": "VEHICLE",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 24722
+        },
+        {
+          "period": "2026-08",
+          "value": 27896
+        },
+        {
+          "period": "2026-09",
+          "value": 30989
+        },
+        {
+          "period": "2026-10",
+          "value": 27687,
+          "provenance": {
+            "status": "CERTIFIED",
+            "source": "RVM",
+            "evidence_id": "p1.rvm.8edc24754f3e65b0fa73cbf6"
+          }
+        }
+      ]
+    },
+    "rvm_portfolio": {
+      "status": "CERTIFIED",
+      "unit": "VEHICLE",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 832
+        },
+        {
+          "period": "2026-08",
+          "value": 1036
+        },
+        {
+          "period": "2026-09",
+          "value": 1037
+        },
+        {
+          "period": "2026-10",
+          "value": 872,
+          "provenance": {
+            "status": "CERTIFIED",
+            "source": "RVM",
+            "evidence_id": "p1.rvm.61db1b06f6033b819eef420c"
+          }
+        }
+      ]
+    },
+    "rvm_foton": {
+      "status": "CERTIFIED",
+      "unit": "VEHICLE",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 637
+        },
+        {
+          "period": "2026-08",
+          "value": 747
+        },
+        {
+          "period": "2026-09",
+          "value": 787
+        },
+        {
+          "period": "2026-10",
+          "value": 680,
+          "provenance": {
+            "status": "CERTIFIED",
+            "source": "RVM",
+            "evidence_id": "p1.rvm.61db1b06f6033b819eef420c"
+          }
+        }
+      ]
+    },
+    "rvm_share": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "PERCENT",
+      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+    },
+    "rvm_foton_share": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "PERCENT",
+      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+    },
+    "forum_quotations": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "unit": "OPERATION",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 6938,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 6938,
+            "unit": "OPERATION",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-26T23:42:30.122Z",
+            "evidence_ref": "company_forum_QUOTATIONS_2026-07",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "evidence_id": "FORUM:QUOTATIONS:2026-07:2026-07-31:1793058150065"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 7891,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 7891,
+            "unit": "OPERATION",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-26T23:42:31.109Z",
+            "evidence_ref": "company_forum_QUOTATIONS_2026-08",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "evidence_id": "FORUM:QUOTATIONS:2026-08:2026-08-31:1793058151055"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 5890,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 5890,
+            "unit": "OPERATION",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-26T23:42:37.134Z",
+            "evidence_ref": "company_forum_QUOTATIONS_2026-09",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "evidence_id": "FORUM:QUOTATIONS:2026-09:2026-09-30:1793058156201"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 6177,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 6177,
+            "unit": "OPERATION",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "evidence_id": "FORUM:QUOTATIONS:2026-10:2026-10-31:1793665077441",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "run_id": "finanzas-cierre-2026-10-20261102",
+            "evidence_ref": "scalar_QUOTATIONS_2026-10",
+            "value_path": [
+              "payload",
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "forum_ufis": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "unit": "VEHICLE_UNIT",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 410,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 410,
+            "unit": "VEHICLE_UNIT",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-26T23:42:46.959Z",
+            "evidence_ref": "company_forum_UFIS_2026-07",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "evidence_id": "FORUM:UFIS:2026-07:2026-07-31:1793058166724"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 611,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 611,
+            "unit": "VEHICLE_UNIT",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-26T23:42:49.676Z",
+            "evidence_ref": "company_forum_UFIS_2026-08",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "evidence_id": "FORUM:UFIS:2026-08:2026-08-31:1793058169619"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 383,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 383,
+            "unit": "VEHICLE_UNIT",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-26T23:42:52.249Z",
+            "evidence_ref": "company_forum_UFIS_2026-09",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "evidence_id": "FORUM:UFIS:2026-09:2026-09-30:1793058171428"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 313,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 313,
+            "unit": "VEHICLE_UNIT",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "evidence_id": "FORUM:UFIS:2026-10:2026-10-31:1793665078454",
+            "contract": "P1_FACTUAL_OBSERVATION",
+            "contract_version": "0.12",
+            "run_id": "finanzas-cierre-2026-10-20261102",
+            "evidence_ref": "scalar_UFIS_2026-10",
+            "value_path": [
+              "payload",
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "rvm_dongfeng": {
+      "status": "CERTIFIED",
+      "unit": "VEHICLE",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 195,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 195,
+            "unit": "VEHICLE",
+            "period": "2026-07",
+            "cutoff": "2026-07-31",
+            "observed_at": "2026-10-26T23:50:54.581Z",
+            "evidence_ref": "company_rvm_DFM_2026-07",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "RVM",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.rvm.d68a3469df3f770f51a3c065"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 289,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 289,
+            "unit": "VEHICLE",
+            "period": "2026-08",
+            "cutoff": "2026-08-31",
+            "observed_at": "2026-10-26T23:51:17.172Z",
+            "evidence_ref": "company_rvm_DFM_2026-08",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "RVM",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.rvm.b47601ae42148110b7f43db4"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 250,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 250,
+            "unit": "VEHICLE",
+            "period": "2026-09",
+            "cutoff": "2026-09-30",
+            "observed_at": "2026-10-26T23:51:40.163Z",
+            "evidence_ref": "company_rvm_DFM_2026-09",
+            "value_path": [
+              "payload",
+              "value"
+            ],
+            "authority": "P1_CERTIFIED",
+            "source": "RVM",
+            "contract": "p1.quantitative_observation",
+            "contract_version": "0.1.0",
+            "evidence_id": "p1.rvm.a4f09ac6129afa0d71aa15a1"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 192,
+          "provenance": {
+            "status": "CERTIFIED",
+            "source": "RVM",
+            "evidence_id": "p1.rvm.6fb760e3fb82068389ebe66f"
+          }
+        }
+      ]
+    },
+    "rvm_dongfeng_share": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "PERCENT",
+      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+    },
+    "sales_foton_own": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "VIN",
+      "reason": "Pendiente de observar octubre por fuente correspondiente"
+    },
+    "sales_dongfeng_own": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "VIN",
+      "reason": "Pendiente de observar octubre por fuente correspondiente"
+    },
+    "sales_foton_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "VIN",
+      "reason": "Pendiente de observar octubre por fuente correspondiente"
+    },
+    "sales_dongfeng_dealers": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "VIN",
+      "reason": "Pendiente de observar octubre por fuente correspondiente"
+    },
+    "rvm_ytd_share": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "PERCENT",
+      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+    },
+    "rvm_foton_ytd_share": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "PERCENT",
+      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+    },
+    "rvm_dongfeng_ytd_share": {
+      "status": "PENDING_CERTIFICATION",
+      "points": [],
+      "unit": "PERCENT",
+      "reason": "Cierre RVM octubre no disponible; no se mezcla el preliminar 18/10 con meses completos."
+    },
+    "forum_quotations_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "unit": "OPERATION",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 4633,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-07:2026-07:2026-07-31:1793197852864"
+        },
+        {
+          "period": "2026-08",
+          "value": 5120,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-08:2026-08:2026-08-31:1793197852861"
+        },
+        {
+          "period": "2026-09",
+          "value": 4231,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-09:2026-09:2026-09-30:1793197884003"
+        },
+        {
+          "period": "2026-10",
+          "value": 4179,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 4179,
+            "unit": "OPERATION",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-10:2026-10:2026-10-31:1793664787304",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "run_id": "finanzas-cierre-2026-10-20261102",
+            "evidence_ref": "forum_q",
+            "value_path": [
+              "payload",
+              "members",
+              0,
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "forum_quotations_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "unit": "OPERATION",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 2296,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-07:2026-07:2026-07-31:1793197852864"
+        },
+        {
+          "period": "2026-08",
+          "value": 2755,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-08:2026-08:2026-08-31:1793197852861"
+        },
+        {
+          "period": "2026-09",
+          "value": 1652,
+          "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-09:2026-09:2026-09-30:1793197884003"
+        },
+        {
+          "period": "2026-10",
+          "value": 1912,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 1912,
+            "unit": "OPERATION",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "evidence_id": "FORUM:QUOTATIONS:BRAND:2026-10:2026-10:2026-10-31:1793664787304",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "run_id": "finanzas-cierre-2026-10-20261102",
+            "evidence_ref": "forum_q",
+            "value_path": [
+              "payload",
+              "members",
+              1,
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "forum_ufis_foton": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "unit": "VEHICLE_UNIT",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 293,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-07:2026-07:2026-07-31:1793197882868"
+        },
+        {
+          "period": "2026-08",
+          "value": 405,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-08:2026-08:2026-08-31:1793197852864"
+        },
+        {
+          "period": "2026-09",
+          "value": 290,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-09:2026-09:2026-09-30:1793197852863"
+        },
+        {
+          "period": "2026-10",
+          "value": 224,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 224,
+            "unit": "VEHICLE_UNIT",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "evidence_id": "FORUM:UFIS:BRAND:2026-10:2026-10:2026-10-31:1793664787322",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "run_id": "finanzas-cierre-2026-10-20261102",
+            "evidence_ref": "forum_u",
+            "value_path": [
+              "payload",
+              "members",
+              0,
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "forum_ufis_dongfeng": {
+      "status": "CERTIFIED",
+      "authority": "P1_CERTIFIED",
+      "unit": "VEHICLE_UNIT",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 117,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-07:2026-07:2026-07-31:1793197882868"
+        },
+        {
+          "period": "2026-08",
+          "value": 203,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-08:2026-08:2026-08-31:1793197852864"
+        },
+        {
+          "period": "2026-09",
+          "value": 92,
+          "evidence_id": "FORUM:UFIS:BRAND:2026-09:2026-09:2026-09-30:1793197852863"
+        },
+        {
+          "period": "2026-10",
+          "value": 88,
+          "provenance": {
+            "status": "CERTIFIED",
+            "value": 88,
+            "unit": "VEHICLE_UNIT",
+            "period": "2026-10",
+            "cutoff": "2026-10-31",
+            "authority": "P1_CERTIFIED",
+            "source": "FORUM",
+            "evidence_id": "FORUM:UFIS:BRAND:2026-10:2026-10:2026-10-31:1793664787322",
+            "contract": "P1_DIMENSIONAL_QUANTITATIVE_DATASET",
+            "contract_version": "0.12",
+            "run_id": "finanzas-cierre-2026-10-20261102",
+            "evidence_ref": "forum_u",
+            "value_path": [
+              "payload",
+              "members",
+              1,
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "sales_own_p1": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 409,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.bccf4cfbd1a4a24da47ecf13"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 554,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.4ebf8fb9260a1511a8c27c34"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 372,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.b4c0de2f6e2cc0b0aff1ccab"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 458,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.a5cbc4335b9386e9f1dfae6b"
+          }
+        }
+      ]
+    },
+    "sales_dealers_p1": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 490,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.ea9577dce5fa2eb4632a071f"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 645,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.a7dc60df22c93cc379970c19"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 661,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.9974c88c62da5d463181a616"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 507,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.1627e2e6e3d85bb214905ee8"
+          }
+        }
+      ]
+    },
+    "sales_foton_own_p1": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 278,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.92b50afe4e0201501cf144d2"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 345,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.55b3a1365d36d5cbfdd009ab"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 255,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.22a6725fe494a5a9f6de8eb7"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 316,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.7647feaac1dc2a1f9f487bff"
+          }
+        }
+      ]
+    },
+    "sales_dongfeng_own_p1": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 131,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.26e9ed851a30d4e8d6fb4435"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 209,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.8a9c8191e6d3a6ed46bb02ea"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 117,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.0555d585e9591e89c0d0da6c"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 142,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.6d93543e8aae294ae11663b8"
+          }
+        }
+      ]
+    },
+    "sales_foton_dealers_p1": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 442,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.5e2a729cdf189c54cb25d179"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 513,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.b3d73593fccd39560cee5dbe"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 575,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.92932a34e25d27d2125ffb68"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 413,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.c29e572789c1d0a25e0f5d10"
+          }
+        }
+      ]
+    },
+    "sales_dongfeng_dealers_p1": {
+      "status": "CERTIFIED",
+      "unit": "VIN",
+      "period_from": "2026-07",
+      "period_to": "2026-10",
+      "points": [
+        {
+          "period": "2026-07",
+          "value": 48,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.ff040c8db364bd6193b768cd"
+          }
+        },
+        {
+          "period": "2026-08",
+          "value": 132,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.6fc184189eddc35a8b4b718c"
+          }
+        },
+        {
+          "period": "2026-09",
+          "value": 86,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.de9fa46a9f39f6fbd9731f29"
+          }
+        },
+        {
+          "period": "2026-10",
+          "value": 94,
+          "provenance": {
+            "status": "CERTIFIED",
+            "authority": "P1_CERTIFIED",
+            "source": "SALES",
+            "evidence_id": "p1.sales.6892f4afe06d9ffb95ddc118"
+          }
+        }
+      ]
+    }
+  },
+  "cards": [
+    {
+      "id": "sales_company",
+      "label": "Ventas compañía",
+      "brands": {
+        "FOTON": "sales_foton",
+        "DONGFENG": "sales_dongfeng"
+      },
+      "series": {
+        "COMPANY": "sales_company",
+        "FOTON": "sales_foton",
+        "DONGFENG": "sales_dongfeng"
+      }
+    },
+    {
+      "id": "sales_own",
+      "label": "Ventas propias",
+      "brands": {
+        "FOTON": "sales_foton_own",
+        "DONGFENG": "sales_dongfeng_own"
+      },
+      "series": {
+        "COMPANY": "sales_own",
+        "FOTON": "sales_foton_own",
+        "DONGFENG": "sales_dongfeng_own"
+      }
+    },
+    {
+      "id": "sales_dealers",
+      "label": "Ventas dealers",
+      "brands": {
+        "FOTON": "sales_foton_dealers",
+        "DONGFENG": "sales_dongfeng_dealers"
+      },
+      "series": {
+        "COMPANY": "sales_dealers",
+        "FOTON": "sales_foton_dealers",
+        "DONGFENG": "sales_dongfeng_dealers"
+      }
+    },
+    {
+      "id": "rvm_portfolio",
+      "label": "Inscripciones CIDEF",
+      "brands": {
+        "FOTON": "rvm_foton",
+        "DONGFENG": "rvm_dongfeng"
+      },
+      "series": {
+        "COMPANY": "rvm_portfolio",
+        "FOTON": "rvm_foton",
+        "DONGFENG": "rvm_dongfeng"
+      }
+    },
+    {
+      "id": "rvm_share",
+      "label": "Share mensual",
+      "brands": {
+        "FOTON": "rvm_foton_share",
+        "DONGFENG": "rvm_dongfeng_share"
+      },
+      "series": {
+        "COMPANY": "rvm_share",
+        "FOTON": "rvm_foton_share",
+        "DONGFENG": "rvm_dongfeng_share"
+      }
+    },
+    {
+      "id": "rvm_ytd_share",
+      "label": "Share YTD",
+      "brands": {
+        "FOTON": "rvm_foton_ytd_share",
+        "DONGFENG": "rvm_dongfeng_ytd_share"
+      },
+      "series": {
+        "COMPANY": "rvm_ytd_share",
+        "FOTON": "rvm_foton_ytd_share",
+        "DONGFENG": "rvm_dongfeng_ytd_share"
+      }
+    }
+  ],
+  "company": {
+    "period": "2026-10",
+    "comparisons": {
+      "sales_company": {
+        "label": "vs septiembre",
+        "delta": {
+          "status": "PRELIMINARY",
+          "value": -124,
+          "unit": "VIN"
+        },
+        "relative": {
+          "status": "PRELIMINARY",
+          "value": -0.11992263056092844,
+          "unit": "RATIO"
+        },
+        "source": "Cálculo provisional con snapshots; auditar",
+        "baseline": {
+          "status": "CERTIFIED",
+          "value": 1034,
+          "unit": "VIN"
+        }
+      },
+      "sales_own": {
+        "label": "vs septiembre",
+        "delta": {
+          "status": "PRELIMINARY",
+          "value": 86,
+          "unit": "VIN"
+        },
+        "relative": {
+          "status": "PRELIMINARY",
+          "value": 0.23118279569892475,
+          "unit": "RATIO"
+        },
+        "source": "Cálculo provisional con snapshots; auditar",
+        "baseline": {
+          "status": "CERTIFIED",
+          "value": 372,
+          "unit": "VIN"
+        }
+      },
+      "sales_dealers": {
+        "label": "vs septiembre",
+        "delta": {
+          "status": "PRELIMINARY",
+          "value": -154,
+          "unit": "VIN"
+        },
+        "relative": {
+          "status": "PRELIMINARY",
+          "value": -0.23298033282904684,
+          "unit": "RATIO"
+        },
+        "source": "Cálculo provisional con snapshots; auditar",
+        "baseline": {
+          "status": "CERTIFIED",
+          "value": 661,
+          "unit": "VIN"
+        }
+      },
+      "rvm_portfolio": {
+        "label": "vs septiembre",
+        "delta": {
+          "status": "PRELIMINARY",
+          "value": -165,
+          "unit": "VEHICLE"
+        },
+        "relative": {
+          "status": "PRELIMINARY",
+          "value": -0.15911282545805205,
+          "unit": "RATIO"
+        },
+        "source": "Cálculo provisional con snapshots; auditar",
+        "baseline": {
+          "status": "CERTIFIED",
+          "value": 1037,
+          "unit": "VEHICLE"
+        }
+      },
+      "rvm_share": {
+        "label": "vs septiembre",
+        "delta": {
+          "status": "PENDING_CERTIFICATION"
+        },
+        "relative": {
+          "status": "PENDING_CERTIFICATION"
+        }
+      },
+      "rvm_ytd_share": {
+        "label": "vs septiembre",
+        "delta": {
+          "status": "PENDING_CERTIFICATION"
+        },
+        "relative": {
+          "status": "PENDING_CERTIFICATION"
+        }
+      },
+      "forum_quotations": {
+        "label": "vs septiembre",
+        "baseline": {
+          "status": "CERTIFIED",
+          "value": 5890,
+          "unit": "OPERATION",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "4ccaa1f3-7077-4f83-b4eb-03a7a3fffeef",
+          "evidence_ids": [
+            "FORUM:QUOTATIONS:2026-09:2026-09-30:1793665077586",
+            "FORUM:QUOTATIONS:2026-10:2026-10-31:1793665077441"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.QUOTATIONS",
+          "value_path": [
+            "result",
+            "baseline_value"
+          ]
+        },
+        "current": {
+          "status": "CERTIFIED",
+          "value": 6177,
+          "unit": "OPERATION",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "4ccaa1f3-7077-4f83-b4eb-03a7a3fffeef",
+          "evidence_ids": [
+            "FORUM:QUOTATIONS:2026-09:2026-09-30:1793665077586",
+            "FORUM:QUOTATIONS:2026-10:2026-10-31:1793665077441"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.QUOTATIONS",
+          "value_path": [
+            "result",
+            "comparison_value"
+          ]
+        },
+        "delta": {
+          "status": "CERTIFIED",
+          "value": 287,
+          "unit": "OPERATION",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "4ccaa1f3-7077-4f83-b4eb-03a7a3fffeef",
+          "evidence_ids": [
+            "FORUM:QUOTATIONS:2026-09:2026-09-30:1793665077586",
+            "FORUM:QUOTATIONS:2026-10:2026-10-31:1793665077441"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.QUOTATIONS",
+          "value_path": [
+            "result",
+            "absolute_delta"
+          ]
+        },
+        "relative": {
+          "status": "CERTIFIED",
+          "value": 0.048726655348047536,
+          "unit": "RATIO",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "4ccaa1f3-7077-4f83-b4eb-03a7a3fffeef",
+          "evidence_ids": [
+            "FORUM:QUOTATIONS:2026-09:2026-09-30:1793665077586",
+            "FORUM:QUOTATIONS:2026-10:2026-10-31:1793665077441"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.QUOTATIONS",
+          "value_path": [
+            "result",
+            "relative_delta"
+          ]
+        }
+      },
+      "forum_ufis": {
+        "label": "vs septiembre",
+        "baseline": {
+          "status": "CERTIFIED",
+          "value": 383,
+          "unit": "VEHICLE_UNIT",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "9bf082e2-ba4b-4518-a14b-cc44b2a953f5",
+          "evidence_ids": [
+            "FORUM:UFIS:2026-09:2026-09-30:1793665078450",
+            "FORUM:UFIS:2026-10:2026-10-31:1793665078454"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.UFIS",
+          "value_path": [
+            "result",
+            "baseline_value"
+          ]
+        },
+        "current": {
+          "status": "CERTIFIED",
+          "value": 313,
+          "unit": "VEHICLE_UNIT",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "9bf082e2-ba4b-4518-a14b-cc44b2a953f5",
+          "evidence_ids": [
+            "FORUM:UFIS:2026-09:2026-09-30:1793665078450",
+            "FORUM:UFIS:2026-10:2026-10-31:1793665078454"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.UFIS",
+          "value_path": [
+            "result",
+            "comparison_value"
+          ]
+        },
+        "delta": {
+          "status": "CERTIFIED",
+          "value": -70,
+          "unit": "VEHICLE_UNIT",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "9bf082e2-ba4b-4518-a14b-cc44b2a953f5",
+          "evidence_ids": [
+            "FORUM:UFIS:2026-09:2026-09-30:1793665078450",
+            "FORUM:UFIS:2026-10:2026-10-31:1793665078454"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.UFIS",
+          "value_path": [
+            "result",
+            "absolute_delta"
+          ]
+        },
+        "relative": {
+          "status": "CERTIFIED",
+          "value": -0.18276762402088773,
+          "unit": "RATIO",
+          "period": "2026-10",
+          "cutoff": "2026-10-31",
+          "authority": "P2_EXECUTED",
+          "source": "P2 · p2.observed_pair_delta",
+          "contract": "p2.observed_pair_delta",
+          "contract_version": "0.1.0",
+          "execution_id": "9bf082e2-ba4b-4518-a14b-cc44b2a953f5",
+          "evidence_ids": [
+            "FORUM:UFIS:2026-09:2026-09-30:1793665078450",
+            "FORUM:UFIS:2026-10:2026-10-31:1793665078454"
+          ],
+          "run_id": "finanzas-cierre-2026-10-20261102",
+          "evidence_ref": "p2.UFIS",
+          "value_path": [
+            "result",
+            "relative_delta"
+          ]
+        }
+      }
+    },
+    "forum_cards": [
+      {
+        "id": "forum_quotations",
+        "label": "Cotizaciones",
+        "own": "forum_quotations_own",
+        "dealers": "forum_quotations_dealers",
+        "series": {
+          "COMPANY": "forum_quotations",
+          "FOTON": "forum_quotations_foton",
+          "DONGFENG": "forum_quotations_dongfeng"
+        },
+        "note": "Observación FORUM P1 por fecha de cotización: incluye 7 ZNA y 79 sin marca resuelta. Corte solicitado 31/10/2026.",
+        "brands": {
+          "FOTON": "forum_quotations_foton",
+          "DONGFENG": "forum_quotations_dongfeng"
+        }
+      },
+      {
+        "id": "forum_ufis",
+        "label": "UFIs ejecutadas",
+        "own": "forum_ufis_own",
+        "dealers": "forum_ufis_dealers",
+        "series": {
+          "COMPANY": "forum_ufis",
+          "FOTON": "forum_ufis_foton",
+          "DONGFENG": "forum_ufis_dongfeng"
+        },
+        "note": "Observación FORUM P1 por fecha de curse: 313 unidades, 1 sin marca resuelta. P1 conserva period_status OPEN; no equivale a confirmación de cierre de la fuente.",
+        "brands": {
+          "FOTON": "forum_ufis_foton",
+          "DONGFENG": "forum_ufis_dongfeng"
+        }
+      },
+      {
+        "id": "forum_penetration",
+        "label": "Penetración UFI",
+        "own": "forum_penetration_own",
+        "dealers": "forum_penetration_dealers",
+        "note": "Penetración pendiente de denominadores Finanzas certificados por P1 para el mismo período y canal.",
+        "brands": {
+          "FOTON": "forum_penetration_foton",
+          "DONGFENG": "forum_penetration_dongfeng"
+        },
+        "series": {}
+      }
+    ],
+    "financing": [
+      {
+        "name": "FORUM",
+        "penetration": {
+          "status": "CERTIFIED",
+          "value": 0.4497816593886463,
+          "unit": "RATIO",
+          "source": "SALES",
+          "authority": "P1_CERTIFIED",
+          "denominator": 458
+        }
+      },
+      {
+        "name": "TANNER",
+        "penetration": {
+          "status": "CERTIFIED",
+          "value": 0.06986899563318777,
+          "unit": "RATIO",
+          "source": "SALES",
+          "authority": "P1_CERTIFIED",
+          "denominator": 458
+        }
+      },
+      {
+        "name": "GLOBAL SOLUCIONES",
+        "penetration": {
+          "status": "CERTIFIED",
+          "value": 0.04148471615720524,
+          "unit": "RATIO",
+          "source": "SALES",
+          "authority": "P1_CERTIFIED",
+          "denominator": 458
+        }
+      },
+      {
+        "name": "AUTOFIN",
+        "penetration": {
+          "status": "CERTIFIED",
+          "value": 0.002183406113537118,
+          "unit": "RATIO",
+          "source": "SALES",
+          "authority": "P1_CERTIFIED",
+          "denominator": 458
+        }
+      },
+      {
+        "name": "Sin financiera identificada",
+        "penetration": {
+          "status": "CERTIFIED",
+          "value": 0.4366812227074236,
+          "unit": "RATIO",
+          "source": "SALES",
+          "authority": "P1_CERTIFIED",
+          "denominator": 458
+        }
+      }
+    ],
+    "yoy": {
+      "sales_own": {
+        "status": "CERTIFIED",
+        "value": 15.365239294710321,
+        "unit": "PERCENT",
+        "authority": "P1_CERTIFIED_DERIVED",
+        "source": "SALES",
+        "period": "2026-10",
+        "baseline_period": "2025-10",
+        "current_value": 458,
+        "baseline_value": 397,
+        "baseline_evidence_id": "p1.sales.eccfbdd332c42ec8bd4d022e",
+        "scope": "P1 recognized commercial sales; before accounting NC"
+      },
+      "sales_dealers": {
+        "status": "CERTIFIED",
+        "value": 5.405405405405395,
+        "unit": "PERCENT",
+        "authority": "P1_CERTIFIED_DERIVED",
+        "source": "SALES",
+        "period": "2026-10",
+        "baseline_period": "2025-10",
+        "current_value": 507,
+        "baseline_value": 481,
+        "baseline_evidence_id": "p1.sales.5aff9e11aa7c448e2247e730",
+        "scope": "P1 recognized commercial sales; before accounting NC"
+      }
+    }
+  },
+  "rankings": {
+    "categories": {}
+  },
+  "pending": [
+    "Certificación P1 de Finanzas y desgloses por canal/sucursal/dealer/modelo; adaptador sin desplegar",
+    "Comparativos P2 y penetración FORUM con denominadores Finanzas",
+    "Cierre RVM octubre y sus comparativos (solo preliminar al 18/10)",
+    "Rankings P2 octubre",
+    "FORUM APPLICATIONS/CURSES y estados de snapshot octubre no recuperados en esta ejecución"
+  ],
+  "reconciliation": {
+    "finanzas": {
+      "period": "2026-10",
+      "invoice_movements": 965,
+      "credit_notes": 55,
+      "net_units": 910,
+      "brands": {
+        "DFLM": {
+          "invoices": 93,
+          "credit_notes": 1,
+          "net": 92
+        },
+        "DFM": {
+          "invoices": 143,
+          "credit_notes": 16,
+          "net": 127
+        },
+        "FOTON": {
+          "invoices": 729,
+          "credit_notes": 38,
+          "net": 691
+        }
+      }
+    },
+    "historical_baseline": "2026-09/facts.json",
+    "rvm_available": {
+      "data_status": "PRELIMINARY",
+      "cutoff": "2026-10-18",
+      "evidence_ref": "rvm_oct",
+      "used_as_monthly_close": false
+    }
+  },
+  "financial_adjustments": {
+    "prior_period_credit_notes": {
+      "value": -9,
+      "unit": "VIN",
+      "period": "2026-10",
+      "source": "Seguimiento de Cierre Comercial",
+      "scope": "prior-month credit notes",
+      "status": "USER_PROVIDED",
+      "note": "NC contables de períodos anteriores; excluidas de las 55 NC del cierre de Finanzas de octubre"
+    },
+    "adjusted_total": {
+      "value": 901,
+      "unit": "VIN",
+      "period": "2026-10",
+      "status": "DERIVED_FROM_USER_PROVIDED",
+      "formula": "finanzas_ventas neto octubre (910) + NC de meses anteriores (-9)",
+      "source": "FINANZAS + Seguimiento de Cierre"
+    }
+  },
+  "channel_sales_p1": {
+    "source": "SALES",
+    "authority": "P1_CERTIFIED",
+    "status": "CERTIFIED",
+    "note": "Ventas comerciales reconocidas por P1, antes de conciliación con NC contables de Finanzas. No representan ventas netas por canal.",
+    "metrics": {
+      "sales_own_p1": {
+        "status": "CERTIFIED",
+        "value": 458,
+        "unit": "VIN",
+        "authority": "P1_CERTIFIED",
+        "source": "SALES",
+        "period": "2026-10",
+        "evidence_id": "p1.sales.a5cbc4335b9386e9f1dfae6b"
+      },
+      "sales_dealers_p1": {
+        "status": "CERTIFIED",
+        "value": 507,
+        "unit": "VIN",
+        "authority": "P1_CERTIFIED",
+        "source": "SALES",
+        "period": "2026-10",
+        "evidence_id": "p1.sales.1627e2e6e3d85bb214905ee8"
+      },
+      "sales_foton_own_p1": {
+        "status": "CERTIFIED",
+        "value": 316,
+        "unit": "VIN",
+        "authority": "P1_CERTIFIED",
+        "source": "SALES",
+        "period": "2026-10",
+        "evidence_id": "p1.sales.7647feaac1dc2a1f9f487bff"
+      },
+      "sales_dongfeng_own_p1": {
+        "status": "CERTIFIED",
+        "value": 142,
+        "unit": "VIN",
+        "authority": "P1_CERTIFIED",
+        "source": "SALES",
+        "period": "2026-10",
+        "evidence_id": "p1.sales.6d93543e8aae294ae11663b8"
+      },
+      "sales_foton_dealers_p1": {
+        "status": "CERTIFIED",
+        "value": 413,
+        "unit": "VIN",
+        "authority": "P1_CERTIFIED",
+        "source": "SALES",
+        "period": "2026-10",
+        "evidence_id": "p1.sales.c29e572789c1d0a25e0f5d10"
+      },
+      "sales_dongfeng_dealers_p1": {
+        "status": "CERTIFIED",
+        "value": 94,
+        "unit": "VIN",
+        "authority": "P1_CERTIFIED",
+        "source": "SALES",
+        "period": "2026-10",
+        "evidence_id": "p1.sales.6892f4afe06d9ffb95ddc118"
+      }
+    }
+  },
+  "breakdowns": {
+    "financial_entities": {
+      "status": "CERTIFIED",
+      "source": "SALES",
+      "authority": "P1_CERTIFIED",
+      "period": "2026-10",
+      "cutoff": "2026-10-31",
+      "commercial_universe": "OWN_STORES",
+      "evidence_id": "p1.sales.39ff0cd764c4b3018ee770ee",
+      "scope": "P1 recognized own-store sales before accounting NC",
+      "members": [
+        {
+          "member_id": "FORUM",
+          "value": 206
+        },
+        {
+          "member_id": "GLOBAL SOLUCIONES",
+          "value": 19
+        },
+        {
+          "member_id": "TANNER",
+          "value": 32
+        },
+        {
+          "member_id": "AUTOFIN",
+          "value": 1
+        },
+        {
+          "member_id": "UNRESOLVED",
+          "value": 200
+        }
+      ]
+    }
+  },
+  "preview_notes": {
+    "mode": "VISUAL_PROVISIONAL",
+    "description": "Datos certificados reutilizados y cálculos provisionales para diseño. Auditoría final por Codex.",
+    "rvm_share_calculation": "872/27687",
+    "ranking_reference": "Septiembre 2026; no implica ranking octubre"
+  }
+}
