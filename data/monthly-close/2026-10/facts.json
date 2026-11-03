@@ -2757,5 +2757,304 @@
     },
     "category_note": "Agrupación comercial para visualización; las cifras y segmentos proceden de RVM/P1. Inscripciones, no ventas facturadas.",
     "evidence_id": "p1.rvm.5fedc909bed68ebf73da9439"
+  },
+  "commercial_model_sales_p1": {
+    "status": "CERTIFIED",
+    "source": "SALES/P1",
+    "period": "2026-10",
+    "cutoff": "2026-10-31",
+    "grain": "recognized_sales",
+    "notice": "Ventas reconocidas P1 antes de notas de crédito. Proyección y enviado no facturado no se mezclan con este universo: snapshot operativo tiene distinto universo.",
+    "channels": {
+      "stores": {
+        "total": 458,
+        "foton": 316,
+        "dongfeng": 142,
+        "evidence_id": "p1.sales.9cba55338c7168c0de82c96b",
+        "models": [
+          {
+            "modelo_id": "4",
+            "modelo": "T5 EVO",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 1
+          },
+          {
+            "modelo_id": "17",
+            "modelo": "TM5",
+            "brand": "FOTON",
+            "family": "MINI_TRUCK",
+            "ventas": 48
+          },
+          {
+            "modelo_id": "23",
+            "modelo": "HUGE",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 5
+          },
+          {
+            "modelo_id": "27",
+            "modelo": "MAGE EV",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 1
+          },
+          {
+            "modelo_id": "28",
+            "modelo": "G7",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 60
+          },
+          {
+            "modelo_id": "84",
+            "modelo": "AEOLUS Y3",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 16
+          },
+          {
+            "modelo_id": "176",
+            "modelo": "MIDI",
+            "brand": "FOTON",
+            "family": "MINI_TRUCK",
+            "ventas": 25
+          },
+          {
+            "modelo_id": "217",
+            "modelo": "SX6",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 44
+          },
+          {
+            "modelo_id": "228",
+            "modelo": "V7",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 14
+          },
+          {
+            "modelo_id": "396",
+            "modelo": "AEOLUS GS",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 21
+          },
+          {
+            "modelo_id": "399",
+            "modelo": "T5 L",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 8
+          },
+          {
+            "modelo_id": "426",
+            "modelo": "V9",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 37
+          },
+          {
+            "modelo_id": "435",
+            "modelo": "G9",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 17
+          },
+          {
+            "modelo_id": "457",
+            "modelo": "RICH 6",
+            "brand": "DFM",
+            "family": "OTROS",
+            "ventas": 2
+          },
+          {
+            "modelo_id": "481",
+            "modelo": "MAGE",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 37
+          },
+          {
+            "modelo_id": "501",
+            "modelo": "T5",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 2
+          },
+          {
+            "modelo_id": "612",
+            "modelo": "VIEW GRAND",
+            "brand": "FOTON",
+            "family": "VP",
+            "ventas": 13
+          },
+          {
+            "modelo_id": "765",
+            "modelo": "TM3",
+            "brand": "FOTON",
+            "family": "MINI_TRUCK",
+            "ventas": 102
+          },
+          {
+            "modelo_id": "811",
+            "modelo": "T5 HEV",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 2
+          },
+          {
+            "modelo_id": "859",
+            "modelo": "007",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 3
+          }
+        ]
+      },
+      "dealers": {
+        "total": 507,
+        "foton": 413,
+        "dongfeng": 94,
+        "evidence_id": "p1.sales.debc05ab8aa9e6288ca48423",
+        "models": [
+          {
+            "modelo_id": "17",
+            "modelo": "TM5",
+            "brand": "FOTON",
+            "family": "MINI_TRUCK",
+            "ventas": 86
+          },
+          {
+            "modelo_id": "23",
+            "modelo": "HUGE",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 3
+          },
+          {
+            "modelo_id": "27",
+            "modelo": "MAGE EV",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 11
+          },
+          {
+            "modelo_id": "28",
+            "modelo": "G7",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 55
+          },
+          {
+            "modelo_id": "84",
+            "modelo": "AEOLUS Y3",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 3
+          },
+          {
+            "modelo_id": "176",
+            "modelo": "MIDI",
+            "brand": "FOTON",
+            "family": "MINI_TRUCK",
+            "ventas": 94
+          },
+          {
+            "modelo_id": "217",
+            "modelo": "SX6",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 37
+          },
+          {
+            "modelo_id": "228",
+            "modelo": "V7",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 21
+          },
+          {
+            "modelo_id": "396",
+            "modelo": "AEOLUS GS",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 2
+          },
+          {
+            "modelo_id": "399",
+            "modelo": "T5 L",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 3
+          },
+          {
+            "modelo_id": "426",
+            "modelo": "V9",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 14
+          },
+          {
+            "modelo_id": "435",
+            "modelo": "G9",
+            "brand": "FOTON",
+            "family": "PICKUP",
+            "ventas": 12
+          },
+          {
+            "modelo_id": "481",
+            "modelo": "MAGE",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 15
+          },
+          {
+            "modelo_id": "501",
+            "modelo": "T5",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 4
+          },
+          {
+            "modelo_id": "612",
+            "modelo": "VIEW GRAND",
+            "brand": "FOTON",
+            "family": "VP",
+            "ventas": 13
+          },
+          {
+            "modelo_id": "765",
+            "modelo": "TM3",
+            "brand": "FOTON",
+            "family": "MINI_TRUCK",
+            "ventas": 118
+          },
+          {
+            "modelo_id": "811",
+            "modelo": "T5 HEV",
+            "brand": "DFM",
+            "family": "FORTHING",
+            "ventas": 1
+          },
+          {
+            "modelo_id": "859",
+            "modelo": "007",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 10
+          },
+          {
+            "modelo_id": "860",
+            "modelo": "008",
+            "brand": "DFM",
+            "family": "AEOLUS",
+            "ventas": 5
+          }
+        ]
+      }
+    }
   }
 }
