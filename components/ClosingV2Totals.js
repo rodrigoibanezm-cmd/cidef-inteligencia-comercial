@@ -17,19 +17,21 @@ export default function ExecutiveTotals({ facts }) {
     <div className="mc-executive-heading"><div><span className="eyebrow">RESULTADO COMERCIAL</span><h2>Grandes totales</h2></div><small>Octubre 2026 · Compañía Finanzas neto / canales P1 antes de NC</small></div>
     <div className="mc-executive-grid">{sections.map(section => {
       const yoy = facts.company?.yoy?.[section.id];
+      const commercialYoy = facts.channel_sales_p1?.yoy?.[section.id];
+      const rvmYoy = facts.rvm_yoy_comparison?.cidef?.variation_percent;
       return <article className="mc-executive-card" key={section.id}>
         <h3>{section.label}</h3>
         <div className="mc-executive-value">{channelValue(section, section.id)}<span>{section.p1 ? " ventas P1 · antes de NC" : " unidades netas"}</span></div>
         {section.id === "sales_company" && adjustments && <div className="mc-executive-adjustment">
           <div><span>Vendido neto del mes</span><strong>{value("sales_company")}</strong></div>
-          <div className="mc-executive-nc"><span>NC de meses anteriores</span><strong>{count(adjustments.prior_period_credit_notes?.value)}</strong></div>
+          <div className="mc-executive-nc"><span>NC de meses anteriores · Tiendas Propias</span><strong>{count(adjustments.prior_period_credit_notes?.value)}</strong></div>
           <div className="mc-executive-adjusted"><span>Total financiero ajustado</span><strong>{count(adjustments.adjusted_total?.value)}</strong></div>
         </div>}
         <div className="mc-executive-brands">
           <div><span>Foton</span><strong>{channelValue(section, section.foton)}</strong></div>
           <div><span>Dongfeng</span><strong>{channelValue(section, section.dongfeng)}</strong></div>
         </div>
-        <div className="mc-executive-yoy"><span>Crecimiento YoY · vs octubre 2025</span><strong>{valueText(yoy)}</strong></div>
+        <div className="mc-executive-yoy"><span>{section.p1 ? "Crecimiento YoY · SALES/P1 antes de NC" : "Crecimiento YoY · inscripciones RVM (Foton + DFM)"}</span><strong>{section.p1 ? valueText(commercialYoy) : typeof rvmYoy === "number" ? "+" + rvmYoy.toLocaleString("es-CL") + "%" : valueText(yoy)}</strong></div>
         {section.id === "sales_own" && <section className="mc-executive-financing" aria-label="Financiamiento tiendas propias">
           <h4>Financiamiento · SALES/P1</h4>
           <div className="mc-executive-finance-head"><span>Entidad</span><span>Unidades</span><span>Penetración</span></div>
@@ -64,10 +66,13 @@ export default function ExecutiveTotals({ facts }) {
         })}
       </div>
       <div className="mc-description-table" style={{overflowX:"auto",marginTop:16}}>
+        <h4 style={{marginBottom:10}}>Evolución de inscripciones · base julio 2026 = 100</h4>
         <table>
-          <thead><tr><th>Inscripciones RVM</th>{facts.rvm_yoy_comparison.monthly_history.periods.map(p => <th key={p}>{({ "07":"Julio","08":"Agosto","09":"Septiembre","10":"Octubre" })[p.slice(-2)]}</th>)}</tr></thead>
-          <tbody>{[["Mercado total","market"],["Compañía","cidef"],["DFM","dfm"],["Foton","foton"]].map(([label,key]) =>
-            <tr key={key}><th scope="row">{label}</th>{facts.rvm_yoy_comparison.monthly_history.series[key].map((n,i) => <td key={i}>{count(n)}</td>)}</tr>)}</tbody>
+          <thead><tr><th>Índice RVM</th>{facts.rvm_yoy_comparison.monthly_history.periods.map(p => <th key={p}>{({ "07":"Julio","08":"Agosto","09":"Septiembre","10":"Octubre" })[p.slice(-2)]}</th>)}</tr></thead>
+          <tbody>{[["Mercado total","market"],["Compañía","cidef"],["DFM","dfm"],["Foton","foton"]].map(([label,key]) => {
+            const series = facts.rvm_yoy_comparison.monthly_history.series[key];
+            return <tr key={key}><th scope="row">{label}</th>{series.map((n,i) => <td key={i}>{(100*n/series[0]).toLocaleString("es-CL",{maximumFractionDigits:1})}</td>)}</tr>;
+          })}</tbody>
         </table>
       </div>
       <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas. Compañía = Foton + DFM.</small>
@@ -82,6 +87,6 @@ export default function ExecutiveTotals({ facts }) {
         <small>{section.p1 ? "Fuente SALES/P1 · antes de NC contables" : "Julio–septiembre SALES/P1 · octubre Finanzas"}</small>
       </article>)}
     </div>
-    <p className="mc-executive-foot">Compañía: 910 unidades netas Finanzas. Tiendas Propias (458) y Dealers (507): 965 ventas P1 antes de descontar NC; no son el desglose neto contable. Sin asignación de NC por canal.</p>
+    <p className="mc-executive-foot">Compañía: 910 unidades netas Finanzas. Tiendas Propias (458) y Dealers (507): 965 ventas P1 antes de descontar NC; no son el desglose neto contable. Las 9 NC de períodos anteriores corresponden a Tiendas Propias; las 55 NC de octubre aún no tienen desglose neto certificado por canal.</p>
   </section>;
 }
