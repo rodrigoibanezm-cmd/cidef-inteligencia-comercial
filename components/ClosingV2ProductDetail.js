@@ -26,7 +26,8 @@ const styles = `
 .mc-close-summary-grid>.mc-executive-card{display:grid;grid-template-rows:subgrid;grid-row:span 6;row-gap:0}
 .mc-commercial-detail{min-width:0;border-top:1px solid #e5eaf1;padding-top:16px;margin-top:4px}
 .mc-commercial-detail>h4{font-size:13px;margin:0 0 16px;min-height:32px}
-.mc-company-models table{font-size:10px}.mc-company-models th,.mc-company-models td{padding:8px 3px}
+.mc-company-models table{font-size:12px}.mc-company-models th,.mc-company-models td{padding:8px 3px}
+@media(min-width:851px){.mc-close-summary-grid{grid-template-columns:minmax(0,4fr) repeat(2,minmax(0,3fr))}}
 @media(max-width:850px){.mc-close-summary-grid>.mc-executive-card{display:block;grid-row:auto}.mc-commercial-detail{margin-top:16px}}
 `;
 
