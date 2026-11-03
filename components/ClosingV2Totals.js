@@ -1,5 +1,6 @@
 import { valueText } from "../lib/monthly-close-v2-view";
 import { FourMonthTrend } from "./MonthlyCloseV2Metric";
+import CommercialProductDetail, { CommercialDetailProvider } from "./ClosingV2ProductDetail";
 
 // All numbers and series originate in the period snapshot, never calculated here.
 export default function ExecutiveTotals({ facts }) {
@@ -13,7 +14,7 @@ export default function ExecutiveTotals({ facts }) {
     { label: "Tiendas propias", id: "sales_own", foton: "sales_foton_own", dongfeng: "sales_dongfeng_own", p1: true },
     { label: "Dealers", id: "sales_dealers", foton: "sales_foton_dealers", dongfeng: "sales_dongfeng_dealers", p1: true }
   ];
-  return <section className="mc-executive" aria-label="Grandes totales de ventas">
+  return <CommercialDetailProvider period={facts.period}><section className="mc-executive" aria-label="Grandes totales de ventas">
     <div className="mc-executive-heading"><div><span className="eyebrow">RESULTADO COMERCIAL</span><h2>Grandes totales</h2></div><small>Octubre 2026 · Compañía Finanzas neto / canales P1 antes de NC</small></div>
     <div className="mc-executive-grid">{sections.map(section => {
       const yoy = facts.company?.yoy?.[section.id];
@@ -47,6 +48,7 @@ export default function ExecutiveTotals({ facts }) {
           })}
           <div className="mc-executive-finance-row mc-executive-finance-total"><span>Total tiendas propias · P1</span><strong>{channelValue(section, "sales_own")}</strong><strong>{facts.breakdowns?.financial_entities?.status === "CERTIFIED" ? "100%" : "Pendiente"}</strong></div>
         </section>}
+        {section.p1 && <CommercialProductDetail channel={section.id === "sales_own" ? "stores" : "dealers"} metrics={p1}/>}
 
       </article>;
     })}</div>
@@ -88,5 +90,5 @@ export default function ExecutiveTotals({ facts }) {
       </article>)}
     </div>
     <p className="mc-executive-foot">Compañía: 910 unidades netas Finanzas. Tiendas Propias (458) y Dealers (507): 965 ventas P1 antes de descontar NC; no son el desglose neto contable. Las 9 NC de períodos anteriores corresponden a Tiendas Propias; las 55 NC de octubre aún no tienen desglose neto certificado por canal.</p>
-  </section>;
+  </section></CommercialDetailProvider>;
 }
