@@ -2432,6 +2432,16 @@
       ]
     },
     "difference_pp": 40.3,
-    "note": "Comparación interanual de inscripciones RVM. CIDEF considera exclusivamente marcas FOTON y DFM, no DONGFENG/DONG FENG ni ventas contables."
+    "note": "Comparación interanual de inscripciones RVM. CIDEF considera exclusivamente marcas FOTON y DFM, no DONGFENG/DONG FENG ni ventas contables.",
+    "foton": {
+      "previous": 380,
+      "current": 680,
+      "variation_percent": 78.9
+    },
+    "dfm": {
+      "previous": 172,
+      "current": 192,
+      "variation_percent": 11.6
+    }
   }
 }
