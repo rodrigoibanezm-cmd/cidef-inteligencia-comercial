@@ -4093,23 +4093,9 @@
               ]
             },
             {
-              "id": "244",
-              "name": "Ada Gonzalez",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
-              "history": [
-                null,
-                null,
-                null,
-                0
-              ]
-            },
-            {
-              "id": "outside-roster",
-              "name": "Fuera de nómina / sin resolver",
-              "kind": "OUTSIDE_ROSTER",
+              "id": "10",
+              "name": "ADA GONZALEZ",
+              "kind": "SELLER",
               "sales": 3,
               "foton": 2,
               "dongfeng": 1,
@@ -4245,16 +4231,16 @@
               ]
             },
             {
-              "id": "outside-roster",
-              "name": "Fuera de nómina / sin resolver",
-              "kind": "OUTSIDE_ROSTER",
+              "id": "111",
+              "name": "BRAVO GARCIA JORGE ALEXIS",
+              "kind": "SELLER",
               "sales": 1,
               "foton": 1,
               "dongfeng": 0,
               "history": [
-                5,
-                9,
-                0,
+                null,
+                null,
+                null,
                 1
               ]
             }
@@ -4290,59 +4276,45 @@
           "roster_count": 3,
           "rows": [
             {
-              "id": "247",
-              "name": "DANIELA ORTIZ",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
+              "id": "211",
+              "name": "SOLANGEL NEWKEYNY HERNANDEZ PEREIRA",
+              "kind": "SELLER",
+              "sales": 3,
+              "foton": 2,
+              "dongfeng": 1,
+              "history": [
+                null,
+                null,
+                null,
+                3
+              ]
+            },
+            {
+              "id": "65",
+              "name": "DANIELA MARION ORTIZ TOLOZA",
+              "kind": "SELLER",
+              "sales": 2,
+              "foton": 1,
+              "dongfeng": 1,
+              "history": [
+                null,
+                null,
+                null,
+                2
+              ]
+            },
+            {
+              "id": "90",
+              "name": "GENESIS YORASLY CAMACHO PEÑA",
+              "kind": "SELLER",
+              "sales": 1,
+              "foton": 1,
               "dongfeng": 0,
               "history": [
                 null,
                 null,
                 null,
-                0
-              ]
-            },
-            {
-              "id": "246",
-              "name": "GENESIS CAMACHO",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
-              "history": [
-                null,
-                null,
-                null,
-                0
-              ]
-            },
-            {
-              "id": "245",
-              "name": "SOLANGEL HERNANDEZ",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
-              "history": [
-                null,
-                null,
-                null,
-                0
-              ]
-            },
-            {
-              "id": "outside-roster",
-              "name": "Fuera de nómina / sin resolver",
-              "kind": "OUTSIDE_ROSTER",
-              "sales": 6,
-              "foton": 4,
-              "dongfeng": 2,
-              "history": [
-                null,
-                null,
-                null,
-                6
+                1
               ]
             }
           ]
@@ -4880,16 +4852,16 @@
               ]
             },
             {
-              "id": "outside-roster",
-              "name": "Fuera de nómina / sin resolver",
-              "kind": "OUTSIDE_ROSTER",
+              "id": "90",
+              "name": "GENESIS YORASLY CAMACHO PEÑA",
+              "kind": "SELLER",
               "sales": 1,
               "foton": 1,
               "dongfeng": 0,
               "history": [
-                7,
-                9,
-                2,
+                null,
+                null,
+                null,
                 1
               ]
             }
@@ -5142,6 +5114,34 @@
               ]
             },
             {
+              "id": "217",
+              "name": "SANTANDER TORRES SEBASTIAN NICOLAS",
+              "kind": "SELLER",
+              "sales": 4,
+              "foton": 3,
+              "dongfeng": 1,
+              "history": [
+                null,
+                null,
+                null,
+                4
+              ]
+            },
+            {
+              "id": "191",
+              "name": "PAMELA ALEJANDRA CAJAS ORMAZABAL",
+              "kind": "SELLER",
+              "sales": 3,
+              "foton": 3,
+              "dongfeng": 0,
+              "history": [
+                null,
+                null,
+                null,
+                3
+              ]
+            },
+            {
               "id": "121",
               "name": "JAVIERA GARRIDO FLORES",
               "kind": "ROSTER",
@@ -5167,34 +5167,6 @@
                 0,
                 0,
                 1
-              ]
-            },
-            {
-              "id": "252",
-              "name": "SEBASTIAN SANTANDER",
-              "kind": "ROSTER",
-              "sales": 0,
-              "foton": 0,
-              "dongfeng": 0,
-              "history": [
-                0,
-                0,
-                0,
-                0
-              ]
-            },
-            {
-              "id": "outside-roster",
-              "name": "Fuera de nómina / sin resolver",
-              "kind": "OUTSIDE_ROSTER",
-              "sales": 7,
-              "foton": 6,
-              "dongfeng": 1,
-              "history": [
-                2,
-                14,
-                0,
-                7
               ]
             }
           ]
