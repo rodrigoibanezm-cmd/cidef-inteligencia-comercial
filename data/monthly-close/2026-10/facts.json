@@ -2495,5 +2495,267 @@
         "brands_august": "p1.rvm.2f43c3dcc8505c919b869508"
       }
     }
+  },
+  "rvm_model_detail": {
+    "period": "2026-10",
+    "accumulated_from": "2026-01",
+    "source": "RVM/P1",
+    "status": "CERTIFIED",
+    "ranking_basis": "Ranking de modelo frente a todos los modelos del mismo segmento RVM. No equiparar el ranking de familia comercial con el de segmento.",
+    "participation_basis": "Inscripciones del modelo / total de su segmento RVM",
+    "brands": [
+      "FOTON",
+      "DFM"
+    ],
+    "rows": [
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "MAGE",
+        "month": 65,
+        "ytd": 615,
+        "family": "AEOLUS",
+        "rank": 54,
+        "participation_percent": 0.44
+      },
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "AEOLUS GS",
+        "month": 27,
+        "ytd": 251,
+        "family": "AEOLUS",
+        "rank": 92,
+        "participation_percent": 0.18
+      },
+      {
+        "brand": "DFM",
+        "segment": "VEHÍCULO DE PASAJEROS",
+        "model": "AEOLUS Y3",
+        "month": 26,
+        "ytd": 409,
+        "family": "AEOLUS",
+        "rank": 29,
+        "participation_percent": 0.57
+      },
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "HUGE",
+        "month": 9,
+        "ytd": 106,
+        "family": "AEOLUS",
+        "rank": 161,
+        "participation_percent": 0.06
+      },
+      {
+        "brand": "DFM",
+        "segment": "VEHÍCULO DE PASAJEROS",
+        "model": "007 REEV",
+        "month": 3,
+        "ytd": 3,
+        "family": "AEOLUS",
+        "rank": 64,
+        "participation_percent": 0.07
+      },
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "008 REEV",
+        "month": 1,
+        "ytd": 1,
+        "family": "AEOLUS",
+        "rank": 232,
+        "participation_percent": 0.01
+      },
+      {
+        "brand": "DFM",
+        "segment": "VEHÍCULO DE PASAJEROS",
+        "model": "S50",
+        "month": 0,
+        "ytd": 99,
+        "family": "AEOLUS",
+        "rank": null,
+        "participation_percent": 0
+      },
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "SX6",
+        "month": 45,
+        "ytd": 279,
+        "family": "FORTHING",
+        "rank": 68,
+        "participation_percent": 0.31
+      },
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "T5L",
+        "month": 10,
+        "ytd": 92,
+        "family": "FORTHING",
+        "rank": 154,
+        "participation_percent": 0.07
+      },
+      {
+        "brand": "DFM",
+        "segment": "SUV",
+        "model": "T5 EVO",
+        "month": 6,
+        "ytd": 257,
+        "family": "FORTHING",
+        "rank": 179,
+        "participation_percent": 0.04
+      },
+      {
+        "brand": "DFM",
+        "segment": "CAMIONETA",
+        "model": "DF6",
+        "month": 0,
+        "ytd": 11,
+        "family": "PICKUP",
+        "rank": null,
+        "participation_percent": 0
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "TM3",
+        "month": 191,
+        "ytd": 1142,
+        "family": "MINI_TRUCK",
+        "rank": 3,
+        "participation_percent": 7.28
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "MIDI",
+        "month": 84,
+        "ytd": 884,
+        "family": "MINI_TRUCK",
+        "rank": 10,
+        "participation_percent": 3.2
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "TM5",
+        "month": 80,
+        "ytd": 1067,
+        "family": "MINI_TRUCK",
+        "rank": 12,
+        "participation_percent": 3.05
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "MILER",
+        "month": 27,
+        "ytd": 266,
+        "family": "MINI_TRUCK",
+        "rank": 21,
+        "participation_percent": 1.03
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "WONDER",
+        "month": 0,
+        "ytd": 48,
+        "family": "MINI_TRUCK",
+        "rank": null,
+        "participation_percent": 0
+      },
+      {
+        "brand": "FOTON",
+        "segment": "CAMIONETA",
+        "model": "FOTON G7",
+        "month": 138,
+        "ytd": 1390,
+        "family": "PICKUP",
+        "rank": 11,
+        "participation_percent": 2.36
+      },
+      {
+        "brand": "FOTON",
+        "segment": "CAMIONETA",
+        "model": "V9",
+        "month": 67,
+        "ytd": 403,
+        "family": "PICKUP",
+        "rank": 22,
+        "participation_percent": 1.15
+      },
+      {
+        "brand": "FOTON",
+        "segment": "CAMIONETA",
+        "model": "G9",
+        "month": 33,
+        "ytd": 274,
+        "family": "PICKUP",
+        "rank": 31,
+        "participation_percent": 0.56
+      },
+      {
+        "brand": "FOTON",
+        "segment": "CAMIONETA",
+        "model": "V7",
+        "month": 33,
+        "ytd": 344,
+        "family": "PICKUP",
+        "rank": 31,
+        "participation_percent": 0.56
+      },
+      {
+        "brand": "FOTON",
+        "segment": "CAMIONETA",
+        "model": "MILER",
+        "month": 0,
+        "ytd": 2,
+        "family": "PICKUP",
+        "rank": null,
+        "participation_percent": 0
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "VIEW",
+        "month": 27,
+        "ytd": 116,
+        "family": "VP",
+        "rank": 21,
+        "participation_percent": 1.03
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "FOTON FURGON FT",
+        "month": 0,
+        "ytd": 83,
+        "family": "VP",
+        "rank": null,
+        "participation_percent": 0
+      },
+      {
+        "brand": "FOTON",
+        "segment": "VEHÍCULO COMERCIAL",
+        "model": "TOANO",
+        "month": 0,
+        "ytd": 1,
+        "family": "VP",
+        "rank": null,
+        "participation_percent": 0
+      }
+    ],
+    "market_segment_totals": {
+      "SUV": 14681,
+      "CAMIONETA": 5842,
+      "VEHÍCULO DE PASAJEROS": 4539,
+      "VEHÍCULO COMERCIAL": 2625
+    },
+    "category_note": "Agrupación comercial para visualización; las cifras y segmentos proceden de RVM/P1. Inscripciones, no ventas facturadas.",
+    "evidence_id": "p1.rvm.5fedc909bed68ebf73da9439"
   }
 }
