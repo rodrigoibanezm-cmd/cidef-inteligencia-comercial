@@ -75,9 +75,10 @@ export default function CommercialProductDetail({ channel, metrics }) {
   const pending = <span title="Pendiente" aria-label="Pendiente">—</span>;
   const rvm = facts.rvm_model_detail, rvmRows = company && rvm?.status === "CERTIFIED" && rvm.period === facts.period ? rvm.rows : [];
   const key = row => [row.brand, row.family, (row.modelo || row.model).replace(/^FOTON /i, "").replace(/\s/g, "").toUpperCase()].join(":");
-  const extra = (members, total = false) => {
+  const extra = (members, total = false, brand) => {
     const totalFor = field => members.length && members.every(row => units(row[field])) ? numberText(members.reduce((n, row) => n + row[field], 0)) : pending;
-    const row = !total && members.length === 1 ? members[0] : null;
+    const aggregate = brand && rvm?.brand_totals?.[brand];
+    const row = !total && members.length === 1 ? members[0] : aggregate?.status === "VERIFIED_FILE" && aggregate.period === facts.period && ["month", "ytd"].every(field => units(aggregate[field]) && members.length && members.every(item => units(item[field])) && aggregate[field] === members.reduce((n, item) => n + item[field], 0)) ? aggregate : null;
     return [totalFor("month"), row?.rank ? row.rank + "°" : pending, Number.isFinite(row?.participation_percent) ? row.participation_percent.toLocaleString("es-CL", {maximumFractionDigits:2}) + "%" : pending, totalFor("ytd")];
   };
   return <section className={"mc-commercial-detail" + (company ? " mc-company-models" : "")} aria-label={"Detalle comercial por familia y modelo · " + label}>
@@ -91,11 +92,9 @@ export default function CommercialProductDetail({ channel, metrics }) {
         const entries = [...members, ...registered.filter(row => !members.some(member => key(member) === key(row))).map(row => ({...row, modelo_id:key(row), modelo:row.model, ventas:null}))];
         return {label:family, values:[numberText(detail && (company || members.length) ? sum(members) : null), ...(company ? extra(registered, true) : [])], models:entries.map(row => ({id:row.modelo_id, label:row.modelo, values:[Number.isFinite(row.ventas) ? numberText(row.ventas) : pending, ...(company ? extra(registered.filter(item => key(item) === key(row))) : [])]}))};
       });
-      return <div key={brand} style={{marginTop:14}}><h4>{name}</h4><FamilyModelTable columns={["Familia / Modelo", company ? "Ventas mes" : "Vendidos mes", ...(company ? ["RVM mes", "Rank. RVM", "Part. %", "Acum. RVM"] : [])]} groups={groups} totalLabel={"Total " + name} totalValues={[numberText(detail ? sum(models) : null), ...(company ? extra(registrations, true) : [])]}/></div>;
+      return <div key={brand} style={{marginTop:14}}><h4>{name}</h4><FamilyModelTable columns={["Familia / Modelo", company ? "Ventas mes" : "Vendidos mes", ...(company ? ["RVM mes", "Rank. RVM", "Part. %", "Acum. RVM"] : [])]} groups={groups} totalLabel={"Total " + name} totalValues={[numberText(detail ? sum(models) : null), ...(company ? extra(registrations, true, brand) : [])]}/></div>;
     })}
     <div className="mc-product-total"><span>Total {label}</span><span>{numberText(detail?.total)}</span></div>
     <p>Fuente: SALES/P1 · octubre 2026 · ventas por modelo antes de NC.{company && " Total P1 distinto del neto de Finanzas. RVM: inscripciones del mes y enero–octubre; ranking y participación contra el segmento. Nombres sin equivalencia confirmada se mantienen separados; —: pendiente; no hay equivalencia o ranking agregado comparable."}</p>
   </section>;
 }
-
-

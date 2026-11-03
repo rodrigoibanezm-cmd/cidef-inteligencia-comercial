@@ -2491,6 +2491,56 @@
     }
   },
   "rvm_model_detail": {
+    "brand_totals": {
+      "FOTON": {
+        "period": "2026-10",
+        "status": "VERIFIED_FILE",
+        "month": 680,
+        "rank": 16,
+        "participation_percent": 2.4560262939285584,
+        "ytd": 6020,
+        "ytd_rank": 16,
+        "ytd_participation_percent": 2.272830239968588,
+        "provenance": {
+          "monthly": {
+            "file_name": "Ranking por Marca - Octubre 2026 (1)(1).xlsx",
+            "sha256": "c2ea1a065eae48ff8fa467acd1b68843ec6778bcd451f1fcbf58a3809a32470a",
+            "sheet": "Export",
+            "range": "V18:X18"
+          },
+          "accumulated": {
+            "file_name": "Ranking por Marca ACUMULADO a 2026(1).xlsx",
+            "sha256": "da1f01ec78120429e4c4502fa78d90309f91fb6c9b900c95175920f881f44e43",
+            "sheet": "Export",
+            "range": "V18:X18"
+          }
+        }
+      },
+      "DFM": {
+        "period": "2026-10",
+        "status": "VERIFIED_FILE",
+        "month": 192,
+        "rank": 30,
+        "participation_percent": 0.6934662476974753,
+        "ytd": 2123,
+        "ytd_rank": 31,
+        "ytd_participation_percent": 0.8015313288128427,
+        "provenance": {
+          "monthly": {
+            "file_name": "Ranking por Marca - Octubre 2026 (1)(1).xlsx",
+            "sha256": "c2ea1a065eae48ff8fa467acd1b68843ec6778bcd451f1fcbf58a3809a32470a",
+            "sheet": "Export",
+            "range": "V32:X32"
+          },
+          "accumulated": {
+            "file_name": "Ranking por Marca ACUMULADO a 2026(1).xlsx",
+            "sha256": "da1f01ec78120429e4c4502fa78d90309f91fb6c9b900c95175920f881f44e43",
+            "sheet": "Export",
+            "range": "V33:X33"
+          }
+        }
+      }
+    },
     "period": "2026-10",
     "accumulated_from": "2026-01",
     "source": "RVM/P1",
