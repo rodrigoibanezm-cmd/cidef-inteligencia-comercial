@@ -1,7 +1,6 @@
 import Link from "next/link";
 import MonthlyCloseV2Metric from "../../components/MonthlyCloseV2Metric";
 import MonthlyCloseV2Ranking from "../../components/MonthlyCloseV2Ranking";
-import ClosingV2Breakdown from "../../components/ClosingV2Breakdown";
 import ClosingV2Totals from "../../components/ClosingV2Totals";
 import { numberText, valueText } from "../../lib/monthly-close-v2-view";
 import facts from "../../data/monthly-close/2026-10/facts.json";
@@ -17,7 +16,6 @@ export default function CierreMensual() {
     <div className="mc-warning"><strong>Ventas contables de octubre.</strong> {display("sales_company")} unidades netas = {display("sales_foton")} Foton + {display("sales_dongfeng")} Dongfeng (DFM + DFLM). Facturas 965 · Notas de crédito 55. Canales SALES/P1 y RVM disponibles; cifras por conciliar.</div>
     <div className="mc-tabs" aria-label="Vistas del cierre"><span className="mc-active" aria-current="page">Compañía</span>{["Sucursales", "Foton", "Dongfeng", "Dealers"].map(label => <span key={label} aria-disabled="true">{label}</span>)}</div>
     <ClosingV2Totals facts={facts}/>
-    <ClosingV2Breakdown facts={facts}/>
     <section className="mc-forum-executive" aria-label="FORUM · desempeño del financiamiento">
       <div className="forum-exec-header"><div><h2>FORUM · Desempeño del financiamiento</h2><p>Octubre 2026 · observaciones P1 y comparativos P2</p></div><span>FORUM</span></div>
       <div className="forum-exec-grid">{facts.company.forum_cards.map(config => <MonthlyCloseV2Metric key={config.id} data={facts} config={config}/>)}</div>
