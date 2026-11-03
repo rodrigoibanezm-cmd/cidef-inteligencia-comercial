@@ -10,7 +10,8 @@ export const metadata = { title: "Octubre 2026 · Cierre mensual | CIDEF" };
 
 export default function CierreMensual() {
   const display = id => valueText(facts.indicators[id]);
-  return <main className="shell mc">
+  return <main className="shell mc mc-close-clean">
+    <style>{`.mc-close-clean .mc-executive-heading>small,.mc-close-clean .mc-executive-foot,.mc-close-clean .mc-commercial-detail>p:last-child,.mc-close-clean .mc-description-note,.mc-close-clean .mc-source-note,.mc-close-clean .mc-index-note,.mc-close-clean .mc-trend-card>small,.mc-close-clean [aria-label="Inscripciones RVM, variación mensual e interanual"]>small,.mc-close-clean .forum-exec-header p{display:none}`}</style>
     <header className="topbar"><Link className="back" href="/">← CIDEF · Inteligencia Comercial</Link><span className="pill">CIERRE CONTABLE · OCTUBRE 2026</span></header>
     <section className="mc-intro"><span className="eyebrow">CIERRE MENSUAL · COMPAÑÍA</span><h1>Octubre 2026</h1><p>Ventas, financiamiento y posición competitiva. Finanzas tiene prioridad por mes; los meses anteriores utilizan SALES/P1 cuando no hay cierre de Finanzas.</p></section>
     <div className="mc-warning"><strong>Ventas contables de octubre.</strong> {display("sales_company")} unidades netas = {display("sales_foton")} Foton + {display("sales_dongfeng")} Dongfeng (DFM + DFLM). Facturas 965 · Notas de crédito 55. Canales SALES/P1 y RVM disponibles; cifras por conciliar.</div>

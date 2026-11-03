@@ -1,5 +1,5 @@
 import { valueText } from "../lib/monthly-close-v2-view";
-import MonthlyCloseV2Metric, { Comparison, FourMonthTrend } from "./MonthlyCloseV2Metric";
+import MonthlyCloseV2Metric, { FourMonthTrend } from "./MonthlyCloseV2Metric";
 import CommercialProductDetail, { CommercialDetailProvider } from "./ClosingV2ProductDetail";
 
 // All numbers and series originate in the period snapshot, never calculated here.
@@ -24,6 +24,7 @@ export default function ExecutiveTotals({ facts }) {
     <div className="mc-executive-grid mc-close-summary-grid">{sections.map(section => {
       const yoy = facts.company?.yoy?.[section.id];
       const commercialYoy = facts.company?.yoy?.[section.id];
+      const monthly = facts.company?.comparisons?.[section.id];
       const rvmYoy = facts.rvm_yoy_comparison?.cidef?.variation_percent;
       const nc = creditNotes?.[section.id === "sales_company" ? "company" : section.id === "sales_own" ? "own_stores" : "dealers"];
       return <article className="mc-executive-card" key={section.id}>
@@ -35,7 +36,7 @@ export default function ExecutiveTotals({ facts }) {
           <div><span>Dongfeng</span><strong>{channelValue(section, section.dongfeng)}</strong></div>
         </div>
         <div><div className="mc-executive-yoy"><span>{section.p1 ? "Crecimiento YoY · SALES/P1 antes de NC" : "Crecimiento YoY · inscripciones RVM (Foton + DFM)"}</span><strong>{section.p1 ? valueText(commercialYoy, true) : typeof rvmYoy === "number" ? "+" + rvmYoy.toLocaleString("es-CL") + "%" : valueText(yoy)}</strong></div>
-          <div style={{paddingBottom:16,fontSize:12,color:"#637187"}}><Comparison comparison={facts.company?.comparisons?.[section.id]}/>{facts.company?.comparisons?.[section.id]?.delta?.status === "PRELIMINARY" && <small style={{display:"block",marginTop:4}}>Comparación provisional{!section.p1 && " · octubre Finanzas / septiembre SALES/P1"}</small>}</div>
+          <div className="mc-executive-yoy" data-comparison-status={monthly?.delta?.status} title={monthly?.delta?.status === "PRELIMINARY" ? "Comparación provisional" + (!section.p1 ? " · octubre Finanzas / septiembre SALES/P1" : "") : undefined}><span>vs septiembre · {valueText(monthly?.delta, true)}{monthly?.delta?.unit === "VIN" ? " VIN" : ""}</span><strong>{valueText(monthly?.relative, true)}</strong></div>
         </div>
         <CommercialProductDetail channel={section.id === "sales_company" ? "company" : section.id === "sales_own" ? "stores" : "dealers"} metrics={p1}/>
 
