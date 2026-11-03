@@ -16,7 +16,7 @@ export default function ExecutiveTotals({ facts }) {
   ];
   return <CommercialDetailProvider period={facts.period}><section className="mc-executive" aria-label="Grandes totales de ventas">
     <div className="mc-executive-heading"><div><span className="eyebrow">RESULTADO COMERCIAL</span><h2>Grandes totales</h2></div><small>Octubre 2026 · Compañía Finanzas neto / canales P1 antes de NC</small></div>
-    <div className="mc-executive-grid">{sections.map(section => {
+    <div className="mc-executive-grid mc-close-summary-grid">{sections.map(section => {
       const yoy = facts.company?.yoy?.[section.id];
       const commercialYoy = facts.channel_sales_p1?.yoy?.[section.id];
       const rvmYoy = facts.rvm_yoy_comparison?.cidef?.variation_percent;
@@ -30,7 +30,11 @@ export default function ExecutiveTotals({ facts }) {
           <div><span>Dongfeng</span><strong>{channelValue(section, section.dongfeng)}</strong></div>
         </div>
         <div className="mc-executive-yoy"><span>{section.p1 ? "Crecimiento YoY · SALES/P1 antes de NC" : "Crecimiento YoY · inscripciones RVM (Foton + DFM)"}</span><strong>{section.p1 ? valueText(commercialYoy) : typeof rvmYoy === "number" ? "+" + rvmYoy.toLocaleString("es-CL") + "%" : valueText(yoy)}</strong></div>
-        {section.id === "sales_own" && <section className="mc-executive-financing" aria-label="Financiamiento tiendas propias">
+        <CommercialProductDetail channel={section.id === "sales_company" ? "company" : section.id === "sales_own" ? "stores" : "dealers"} metrics={p1}/>
+
+      </article>;
+    })}</div>
+    <section className="mc-executive-card mc-executive-financing" aria-label="Financiamiento tiendas propias">
           <h4>Financiamiento · SALES/P1</h4>
           <div className="mc-executive-finance-head"><span>Entidad</span><span>Unidades</span><span>Penetración</span></div>
           {["FORUM", "TANNER", "GLOBAL SOLUCIONES", "AUTOFIN", "Sin financiera identificada"].map(name => {
@@ -43,12 +47,8 @@ export default function ExecutiveTotals({ facts }) {
               <strong>{valueText(metric?.penetration)}</strong>
             </div>;
           })}
-          <div className="mc-executive-finance-row mc-executive-finance-total"><span>Total tiendas propias · P1</span><strong>{channelValue(section, "sales_own")}</strong><strong>{facts.breakdowns?.financial_entities?.status === "CERTIFIED" ? "100%" : "Pendiente"}</strong></div>
-        </section>}
-        {section.p1 && <CommercialProductDetail channel={section.id === "sales_own" ? "stores" : "dealers"} metrics={p1}/>}
-
-      </article>;
-    })}</div>
+          <div className="mc-executive-finance-row mc-executive-finance-total"><span>Total tiendas propias · P1</span><strong>{valueText(p1.sales_own_p1)}</strong><strong>{facts.breakdowns?.financial_entities?.status === "CERTIFIED" ? "100%" : "Pendiente"}</strong></div>
+        </section>
     {facts.rvm_yoy_comparison && <section className="mc-executive-card" aria-label="Inscripciones RVM, variación mensual e interanual" style={{marginTop:20}}>
       <h3>Mercado vs. CIDEF · inscripciones RVM</h3>
       <p>Octubre 2026 · variación interanual vs. octubre 2025 y mensual vs. septiembre 2026</p>
@@ -89,4 +89,5 @@ export default function ExecutiveTotals({ facts }) {
     <p className="mc-executive-foot">Compañía: 910 unidades netas Finanzas, con 55 NC ya descontadas. Distribución informada: 9 de Tiendas Propias y 46 de Dealers por diferencia. Las ventas P1 de Tiendas Propias (458) y Dealers (507) se muestran antes de NC; no se aplica una resta adicional a compañía.</p>
   </section></CommercialDetailProvider>;
 }
+
 
