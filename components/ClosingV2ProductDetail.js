@@ -54,7 +54,7 @@ export function channelDetail(channel, metrics, saved = facts.commercial_model_s
   const split = saved?.channels?.[channel], suffix = channel === "stores" ? "own" : "dealers";
   if (saved?.status !== "CERTIFIED" || saved.period !== facts.period || !split || !Array.isArray(split.models) ||
     [["sales_" + suffix + "_p1", split.total], ["sales_foton_" + suffix + "_p1", split.foton], ["sales_dongfeng_" + suffix + "_p1", split.dongfeng]].some(([id, n]) => !units(n) || metrics[id]?.status !== "CERTIFIED" || metrics[id].value !== n)) return null;
-  const models = split.models;
+  const models = split.models.map(row => row.brand === "DFM" && /^RICH\s*6$/i.test(row.modelo) ? {...row, family:"FORTHING"} : row);
   if (models.some(row => !row || !units(row.ventas) || !row.modelo_id || !row.modelo || !row.family || !brands.some(([brand]) => brand === row.brand)) ||
     new Set(models.map(row => String(row.modelo_id))).size !== models.length || sum(models) !== split.total ||
     sum(models.filter(row => row.brand === "FOTON")) !== split.foton || sum(models.filter(row => row.brand === "DFM")) !== split.dongfeng) return null;
@@ -86,9 +86,10 @@ export default function CommercialProductDetail({ channel, metrics }) {
     {!detail && <p role="status">Pendiente: desglose mensual sin conciliación con las ventas P1 del canal.</p>}
     {brands.map(([brand, name, order]) => {
       const models = detail?.models.filter(row => row.brand === brand) || [], registrations = rvmRows.filter(row => row.brand === brand);
-      const families = [...order, ...new Set([...models, ...registrations].map(row => row.family).filter(family => !order.includes(family)))];
+      const displayedRegistrations = registrations.filter(row => !(row.brand === "DFM" && /^DF\s*6$/i.test(row.model)));
+      const families = [...order, ...new Set([...models, ...displayedRegistrations].map(row => row.family).filter(family => !order.includes(family)))];
       const groups = families.map(family => {
-        const members = models.filter(row => row.family === family), registered = registrations.filter(row => row.family === family);
+        const members = models.filter(row => row.family === family), registered = displayedRegistrations.filter(row => row.family === family);
         const entries = [...members, ...registered.filter(row => !members.some(member => key(member) === key(row))).map(row => ({...row, modelo_id:key(row), modelo:row.model, ventas:null}))];
         return {label:family, values:[numberText(detail && (company || members.length) ? sum(members) : null), ...(company ? extra(registered, true) : [])], models:entries.map(row => ({id:row.modelo_id, label:row.modelo, values:[Number.isFinite(row.ventas) ? numberText(row.ventas) : pending, ...(company ? extra(registered.filter(item => key(item) === key(row))) : [])]}))};
       });
