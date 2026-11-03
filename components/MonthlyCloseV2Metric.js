@@ -1,24 +1,25 @@
 import { dateText, indexedTrend, isCertified, trendScale, valueText } from '../lib/monthly-close-v2-view';
 
-const colors = { COMPANY: '#244d7a', FOTON: '#20b34b', DONGFENG: '#ed8726' };
-export function FourMonthTrend({ data, series, label, perCardScale = false }) {
+const colors = { MARKET: '#69788c', COMPANY: '#244d7a', FOTON: '#20b34b', DONGFENG: '#ed8726' };
+export function FourMonthTrend({ data, series, label, perCardScale = false, labels = {}, wide = false }) {
   const valid = indexedTrend(data, series);
   const months = data.period === '2026-10' ? ['Jul', 'Ago', 'Sep', 'Oct'] : ['Jun', 'Jul', 'Ago', 'Sep'];
   const baseMonth = months[0].toLowerCase();
   if (!valid.length) return <div className="mc-spark-empty">Pendiente<small>Trayectoria certificada de cuatro meses</small></div>;
   const scale = perCardScale ? trendScale(data, series) : trendScale(data);
-  const xs = [22, 127, 233, 338], y = value => 72 - (value - scale.min) / (scale.max - scale.min) * 48;
+  const xs = wide ? [40, 360, 680, 1000] : [22, 127, 233, 338];
+  const y = value => (wide ? 200 : 72) - (value - scale.min) / (scale.max - scale.min) * (wide ? 160 : 48);
   const indexText = value => new Intl.NumberFormat('es-CL', { maximumFractionDigits: 1 }).format(value);
-  const labelFor = key => key === 'COMPANY' ? (perCardScale ? 'Compañía' : label) : key === 'FOTON' ? 'Foton' : 'Dongfeng';
+  const labelFor = key => labels[key] || (key === 'COMPANY' ? (perCardScale ? 'Compañía' : label) : key === 'FOTON' ? 'Foton' : 'Dongfeng');
   const demonstration = valid.some(({ item }) => item.status === 'DEMONSTRATION');
   return <div className="mc-spark-wrap mc-brand-spark">
     <div className="mc-trend-legend">{valid.map(({ key }) => <span key={key}><i style={{ background: colors[key] }}/>{labelFor(key)}</span>)}</div>
-    <svg viewBox="0 0 360 102" className="mc-spark" role="img" data-index-base="100" data-index-min={scale.min} data-index-max={scale.max} aria-label={label + ': ' + months[0] + ' a ' + months[3] + ' 2026, índice ' + months[0] + ' = 100; escala ' + (perCardScale ? 'de esta tarjeta' : 'común') + ' de ' + scale.min + ' a ' + scale.max}>
-      <path d="M22 74H338" stroke="#e9eef4" fill="none"/>
-      <line x1="22" x2="338" y1={y(100)} y2={y(100)} stroke="#d8e0ea" strokeDasharray="3 3"/>
+    <svg viewBox={wide ? "0 0 1040 240" : "0 0 360 102"} style={wide ? {height:"auto", maxHeight:"none"} : undefined} className="mc-spark" role="img" data-index-base="100" data-index-min={scale.min} data-index-max={scale.max} aria-label={label + ': ' + months[0] + ' a ' + months[3] + ' 2026, índice ' + months[0] + ' = 100; escala ' + (perCardScale ? 'de esta tarjeta' : 'común') + ' de ' + scale.min + ' a ' + scale.max}>
+      <path d={wide ? "M40 202H1000" : "M22 74H338"} stroke="#e9eef4" fill="none"/>
+      <line x1={xs[0]} x2={xs[3]} y1={y(100)} y2={y(100)} stroke="#d8e0ea" strokeDasharray="3 3"/>
       <text x="18" y={y(100) - 4} fill="#748298" fontSize="9">100</text>
       {valid.map(({ key, item, indices }) => <g key={key}><polyline points={indices.map((index, i) => xs[i] + ',' + y(index)).join(' ')} stroke={colors[key]} strokeWidth="2.7" fill="none"/>{item.points.map((p, i) => <circle key={p.period} cx={xs[i]} cy={y(indices[i])} r="3" fill={colors[key]}><title>{p.period + ': ' + valueText({ status: 'CERTIFIED', value: p.value, unit: item.unit }) + ' · índice ' + indexText(indices[i])}</title></circle>)}</g>)}
-      {xs.map((x, i) => <text key={x} x={x} y="95" textAnchor="middle" fill="#748298" fontSize="11">{months[i]}</text>)}
+      {xs.map((x, i) => <text key={x} x={x} y={wide ? 229 : 95} textAnchor="middle" fill="#748298" fontSize="11">{months[i]}</text>)}
     </svg><small className="mc-index-note">{demonstration ? 'Trayectoria de demostración' : 'Trayectorias comparables'} · {months[0]} = 100</small>
   </div>;
 }

@@ -9,6 +9,11 @@ export default function ExecutiveTotals({ facts }) {
   const p1 = facts.channel_sales_p1?.metrics || {};
   const count = x => Number.isFinite(x) ? x.toLocaleString("es-CL") : "Pendiente";
   const channelValue = (section, id) => section.id === "sales_company" ? value(id) : valueText(p1[id + "_p1"]);
+  const history = facts.rvm_yoy_comparison?.monthly_history;
+  const rvmTrend = {period:facts.period, series:Object.fromEntries(Object.entries(history?.series || {}).map(([id, values]) => [id, {
+    status:history.status, unit:"VEHICLE", points:(history.periods || []).map((period, i) => ({period, value:values[i]}))
+  }]))};
+  const rvmChart = {data:rvmTrend, series:{MARKET:"market", COMPANY:"cidef", FOTON:"foton", DONGFENG:"dfm"}, labels:{MARKET:"Mercado total", DONGFENG:"DFM"}, label:"Inscripciones RVM", perCardScale:true};
   const sections = [
     { label: "Compañía", id: "sales_company", foton: "sales_foton", dongfeng: "sales_dongfeng" },
     { label: "Tiendas propias", id: "sales_own", foton: "sales_foton_own", dongfeng: "sales_dongfeng_own", p1: true },
@@ -64,16 +69,12 @@ export default function ExecutiveTotals({ facts }) {
           </article>;
         })}
       </div>
-      <div className="mc-description-table" style={{overflowX:"auto",marginTop:16}}>
-        <h4 style={{marginBottom:10}}>Evolución de inscripciones · base julio 2026 = 100</h4>
-        <table>
-          <thead><tr><th>Índice RVM</th>{facts.rvm_yoy_comparison.monthly_history.periods.map(p => <th key={p}>{({ "07":"Julio","08":"Agosto","09":"Septiembre","10":"Octubre" })[p.slice(-2)]}</th>)}</tr></thead>
-          <tbody>{[["Mercado total","market"],["Compañía","cidef"],["DFM","dfm"],["Foton","foton"]].map(([label,key]) => {
-            const series = facts.rvm_yoy_comparison.monthly_history.series[key];
-            return <tr key={key}><th scope="row">{label}</th>{series.map((n,i) => <td key={i}>{(100*n/series[0]).toLocaleString("es-CL",{maximumFractionDigits:1})}</td>)}</tr>;
-          })}</tbody>
-        </table>
-      </div>
+      <section aria-label="Evolución de inscripciones RVM · base julio 2026 = 100" style={{marginTop:20}}>
+        <h4>Evolución de inscripciones · base julio 2026 = 100</h4>
+        <style>{`.mc-rvm-index-mobile{display:none}@media(max-width:600px){.mc-rvm-index-desktop{display:none}.mc-rvm-index-mobile{display:block}}`}</style>
+        <div className="mc-rvm-index-desktop"><FourMonthTrend {...rvmChart} wide/></div>
+        <div className="mc-rvm-index-mobile"><FourMonthTrend {...rvmChart}/></div>
+      </section>
       <small>Fuente: RVM/P1 · Inscripciones, no ventas facturadas. Compañía = Foton + DFM.</small>
     </section>}
     <div className="mc-executive-heading mc-trends-heading"><div><span className="eyebrow">EVOLUCIÓN COMERCIAL</span><h2>Últimos cuatro meses · base julio = 100</h2></div></div>
