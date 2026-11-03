@@ -16,8 +16,6 @@ export default function CierreMensual() {
     <div className="mc-warning"><strong>Ventas contables de octubre.</strong> {display("sales_company")} unidades netas = {display("sales_foton")} Foton + {display("sales_dongfeng")} Dongfeng (DFM + DFLM). Facturas 965 · Notas de crédito 55. Canales SALES/P1 y RVM disponibles; cifras por conciliar.</div>
     <div className="mc-tabs" aria-label="Vistas del cierre"><span className="mc-active" aria-current="page">Compañía</span>{["Sucursales", "Foton", "Dongfeng", "Dealers"].map(label => <span key={label} aria-disabled="true">{label}</span>)}</div>
     <ClosingV2Totals facts={facts}/>
-    <div className="mc-executive-heading mc-analysis-heading"><div><span className="eyebrow">ANÁLISIS Y TENDENCIAS</span><h2>Indicadores y evolución</h2></div></div>
-    <section className="mc-kpis" aria-label="Indicadores de ventas">{facts.cards.filter(config => config.id.startsWith("sales_")).map(config => <MonthlyCloseV2Metric key={config.id} data={facts} config={config}/>)}</section>
     <ClosingV2Breakdown facts={facts}/>
     <section className="mc-forum-executive" aria-label="FORUM · desempeño del financiamiento">
       <div className="forum-exec-header"><div><h2>FORUM · Desempeño del financiamiento</h2><p>Octubre 2026 · observaciones P1 y comparativos P2</p></div><span>FORUM</span></div>
