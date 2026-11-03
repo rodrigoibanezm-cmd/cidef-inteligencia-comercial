@@ -3167,7 +3167,31 @@
           "evidence_id": "p1.sales.be540e996e6c2cedef113814"
         },
         "net": 39,
-        "gap": -11
+        "gap": -11,
+        "yoy": {
+          "baseline_value": 49,
+          "comparison_value": 39,
+          "absolute_delta": -10,
+          "relative_delta": -0.20408163265306123,
+          "relative_delta_status": "CALCULATED",
+          "direction": "DECREASE",
+          "status": "CALCULATED",
+          "execution_id": "f3f77033-7741-4ba9-a528-a1c43664dfec",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.675f76bbc69d2b1476b0076f",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.bb0959f27866553d35a71be9",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "19",
@@ -3190,7 +3214,31 @@
           "evidence_id": "p1.sales.434cd5b19c6011e15ac905c4"
         },
         "net": 16,
-        "gap": -9
+        "gap": -9,
+        "yoy": {
+          "baseline_value": 19,
+          "comparison_value": 17,
+          "absolute_delta": -2,
+          "relative_delta": -0.10526315789473684,
+          "relative_delta_status": "CALCULATED",
+          "direction": "DECREASE",
+          "status": "CALCULATED",
+          "execution_id": "2099f244-b257-462e-8618-93e39c734bad",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.4c2bf5a8e86cf2b1e0033311",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.da9a66d77cdac4b49aa793bd",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "22",
@@ -3213,7 +3261,13 @@
           "evidence_id": "p1.sales.9c12c96016575733f0e22177"
         },
         "net": 19,
-        "gap": -4
+        "gap": -4,
+        "yoy": {
+          "status": "NO_BASELINE",
+          "baseline_value": null,
+          "comparison_value": 19,
+          "relative_delta": null
+        }
       },
       {
         "id": "5",
@@ -3236,7 +3290,31 @@
           "evidence_id": "p1.sales.2ef3504d3613eab8776b6cb8"
         },
         "net": 39,
-        "gap": -2
+        "gap": -2,
+        "yoy": {
+          "baseline_value": 35,
+          "comparison_value": 40,
+          "absolute_delta": 5,
+          "relative_delta": 0.14285714285714285,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "d0ae17da-0e46-45fb-a0b2-2b4e9c1eb5e7",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.2d9b9c4bab6d284bd1a75fc6",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.6d2e81e2ffd19ac292ae685e",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "78",
@@ -3254,7 +3332,13 @@
         ],
         "growth": null,
         "net": 8,
-        "gap": -2
+        "gap": -2,
+        "yoy": {
+          "status": "NO_BASELINE",
+          "baseline_value": null,
+          "comparison_value": 8,
+          "relative_delta": null
+        }
       },
       {
         "id": "18",
@@ -3277,7 +3361,31 @@
           "evidence_id": "p1.sales.8ab428857f6e9b1ef063d596"
         },
         "net": 31,
-        "gap": -1
+        "gap": -1,
+        "yoy": {
+          "baseline_value": 32,
+          "comparison_value": 32,
+          "absolute_delta": 0,
+          "relative_delta": 0,
+          "relative_delta_status": "CALCULATED",
+          "direction": "UNCHANGED",
+          "status": "CALCULATED",
+          "execution_id": "b3b74df2-0390-4052-91bd-485f57f67f86",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.a3c9c0678325a8a1ed1cbc74",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.b2ca39978ff5ff83b9084ca5",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "44",
@@ -3295,7 +3403,13 @@
         ],
         "growth": null,
         "net": 6,
-        "gap": -1
+        "gap": -1,
+        "yoy": {
+          "status": "NO_BASELINE",
+          "baseline_value": null,
+          "comparison_value": 6,
+          "relative_delta": null
+        }
       },
       {
         "id": "11",
@@ -3318,7 +3432,31 @@
           "evidence_id": "p1.sales.ffd4996dcfa1a71ef1e0e683"
         },
         "net": 29,
-        "gap": -1
+        "gap": -1,
+        "yoy": {
+          "baseline_value": 40,
+          "comparison_value": 29,
+          "absolute_delta": -11,
+          "relative_delta": -0.275,
+          "relative_delta_status": "CALCULATED",
+          "direction": "DECREASE",
+          "status": "CALCULATED",
+          "execution_id": "7cbaa23d-0a39-4ad5-906d-e11de3bc2086",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.c178cdd66de72a90bc3dcef0",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.00bdc46a6a1a4ca7919c2e86",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "8",
@@ -3341,7 +3479,31 @@
           "evidence_id": "p1.sales.187066023ef87d47ceee9aae"
         },
         "net": 39,
-        "gap": -1
+        "gap": -1,
+        "yoy": {
+          "baseline_value": 40,
+          "comparison_value": 41,
+          "absolute_delta": 1,
+          "relative_delta": 0.025,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "3e42f4b5-5cd0-439f-a6d5-e496a98cd68c",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.393c4be506595f3465ddc394",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.aa0c172744d0b6973893e948",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "10",
@@ -3364,7 +3526,31 @@
           "evidence_id": "p1.sales.e77ee3e048f1bc22ff67a992"
         },
         "net": 39,
-        "gap": -1
+        "gap": -1,
+        "yoy": {
+          "baseline_value": 38,
+          "comparison_value": 40,
+          "absolute_delta": 2,
+          "relative_delta": 0.05263157894736842,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "9b351843-0b7e-43d4-b17f-85c700a28e8a",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.0f8b6a6eba48a0c73bd31bc1",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.79993cfd8c427f11d0be3af0",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "21",
@@ -3387,7 +3573,13 @@
           "evidence_id": "p1.sales.84f819713ed2dced3b9f1aa1"
         },
         "net": 13,
-        "gap": 1
+        "gap": 1,
+        "yoy": {
+          "status": "NO_BASELINE",
+          "baseline_value": null,
+          "comparison_value": 13,
+          "relative_delta": null
+        }
       },
       {
         "id": "7",
@@ -3410,7 +3602,31 @@
           "evidence_id": "p1.sales.8fb7e4e3f5428418ccd6d83e"
         },
         "net": 46,
-        "gap": 1
+        "gap": 1,
+        "yoy": {
+          "baseline_value": 37,
+          "comparison_value": 48,
+          "absolute_delta": 11,
+          "relative_delta": 0.2972972972972973,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "d2fb4dca-a6e4-4fcf-b81e-aabfa3e7941c",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.b2df16f6cdc0b714dc4595dc",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.7acc3da7185a63d919742406",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "20",
@@ -3433,7 +3649,31 @@
           "evidence_id": "p1.sales.1199782f3ce8fb333e0eadc3"
         },
         "net": 30,
-        "gap": 5
+        "gap": 5,
+        "yoy": {
+          "baseline_value": 19,
+          "comparison_value": 30,
+          "absolute_delta": 11,
+          "relative_delta": 0.5789473684210527,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "56ab8dfd-02d8-4dc3-9418-d56e64cd3be2",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.3582829db2139c96fe2d0e93",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.0748e168d7992531ba8e3810",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "9",
@@ -3456,7 +3696,31 @@
           "evidence_id": "p1.sales.5aac627629acd373a107d9e2"
         },
         "net": 53,
-        "gap": 6
+        "gap": 6,
+        "yoy": {
+          "baseline_value": 33,
+          "comparison_value": 54,
+          "absolute_delta": 21,
+          "relative_delta": 0.6363636363636364,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "16066cd8-717a-4f39-8a1a-f68b19e4dbcc",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.326112ed42f10ba977728dea",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.b3f15a8686e51c7587700c3e",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       },
       {
         "id": "4",
@@ -3479,7 +3743,31 @@
           "evidence_id": "p1.sales.cebe1078d561065b0c965094"
         },
         "net": 42,
-        "gap": 7
+        "gap": 7,
+        "yoy": {
+          "baseline_value": 40,
+          "comparison_value": 42,
+          "absolute_delta": 2,
+          "relative_delta": 0.05,
+          "relative_delta_status": "CALCULATED",
+          "direction": "INCREASE",
+          "status": "CALCULATED",
+          "execution_id": "33d9b95b-49f6-4b17-8924-5c21077f2f7a",
+          "evidence_refs": [
+            {
+              "slot": "baseline",
+              "evidence_id": "p1.sales.ebb3631f85c3eeec50a45b2a",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            },
+            {
+              "slot": "comparison",
+              "evidence_id": "p1.sales.ed442c3ad2cd229fc9a1cd84",
+              "evidence_contract": "p1.quantitative_observation",
+              "evidence_version": "0.1.0"
+            }
+          ]
+        }
       }
     ],
     "totals": {
@@ -3500,9 +3788,58 @@
         "relative_delta": 0.23118279569892472,
         "status": "CALCULATED",
         "execution_id": "83796600-a91a-4339-af3d-2a1eb1bfd72e"
+      },
+      "yoy": {
+        "baseline_value": 397,
+        "comparison_value": 458,
+        "absolute_delta": 61,
+        "relative_delta": 0.15365239294710328,
+        "relative_delta_status": "CALCULATED",
+        "direction": "INCREASE",
+        "status": "CALCULATED",
+        "execution_id": "1e0dd7f1-7579-48b4-bf7d-fe14adb3cd67",
+        "evidence_refs": [
+          {
+            "slot": "baseline",
+            "evidence_id": "p1.sales.eccfbdd332c42ec8bd4d022e",
+            "evidence_contract": "p1.quantitative_observation",
+            "evidence_version": "0.1.0"
+          },
+          {
+            "slot": "comparison",
+            "evidence_id": "p1.sales.a5cbc4335b9386e9f1dfae6b",
+            "evidence_contract": "p1.quantitative_observation",
+            "evidence_version": "0.1.0"
+          }
+        ]
       }
+    },
+    "yoy": {
+      "baseline_period": "2025-10",
+      "comparison_period": "2026-10",
+      "run_id": "monthly-close-store-yoy-2026-10-20261103",
+      "basis": "SALES/P1 antes de NC en ambos años; variación P2",
+      "baseline_evidence_id": "p1.sales.6c7d63a87898fd8ec0930c72",
+      "comparison_evidence_id": "p1.sales.e8884bafa4f2051ae19acdf7",
+      "missing_baseline_policy": "Ausencia histórica = Sin base; nunca cero",
+      "total_basis": "Universo completo OWN_STORES en cada año; no solo sucursales visibles de 2026",
+      "historical_only_stores": [
+        {
+          "id": "1",
+          "name": "Casa Matriz",
+          "sales": 8
+        },
+        {
+          "id": "12",
+          "name": "Sucursal El Bosque",
+          "sales": 6
+        },
+        {
+          "id": "16",
+          "name": "Vehiculos Restringidos",
+          "sales": 1
+        }
+      ]
     }
   }
 }
-
-
