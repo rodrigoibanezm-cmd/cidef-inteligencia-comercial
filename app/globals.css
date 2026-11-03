@@ -144,3 +144,71 @@
 .cv3-drill-line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf0f4;padding:9px 0;font-size:12px}
 @media(max-width:900px){.cv3-rank-columns{grid-template-columns:1fr}.cv3-rank-column{padding:14px 16px}}
 @media(max-width:600px){.cv3-ranking{padding:18px}.cv3-rank-tabs button{flex:1 1 auto}.cv3-sales-actions{grid-template-columns:1fr}.cv3-rank-primary{font-size:11px}}
+
+/* Vista aislada octubre 2026 */
+/* Descriptive finance close, adapted from the commercial closing tracker */
+.mc-description{background:#fff;border:1px solid #e0e5ec;border-radius:13px;padding:22px;margin:16px 0 22px}
+.mc-description-totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.mc-description-totals article,.mc-description-channels article{border:1px solid #e0e5ec;border-radius:10px;padding:16px;min-width:0}
+.mc-description-totals span{display:block;color:#65738a;font-size:12px}
+.mc-description-totals strong{display:block;font-size:30px;margin-top:7px}
+.mc-description-table{overflow:auto}
+.mc-description-table table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.mc-description-table th,.mc-description-table td{padding:12px;border-bottom:1px solid #e6ebf1;text-align:right}
+.mc-description-table th:first-child{text-align:left}
+.mc-description-table thead{background:#192f4c;color:white}
+.mc-description-table tfoot{background:#eaf0f7;font-weight:800}
+.mc-description-negative{color:#bb2626}
+.mc-description-channels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.mc-description-channels h3{margin:0 0 10px;font-size:15px}
+.mc-description-channels strong{font-size:27px}
+.mc-description-channels p,.mc-description-note{font-size:12px;color:#637187;line-height:1.5}
+@media(max-width:640px){.mc-description-totals,.mc-description-channels{grid-template-columns:1fr}}
+/* Executive overview inspired by Seguimiento de Cierre / Proyecciones Admin */
+.mc-executive{margin:8px 0 36px}
+.mc-executive-heading{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:15px 0 14px}
+.mc-executive-heading h2{font-size:23px;letter-spacing:-.025em;margin:6px 0 0}
+.mc-executive-heading small{font-size:12px;color:#69788a}
+.mc-executive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.mc-executive-card{background:#fff;border:1px solid #dfe4ec;border-radius:16px;padding:24px;min-width:0}
+.mc-executive-card:first-child{border-color:#9aaec8}
+.mc-executive-card h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.035em;color:#536078;margin:0}
+.mc-executive-value{font-size:clamp(32px,4vw,49px);font-weight:800;letter-spacing:-.04em;margin:20px 0 24px;line-height:1;white-space:nowrap}
+.mc-executive-value span{font-size:12px;font-weight:500;letter-spacing:0;color:#718096}
+.mc-executive-brands{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #e5eaf1;padding-top:17px;gap:18px}
+.mc-executive-brands>div+div{border-left:1px solid #e5eaf1;padding-left:18px}
+.mc-executive-brands span{display:block;font-size:12px;color:#637187}
+.mc-executive-brands strong{display:block;margin-top:6px;font-size:26px;letter-spacing:-.035em}
+.mc-executive-card p,.mc-executive-foot{font-size:11px;color:#738095;line-height:1.45;margin:16px 0 0}
+.mc-analysis-heading{border-top:1px solid #dae0e8;padding-top:26px;margin-top:28px}
+@media(max-width:850px){.mc-executive-grid{grid-template-columns:1fr}.mc-executive-value{font-size:42px}.mc-executive-heading{align-items:start;flex-wrap:wrap}}
+.mc-executive-yoy{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;border-top:1px solid #e5eaf1}
+.mc-executive-yoy span,.mc-executive-trend>span{font-size:12px;color:#637187;font-weight:700}
+.mc-executive-yoy strong{font-size:17px;white-space:nowrap}
+.mc-executive-trend{border-top:1px solid #e5eaf1;padding-top:15px;min-width:0}
+.mc-executive-trend .mc-spark-wrap{margin-top:10px}
+.mc-executive-trend .mc-spark-empty{margin-top:10px}
+/* SALES financing breakdown: own stores only */
+.mc-executive-financing{border-top:1px solid #e5eaf1;padding-top:15px;margin-top:16px}
+.mc-executive-financing h4{font-size:13px;margin:0 0 12px;color:#25344e}
+.mc-executive-finance-head,.mc-executive-finance-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);align-items:center;gap:7px}
+.mc-executive-finance-head{font-size:10px;color:#728095;font-weight:700;padding-bottom:7px}
+.mc-executive-finance-row{font-size:12px;border-top:1px solid #edf1f5;padding:9px 0}
+.mc-executive-finance-row strong{font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.mc-executive-finance-head span:not(:first-child){text-align:right}
+.mc-executive-finance-total{font-weight:800;background:#edf2f8;margin:0 -8px;padding:11px 8px;border-radius:5px}
+.mc-executive-adjustment{display:grid;gap:9px;padding:12px 0 16px;border-top:1px solid #e5eaf1;margin-top:-10px}
+.mc-executive-adjustment>div{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px}
+.mc-executive-adjustment strong{font-size:18px;font-variant-numeric:tabular-nums}
+.mc-executive-adjustment .mc-executive-nc,.mc-executive-adjustment .mc-executive-nc strong{color:#dc2626}
+.mc-executive-adjustment .mc-executive-adjusted{border-top:1px solid #e5eaf1;padding-top:11px;font-weight:800}
+.mc-executive-adjustment .mc-executive-adjusted strong{font-size:25px}
+/* Four-month comparisons are their own row, separate from the executive totals. */
+.mc-trends-heading{margin-top:28px}
+.mc-executive-trends .mc-trend-card{padding:22px 24px}
+.mc-executive-trends .mc-trend-card h3{margin-bottom:14px}
+.mc-executive-trends .mc-executive-trend{padding-top:10px}
+.mc-executive-trends .mc-trend-card>.mc-executive-trend>.mc-spark-wrap{border-top:0;padding-top:0}
+.mc-executive-trends .mc-trend-card>small{display:block;font-size:11px;color:#7b8799;margin-top:12px}
+.mc-executive-trends .mc-trend-card .mc-spark{max-height:145px}
+.mc-executive-value span{white-space:normal}
