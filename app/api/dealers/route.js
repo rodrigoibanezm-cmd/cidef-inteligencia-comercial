@@ -25,6 +25,12 @@ export async function GET(request) {
     ]);
     const namesById = new Map(names.map(({ item }) => [String(item.dealer_group_id ?? item.id), item.nombre_canonico ?? item.nombre ?? item.name]).filter(([id, name]) => id && name));
     const modelNames = new Map(models.map(r => [String(r.id), r.name]));
+    const familyFor = (id, name, brand) => {
+      const normalized = String(name).toUpperCase().replace(/^FOTON\s+|^DONGFENG\s+/, '').trim();
+      if (brand === 'FOTON') return /^(G7|G9|V7|V9)(\b|\s)/.test(normalized) ? 'PICKUP' : 'COMERCIAL';
+      if (brand === 'DONGFENG') return /^(007|008|AEOLUS|MAGE|HUGE|Y3|S\s*-?CROSS|SCROSS)(\b|\s)/.test(normalized) || ['23','27','84','396','481','859','860'].includes(id) ? 'AEOLUS' : 'FORTHING';
+      return null;
+    };
     const modelBrands = new Map(models.map(r => [String(r.id), String(r.brand_id) === '89' ? 'FOTON' : String(r.brand_id) === '71' ? 'DONGFENG' : null]));
     const dealers = new Map(), modelList = new Map(), evidence = {};
     let cutoff = '';
@@ -46,7 +52,7 @@ export async function GET(request) {
       dealer.brands[brand][month] += r.vin_sales;
       if (!dealer.models[modelId]) dealer.models[modelId] = Array(periods.length).fill(0);
       dealer.models[modelId][month] += r.vin_sales;
-      modelList.set(modelId, { id: modelId, name: modelNames.get(modelId) || 'Modelo ' + modelId, brand });
+      modelList.set(modelId, { id: modelId, name: modelNames.get(modelId) || 'Modelo ' + modelId, brand, family: familyFor(modelId, modelNames.get(modelId), brand) });
     }
     for (const r of selloutRows) {
       const id = String(r.dealer_group_id), modelId = String(r.model_id);
@@ -59,7 +65,7 @@ export async function GET(request) {
       });
       const dealer = dealers.get(id);
       if (!modelList.has(modelId)) modelList.set(modelId, {
-        id: modelId, name: modelNames.get(modelId) || 'Modelo ' + modelId, brand,
+        id: modelId, name: modelNames.get(modelId) || 'Modelo ' + modelId, brand, family: familyFor(modelId, modelNames.get(modelId), brand),
       });
       const model = modelList.get(modelId);
       const month = periods.indexOf(r.period);
