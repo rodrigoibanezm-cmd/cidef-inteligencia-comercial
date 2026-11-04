@@ -38,3 +38,9 @@ La imagen se construye en el Azure Container Registry existente y se publica en 
 - Financiamiento de ventas por entidad separado de UFIs Forum por fecha Curse.
 - Cierre mensual inmutable una vez certificado; mes abierto con corte explícito.
 - No inventar cifras ni cruzar universos sin contrato certificado.
+
+## Estado de staging (documentado 2026-11-04)
+
+La rama staging incluye /cierre-mensual-v2 (app/cierre-mensual-v2/page.js). Esta vista lee el archivo versionado data/monthly-close/2026-10/facts.json. El archivo es un insumo de presentación y no sustituye certificación de fuentes; verificar su generación, corte y conciliación con P1/P2/Finanzas antes de publicar.
+
+La rama staging comparte PostgreSQL productivo con producción; no realizar escrituras de prueba. AGENTS.md exige cambios nuevos en staging y aprobación explícita para modificar main. No confundir código en staging con revisión desplegada.
