@@ -22,10 +22,11 @@ export async function GET(request) {
       GROUP BY 1, 2, 3`, [year + '-01-01', year + '-12-01']);
     const [names, models] = await Promise.all([
       sql.query('SELECT to_jsonb(g) AS item FROM dealer_groups g'),
-      sql.query('SELECT modelo_id::text AS id, nombre_canonico AS name FROM modelos_master_v01'),
+      sql.query('SELECT modelo_id::text AS id, nombre_canonico AS name, marca_id::text AS brand_id FROM modelos_master_v01'),
     ]);
     const namesById = new Map(names.map(({ item }) => [String(item.dealer_group_id ?? item.id), item.nombre_canonico ?? item.nombre ?? item.name]).filter(([id, name]) => id && name));
     const modelNames = new Map(models.map(r => [String(r.id), r.name]));
+    const modelBrands = new Map(models.map(r => [String(r.id), String(r.brand_id) === '89' ? 'FOTON' : String(r.brand_id) === '71' ? 'DONGFENG' : null]));
     const dealers = new Map(), modelList = new Map(), evidence = {};
     let cutoff = '';
     for (const r of rows) {
@@ -49,10 +50,19 @@ export async function GET(request) {
       modelList.set(modelId, { id: modelId, name: modelNames.get(modelId) || 'Modelo ' + modelId, brand });
     }
     for (const r of selloutRows) {
-      const dealer = dealers.get(String(r.dealer_group_id));
-      if (!dealer) continue;
-      const modelId = String(r.model_id), model = modelList.get(modelId);
-      if (!model) continue;
+      const id = String(r.dealer_group_id), modelId = String(r.model_id);
+      const brand = modelBrands.get(modelId);
+      if (!brand) continue;
+      if (!dealers.has(id)) dealers.set(id, {
+        id, name: namesById.get(id) || 'Dealer ' + id,
+        brands: { FOTON: Array(12).fill(0), DONGFENG: Array(12).fill(0) }, models: {},
+        sellout: { FOTON: Array(12).fill(0), DONGFENG: Array(12).fill(0), models: {} },
+      });
+      const dealer = dealers.get(id);
+      if (!modelList.has(modelId)) modelList.set(modelId, {
+        id: modelId, name: modelNames.get(modelId) || 'Modelo ' + modelId, brand,
+      });
+      const model = modelList.get(modelId);
       const month = Number(r.period.slice(-2)) - 1;
       if (month < 0 || month > 11) continue;
       dealer.sellout[model.brand][month] += r.units;
