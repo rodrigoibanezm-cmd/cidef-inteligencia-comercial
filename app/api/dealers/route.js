@@ -2,7 +2,9 @@ import { db } from '../../../lib/db.js';
 export const dynamic = 'force-dynamic';
 const json = (data, status = 200) => Response.json(data, { status, headers: { 'cache-control': 'no-store' } });
 export async function GET(request) {
-  const periods = ['2025-10', '2025-11', '2025-12', ...Array.from({ length: 10 }, (_, i) => `2026-${String(i + 1).padStart(2, '0')}`)];
+  const now = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit' }).format(new Date());
+  const [year, month] = now.split('-').map(Number);
+  const periods = Array.from({ length: (year - 2025) * 12 + month }, (_, i) => `${2025 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}`);
   try {
     const sql = db();
     const rows = await sql.query(`SELECT period, dealer_group_id, brand_id, model_id, vin_sales,
@@ -74,7 +76,7 @@ export async function GET(request) {
       if (!dealer.sellout.models[modelId]) dealer.sellout.models[modelId] = Array(periods.length).fill(0);
       dealer.sellout.models[modelId][month] += r.units;
     }
-    return json({ certified: true, source: 'SALES', periods, cutoff,
+    return json({ certified: true, source: 'SALES', periods, missing_periods: periods.filter(p => !evidence[p]), cutoff,
       evidence_id: evidence[Object.keys(evidence).sort().at(-1)],
       evidence_by_period: evidence, models: [...modelList.values()].sort((a,b) => a.name.localeCompare(b.name, 'es')),
       dealers: [...dealers.values()].filter(d => d.id !== '0' && [...d.brands.FOTON, ...d.brands.DONGFENG].some(n => n > 0)) });
