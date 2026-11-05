@@ -77,6 +77,6 @@ export async function GET(request) {
     return json({ certified: true, source: 'SALES', periods, cutoff,
       evidence_id: evidence[Object.keys(evidence).sort().at(-1)],
       evidence_by_period: evidence, models: [...modelList.values()].sort((a,b) => a.name.localeCompare(b.name, 'es')),
-      dealers: [...dealers.values()] });
+      dealers: [...dealers.values()].filter(d => d.id !== '0' && [...d.brands.FOTON, ...d.brands.DONGFENG].some(n => n > 0)) });
   } catch (error) { console.error('DEALERS_SNAPSHOT_READ_FAILED', error); return json({ error: 'SNAPSHOT_READ_FAILED' }, 503); }
 }
