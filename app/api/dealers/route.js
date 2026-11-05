@@ -2,8 +2,9 @@ import { db } from '../../../lib/db.js';
 export const dynamic = 'force-dynamic';
 const json = (data, status = 200) => Response.json(data, { status, headers: { 'cache-control': 'no-store' } });
 export async function GET(request) {
-  const now = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit' }).format(new Date());
-  const [year, month] = now.split('-').map(Number);
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Santiago', year: 'numeric', month: 'numeric' }).formatToParts(new Date());
+  const year = Number(parts.find(p => p.type === 'year').value);
+  const month = Number(parts.find(p => p.type === 'month').value);
   const periods = Array.from({ length: (year - 2025) * 12 + month }, (_, i) => `${2025 + Math.floor(i / 12)}-${String(i % 12 + 1).padStart(2, '0')}`);
   try {
     const sql = db();
