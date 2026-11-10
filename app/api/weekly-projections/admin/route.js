@@ -39,17 +39,10 @@ function byStore(rows, field='units') {
   const m=new Map(); for(const r of rows){const k=String(r.sucursal_id??`name:${r.sucursal}`),c=m.get(k)||{sucursal_id:r.sucursal_id,sucursal:r.sucursal,units:0};c.units+=Number(r[field]??r.quantity??1);m.set(k,c)} return m;
 }
 
-function brandTotals(rows) {
-  const totals={foton:0,dongfeng:0,other:0};
-  for(const row of rows){
-    const brand=String(row.marca||'').trim().toUpperCase();
-    const key=brand==='FOTON'?'foton':(brand==='DONGFENG'||brand==='DFM'?'dongfeng':'other');
-    totals[key]+=Number(row.quantity??1);
-  }
-  return totals;
-}
-function monthBrandTotals(all,from,to,storeId){
-  return brandTotals(all.filter(row=>(!storeId||String(row.sucursal_id)===String(storeId))&&row.fecha_venta>=from&&row.fecha_venta<=to));
+function monthBrandTotals(certifiedSales,from,to,storeId){
+  const evidence=certifiedSales.get(`${from}|${to}`);
+  const value=brand=>storeId?Number(evidence?.brands?.[brand]?.members?.find(m=>String(m.member_id)===String(storeId))?.value??0):Number(evidence?.brands?.[brand]?.total??0);
+  return {foton:value('foton'),dongfeng:value('dongfeng'),other:value('other')};
 }
 
 export async function GET(request) {
@@ -104,7 +97,21 @@ export async function GET(request) {
           callP1(client,'data_observe',args),
           callP1(client,'data_observe',{...args,evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'STORE'})
         ]);
-        certifiedSales.set(key,{total:total.payload.value,members:stores.payload.members});
+        const brands={};
+        for(const [brand,brandId] of [['foton','89'],['dongfeng','71']]){
+          const filter={...args.filters,brand_id:brandId};
+          const [amount,byStore]=await Promise.all([
+            callP1(client,'data_observe',{...args,filters:filter}),
+            callP1(client,'data_observe',{...args,filters:filter,evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'STORE'})
+          ]);
+          brands[brand]={total:amount.payload.value,members:byStore.payload.members};
+        }
+        const byId=new Map(stores.payload.members.map(m=>[String(m.member_id),m.value]));
+        const foton=new Map(brands.foton.members.map(m=>[String(m.member_id),m.value]));
+        const dongfeng=new Map(brands.dongfeng.members.map(m=>[String(m.member_id),m.value]));
+        brands.other={total:Number(total.payload.value)-Number(brands.foton.total)-Number(brands.dongfeng.total),
+          members:stores.payload.members.map(m=>({member_id:m.member_id,value:Number(byId.get(String(m.member_id)))-Number(foton.get(String(m.member_id))||0)-Number(dongfeng.get(String(m.member_id))||0)}))};
+        certifiedSales.set(key,{total:total.payload.value,members:stores.payload.members,brands});
       }
     });
     const cuts=[['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
@@ -113,7 +120,7 @@ export async function GET(request) {
     const lastYearMonth=shiftYear(cutoffDate,-1);
     const lastYearMonthEnd=ymd(new Date(Date.UTC(Number(lastYearMonth.slice(0,4)),Number(lastYearMonth.slice(5,7)),0)));
     const lastYearFullMonth=periodSnapshot(all,lastYearMonthEnd,'YOY_FULL',storeId,false,certifiedSales).mtd_units;
-    const lastYearBrand=monthBrandTotals(all,monthStart(lastYearMonth),lastYearMonthEnd,storeId);
+    const lastYearBrand=monthBrandTotals(certifiedSales,monthStart(lastYearMonth),lastYearMonthEnd,storeId);
     const avgMtd=prior.reduce((s,p)=>s+p.mtd_units,0)/3, avgWeek=prior.reduce((s,p)=>s+p.last_7d_units,0)/3;
     const currentDetails=all.filter(r=>(!storeId||String(r.sucursal_id)===String(storeId))&&r.fecha_venta>=current.date_from&&r.fecha_venta<=cutoffDate);
     const currentRows=(certifiedSales.get(`${current.date_from}|${cutoffDate}`)?.members||[]).map(m=>({sucursal_id:m.member_id,sucursal:m.member_label,units:m.value}));
@@ -178,7 +185,7 @@ export async function GET(request) {
         const currentProjection=projections.filter(r=>String(r.sucursal_id)===id).reduce((sum,r)=>sum+Number(r.projected_units||0),0);
         const nextDate=plusDays(weekStart,7), nextPeriods=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(nextDate,delta),`M-${3-i}`,id,false,certifiedSales));
         const nextAverage=nextPeriods.reduce((sum,p)=>sum+p.mtd_units,0)/nextPeriods.length, nextExpected=scopedCurrent.mtd_units+currentProjection;
-        response.scopes[id]={ok:true,week_start:weekStart,sucursal_id:id,summary:{total_units:0,sent_not_invoiced_units:0},sales_mtd:{month:cutoffDate.slice(0,7),date_from:scopedCurrent.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:scopedCurrent.mtd_units,rows:currentRows.filter(r=>String(r.sucursal_id)===id),details},historical_context:{periods:scopedPeriods,yoy:{mtd_change:ratio(scopedCurrent.mtd_units-scopedYoy.mtd_units,scopedYoy.mtd_units),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedYoy.last_7d_units,scopedYoy.last_7d_units),current_mtd:scopedCurrent.mtd_units,yoy_mtd:scopedYoy.mtd_units,yoy_full_month:periodSnapshot(all,lastYearMonthEnd,'YOY_FULL',id,false,certifiedSales).mtd_units,yoy_full_month_by_brand:monthBrandTotals(all,monthStart(lastYearMonth),lastYearMonthEnd,id),current_last_7d:scopedCurrent.last_7d_units,yoy_last_7d:scopedYoy.last_7d_units},recent_3m:{mtd_average:scopedAvgMtd,last_7d_average:scopedAvgWeek,mtd_change:ratio(scopedCurrent.mtd_units-scopedAvgMtd,scopedAvgMtd),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedAvgWeek,scopedAvgWeek)}},next_cut_context:{cutoff_date:nextDate,expected_units:nextExpected,prior_periods:nextPeriods,prior_average:nextAverage,change_vs_prior_average:ratio(nextExpected-nextAverage,nextAverage)},evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units,previous_projection:scopedProjection,expected_current:periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units+scopedProjection,current_sales_mtd:scopedCurrent.mtd_units,new_sales:scopedCurrent.mtd_units-periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units,projection_fulfillment:ratio(scopedCurrent.mtd_units-periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units,scopedProjection),expected_fulfillment:ratio(scopedCurrent.mtd_units,periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units+scopedProjection),stores:[]}:null,projections:[]};
+        response.scopes[id]={ok:true,week_start:weekStart,sucursal_id:id,summary:{total_units:0,sent_not_invoiced_units:0},sales_mtd:{month:cutoffDate.slice(0,7),date_from:scopedCurrent.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:scopedCurrent.mtd_units,rows:currentRows.filter(r=>String(r.sucursal_id)===id),details},historical_context:{periods:scopedPeriods,yoy:{mtd_change:ratio(scopedCurrent.mtd_units-scopedYoy.mtd_units,scopedYoy.mtd_units),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedYoy.last_7d_units,scopedYoy.last_7d_units),current_mtd:scopedCurrent.mtd_units,yoy_mtd:scopedYoy.mtd_units,yoy_full_month:periodSnapshot(all,lastYearMonthEnd,'YOY_FULL',id,false,certifiedSales).mtd_units,yoy_full_month_by_brand:monthBrandTotals(certifiedSales,monthStart(lastYearMonth),lastYearMonthEnd,id),current_last_7d:scopedCurrent.last_7d_units,yoy_last_7d:scopedYoy.last_7d_units},recent_3m:{mtd_average:scopedAvgMtd,last_7d_average:scopedAvgWeek,mtd_change:ratio(scopedCurrent.mtd_units-scopedAvgMtd,scopedAvgMtd),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedAvgWeek,scopedAvgWeek)}},next_cut_context:{cutoff_date:nextDate,expected_units:nextExpected,prior_periods:nextPeriods,prior_average:nextAverage,change_vs_prior_average:ratio(nextExpected-nextAverage,nextAverage)},evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units,previous_projection:scopedProjection,expected_current:periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units+scopedProjection,current_sales_mtd:scopedCurrent.mtd_units,new_sales:scopedCurrent.mtd_units-periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units,projection_fulfillment:ratio(scopedCurrent.mtd_units-periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units,scopedProjection),expected_fulfillment:ratio(scopedCurrent.mtd_units,periodSnapshot(all,previousCut,'PREVIOUS',id,false,certifiedSales).mtd_units+scopedProjection),stores:[]}:null,projections:[]};
       }
     }
     return NextResponse.json(response);
