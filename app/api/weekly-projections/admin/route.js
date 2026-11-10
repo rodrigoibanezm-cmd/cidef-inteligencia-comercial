@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
 import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
+// TODO (pendiente, no implementar aún): incorporar en la vista de proyecciones:
+// - Ventas año anterior (P1).
+// - Ventas mes anterior (P1).
+// - Total del período proyectado del mes anterior (fuente de proyecciones actual).
+// Definir el período de comparación al implementar; conservar financiamiento sin cambios.
 export const dynamic = 'force-dynamic';
 
 const ymd = (d) => d.toISOString().slice(0, 10);
