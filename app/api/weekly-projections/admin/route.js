@@ -98,19 +98,20 @@ export async function GET(request) {
           callP1(client,'data_observe',{...args,evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'STORE'})
         ]);
         const brands={};
-        for(const [brand,brandId] of [['foton','89'],['dongfeng','71']]){
-          const filter={...args.filters,brand_id:brandId};
-          const [amount,byStore]=await Promise.all([
-            callP1(client,'data_observe',{...args,filters:filter}),
-            callP1(client,'data_observe',{...args,filters:filter,evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'STORE'})
-          ]);
-          brands[brand]={total:amount.payload.value,members:byStore.payload.members};
+        if(from===monthStart(lastYearEnd)&&to===lastYearEnd){
+          for(const [brand,brandId] of [['foton','89'],['dongfeng','71']]){
+            const filter={...args.filters,brand_id:brandId};
+            const [amount,byStore]=await Promise.all([
+              callP1(client,'data_observe',{...args,filters:filter}),
+              callP1(client,'data_observe',{...args,filters:filter,evidence_shape:'DIMENSIONAL_QUANTITATIVE_DATASET',dimension:'STORE'})
+            ]);
+            brands[brand]={total:amount.payload.value,members:byStore.payload.members};
+          }
+          const foton=new Map(brands.foton.members.map(m=>[String(m.member_id),m.value]));
+          const dongfeng=new Map(brands.dongfeng.members.map(m=>[String(m.member_id),m.value]));
+          brands.other={total:Number(total.payload.value)-Number(brands.foton.total)-Number(brands.dongfeng.total),
+            members:stores.payload.members.map(m=>({member_id:m.member_id,value:Number(m.value)-Number(foton.get(String(m.member_id))||0)-Number(dongfeng.get(String(m.member_id))||0)}))};
         }
-        const byId=new Map(stores.payload.members.map(m=>[String(m.member_id),m.value]));
-        const foton=new Map(brands.foton.members.map(m=>[String(m.member_id),m.value]));
-        const dongfeng=new Map(brands.dongfeng.members.map(m=>[String(m.member_id),m.value]));
-        brands.other={total:Number(total.payload.value)-Number(brands.foton.total)-Number(brands.dongfeng.total),
-          members:stores.payload.members.map(m=>({member_id:m.member_id,value:Number(byId.get(String(m.member_id)))-Number(foton.get(String(m.member_id))||0)-Number(dongfeng.get(String(m.member_id))||0)}))};
         certifiedSales.set(key,{total:total.payload.value,members:stores.payload.members,brands});
       }
     });
