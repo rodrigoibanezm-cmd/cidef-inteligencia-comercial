@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
+import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,17 +22,18 @@ function minusDays(date,n){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.
 function plusDays(date,n){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.getUTCDate()+n);return ymd(d)}
 function monthStart(date){return `${date.slice(0,7)}-01`}
 const ratio=(n,d)=>d? n/d:null;
+const sumUnits=rows=>rows.reduce((n,r)=>n+Number(r.quantity??1),0);
 function normalizeDate(v){return v ? String(v).slice(0,10) : null}
 function periodSnapshot(all, cutoff, label, storeId, includeDetails=false) {
   const from=monthStart(cutoff), weekFrom=minusDays(cutoff,6);
   const rows=all.filter(r=>(!storeId||String(r.sucursal_id)===String(storeId)) && r.fecha_venta>=from && r.fecha_venta<=cutoff);
   const week=rows.filter(r=>r.fecha_venta>=weekFrom);
   if(includeDetails&&rows.some(r=>!r.sucursal_id||!r.persona_id))throw new Error('YOY_SALES_IDENTITY_UNRESOLVED');
-  return { label, month:cutoff.slice(0,7), date_from:from, week_from:weekFrom, cutoff_date:cutoff, effective_cutoff_date:cutoff, mtd_units:rows.length, last_7d_units:week.length,
+  return { label, month:cutoff.slice(0,7), date_from:from, week_from:weekFrom, cutoff_date:cutoff, effective_cutoff_date:cutoff, mtd_units:sumUnits(rows), last_7d_units:sumUnits(week),
     ...(includeDetails?{details:rows.map(({vin,fecha_venta,sucursal_id,sucursal,persona_id,vendedor,vendedor_nombre})=>({vin,fecha_venta,sucursal_id,sucursal,persona_id,vendedor,vendedor_nombre}))}:{}) };
 }
 function byStore(rows, field='units') {
-  const m=new Map(); for(const r of rows){const k=String(r.sucursal_id??`name:${r.sucursal}`),c=m.get(k)||{sucursal_id:r.sucursal_id,sucursal:r.sucursal,units:0};c.units+=Number(r[field]??1);m.set(k,c)} return m;
+  const m=new Map(); for(const r of rows){const k=String(r.sucursal_id??`name:${r.sucursal}`),c=m.get(k)||{sucursal_id:r.sucursal_id,sucursal:r.sucursal,units:0};c.units+=Number(r[field]??r.quantity??1);m.set(k,c)} return m;
 }
 
 function brandTotals(rows) {
@@ -39,7 +41,7 @@ function brandTotals(rows) {
   for(const row of rows){
     const brand=String(row.marca||'').trim().toUpperCase();
     const key=brand==='FOTON'?'foton':(brand==='DONGFENG'||brand==='DFM'?'dongfeng':'other');
-    totals[key]+=Number(row.units??1);
+    totals[key]+=Number(row.quantity??1);
   }
   return totals;
 }
@@ -53,75 +55,34 @@ export async function GET(request) {
     if(!/^\d{4}-\d{2}-\d{2}$/.test(requestedCutoff)) throw new Error('cutoff_date must use YYYY-MM-DD');
     const cutoffDate=requestedCutoff>=weekStart?requestedCutoff:weekStart;
     const historyFrom=shiftYear(monthStart(cutoffDate),-1);
-    const salesRaw=await sql`
-      SELECT DISTINCT ON (upper(trim(v.nro_vin_chasis)))
-        upper(trim(v.nro_vin_chasis)) vin,
-        (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END)::text fecha_venta,
-        sm.sucursal_id::text sucursal_id,
-        sm.nombre_canonico sucursal,
-        v.nombre_usuario vendedor,
-        pe.persona_id::text persona_id,
-        coalesce(pe.nombre_canonico, nullif(trim(v.nombre_usuario),''), 'Usuario ERP sin nombre') vendedor_nombre,
-        v.entidad_financiera,
-        coalesce(ma.nombre_canonico,v.desc_mae_marca,'Sin marca') marca,
-        coalesce(mo.nombre_canonico,vc.modelo_raw,v.desc_articulo,'Sin modelo') modelo,
-        coalesce(v.nro_factura,v.factura) factura
-      FROM ventas_raw v
-      LEFT JOIN LATERAL (
-
-        SELECT candidate.sucursal_id
-
-        FROM (
-
-          SELECT sm_erp.sucursal_id, 0 AS priority
-
-          FROM sucursales_master sm_erp
-
-          WHERE sm_erp.id_sucursal_vta::text = nullif(trim(v.id_sucursal_vta::text), '')
-
-          UNION ALL
-
-          SELECT a.sucursal_id, 1 AS priority
-
-          FROM sucursal_aliases a
-
-          WHERE a.validated = true
-
-            AND lower(trim(a.valor_raw)) = lower(trim(v.desc_sucursal_vta))
-
-        ) candidate
-
-        ORDER BY candidate.priority, candidate.sucursal_id
-
-        LIMIT 1
-
-      ) resolved_store ON true
-
-      LEFT JOIN sucursales_master sm
-        ON (resolved_store.sucursal_id = sm.sucursal_id)
-
-        OR (resolved_store.sucursal_id IS NULL AND (
-        lower(trim(sm.nombre_canonico)) = lower(trim(regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-        OR lower(trim(sm.nombre_canonico)) = lower(trim('CIDEF ' || regexp_replace(v.desc_sucursal_vta, '^Sucursal\\s+', '', 'i')))
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza alameda' AND sm.sucursal_id=19)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza sur' AND sm.sucursal_id=9)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza egaña' AND sm.sucursal_id=11)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza norte' AND sm.sucursal_id=8)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal plaza oeste' AND sm.sucursal_id=10)
-        OR (lower(trim(v.desc_sucursal_vta))='sucursal quilin' AND sm.sucursal_id=21)
-        OR (lower(trim(v.desc_sucursal_vta))='costanera' AND sm.sucursal_id=22)))
-      LEFT JOIN personas_master pe ON upper(trim(pe.usuario_canonico))=upper(trim(v.nombre_usuario))
-      LEFT JOIN vehiculo_canonico vc ON upper(trim(vc.vin))=upper(trim(v.nro_vin_chasis))
-      LEFT JOIN versiones_master_v01 ve ON ve.version_id=vc.version_id
-      LEFT JOIN modelos_master_v01 mo ON mo.modelo_id=ve.modelo_id
-      LEFT JOIN marcas_master_v01 ma ON ma.marca_id=mo.marca_id
-      WHERE btrim(v.categoria_cliente)='Cliente General'
-        AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
-        AND (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) BETWEEN ${historyFrom}::date AND ${cutoffDate}::date
-        AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
-      ORDER BY upper(trim(v.nro_vin_chasis)), (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) DESC
-    `;
-    const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
+    // P1 owns sales recognition, commercial scope and signed finance movements.
+    const evidence=await withP1Mcp(client=>callP1(client,'data_fetch',{
+      run_id:'weekly-projections-'+weekStart+'-'+cutoffDate,
+      source:'SALES',
+      filters:{commercial_universe:'OWN_STORES',date_from:historyFrom,date_to:cutoffDate},
+      fields:['vin','sale_date','store_id','seller_id','brand_id','model_id','financial_entity','invoice','quantity']
+    }));
+    if(evidence.source!=='SALES'||evidence.dataset!=='SALES_WORK'||!Array.isArray(evidence.rows))
+      throw new Error('P1_SALES_EVIDENCE_INVALID');
+    const [storesMeta,peopleMeta,brandsMeta,modelsMeta]=await Promise.all([
+      sql`SELECT sucursal_id::text id,nombre_canonico name FROM sucursales_master`,
+      sql`SELECT persona_id::text id,nombre_canonico name,usuario_canonico username FROM personas_master`,
+      sql`SELECT marca_id::text id,nombre_canonico name FROM marcas_master_v01`,
+      sql`SELECT modelo_id::text id,nombre_canonico name FROM modelos_master_v01`
+    ]);
+    const lookup=rows=>new Map(rows.map(r=>[String(r.id),r]));
+    const storesById=lookup(storesMeta),peopleById=lookup(peopleMeta),
+      brandsById=lookup(brandsMeta),modelsById=lookup(modelsMeta);
+    const all=evidence.rows.map(r=>{
+      const store=storesById.get(String(r.store_id)),person=peopleById.get(String(r.seller_id));
+      const quantity=Number(r.quantity);
+      if(!Number.isSafeInteger(quantity))throw new Error('P1_SALES_QUANTITY_INVALID');
+      return {vin:r.vin,fecha_venta:normalizeDate(r.sale_date),sucursal_id:r.store_id==null?null:String(r.store_id),
+        sucursal:store?.name||null,persona_id:r.seller_id==null?null:String(r.seller_id),
+        vendedor:person?.username||null,vendedor_nombre:person?.name||null,
+        entidad_financiera:r.financial_entity,marca:brandsById.get(String(r.brand_id))?.name||'Sin marca',
+        modelo:modelsById.get(String(r.model_id))?.name||'Sin modelo',factura:r.invoice,quantity};
+    });
     const cuts=[['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
     const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId,label==='YOY'));
     const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-3','M-2','M-1'].includes(p.label));
@@ -194,7 +155,7 @@ export async function GET(request) {
         const currentProjection=projections.filter(r=>String(r.sucursal_id)===id).reduce((sum,r)=>sum+Number(r.projected_units||0),0);
         const nextDate=plusDays(weekStart,7), nextPeriods=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(nextDate,delta),`M-${3-i}`,id));
         const nextAverage=nextPeriods.reduce((sum,p)=>sum+p.mtd_units,0)/nextPeriods.length, nextExpected=scopedCurrent.mtd_units+currentProjection;
-        response.scopes[id]={ok:true,week_start:weekStart,sucursal_id:id,summary:{total_units:0,sent_not_invoiced_units:0},sales_mtd:{month:cutoffDate.slice(0,7),date_from:scopedCurrent.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:scopedCurrent.mtd_units,rows:[...byStore(details).values()],details},historical_context:{periods:scopedPeriods,yoy:{mtd_change:ratio(scopedCurrent.mtd_units-scopedYoy.mtd_units,scopedYoy.mtd_units),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedYoy.last_7d_units,scopedYoy.last_7d_units),current_mtd:scopedCurrent.mtd_units,yoy_mtd:scopedYoy.mtd_units,yoy_full_month:periodSnapshot(all,lastYearMonthEnd,'YOY_FULL',id).mtd_units,yoy_full_month_by_brand:monthBrandTotals(all,monthStart(lastYearMonth),lastYearMonthEnd,id),current_last_7d:scopedCurrent.last_7d_units,yoy_last_7d:scopedYoy.last_7d_units},recent_3m:{mtd_average:scopedAvgMtd,last_7d_average:scopedAvgWeek,mtd_change:ratio(scopedCurrent.mtd_units-scopedAvgMtd,scopedAvgMtd),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedAvgWeek,scopedAvgWeek)}},next_cut_context:{cutoff_date:nextDate,expected_units:nextExpected,prior_periods:nextPeriods,prior_average:nextAverage,change_vs_prior_average:ratio(nextExpected-nextAverage,nextAverage)},evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:previousDetails.length,previous_projection:scopedProjection,expected_current:previousDetails.length+scopedProjection,current_sales_mtd:scopedCurrent.mtd_units,new_sales:scopedCurrent.mtd_units-previousDetails.length,projection_fulfillment:ratio(scopedCurrent.mtd_units-previousDetails.length,scopedProjection),expected_fulfillment:ratio(scopedCurrent.mtd_units,previousDetails.length+scopedProjection),stores:[]}:null,projections:[]};
+        response.scopes[id]={ok:true,week_start:weekStart,sucursal_id:id,summary:{total_units:0,sent_not_invoiced_units:0},sales_mtd:{month:cutoffDate.slice(0,7),date_from:scopedCurrent.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:scopedCurrent.mtd_units,rows:[...byStore(details).values()],details},historical_context:{periods:scopedPeriods,yoy:{mtd_change:ratio(scopedCurrent.mtd_units-scopedYoy.mtd_units,scopedYoy.mtd_units),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedYoy.last_7d_units,scopedYoy.last_7d_units),current_mtd:scopedCurrent.mtd_units,yoy_mtd:scopedYoy.mtd_units,yoy_full_month:periodSnapshot(all,lastYearMonthEnd,'YOY_FULL',id).mtd_units,yoy_full_month_by_brand:monthBrandTotals(all,monthStart(lastYearMonth),lastYearMonthEnd,id),current_last_7d:scopedCurrent.last_7d_units,yoy_last_7d:scopedYoy.last_7d_units},recent_3m:{mtd_average:scopedAvgMtd,last_7d_average:scopedAvgWeek,mtd_change:ratio(scopedCurrent.mtd_units-scopedAvgMtd,scopedAvgMtd),last_7d_change:ratio(scopedCurrent.last_7d_units-scopedAvgWeek,scopedAvgWeek)}},next_cut_context:{cutoff_date:nextDate,expected_units:nextExpected,prior_periods:nextPeriods,prior_average:nextAverage,change_vs_prior_average:ratio(nextExpected-nextAverage,nextAverage)},evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:sumUnits(previousDetails),previous_projection:scopedProjection,expected_current:previousDetails.length+scopedProjection,current_sales_mtd:scopedCurrent.mtd_units,new_sales:scopedCurrent.mtd_units-previousDetails.length,projection_fulfillment:ratio(scopedCurrent.mtd_units-previousDetails.length,scopedProjection),expected_fulfillment:ratio(scopedCurrent.mtd_units,previousDetails.length+scopedProjection),stores:[]}:null,projections:[]};
       }
     }
     return NextResponse.json(response);
