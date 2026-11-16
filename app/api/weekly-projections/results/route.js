@@ -396,8 +396,9 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     const scopeIds = branches.sucursales.map(store => String(store.sucursal_id));
     const scopeQuery = encodeURIComponent(scopeIds.join(','));
     const period = cutoffDate.slice(0, 7);
-    const previousMonthEnd = new Date(Date.UTC(Number(period.slice(0,4)), Number(period.slice(5,7)) - 1, 0)).toISOString().slice(0,10);
-    const previousMonday = new Date(previousMonthEnd+'T12:00:00Z');
+    const previousMonthDate = new Date(Date.UTC(Number(period.slice(0,4)), Number(period.slice(5,7)) - 2, Math.min(Number(cutoffDate.slice(8,10)), new Date(Date.UTC(Number(period.slice(0,4)), Number(period.slice(5,7)) - 1, 0)).getUTCDate())));
+    const previousMonthCutoff = previousMonthDate.toISOString().slice(0,10);
+    const previousMonday = new Date(previousMonthCutoff+'T12:00:00Z');
     previousMonday.setUTCDate(previousMonday.getUTCDate()-((previousMonday.getUTCDay()+6)%7));
     const previousWeekStart = previousMonday.toISOString().slice(0,10);
     const [companyAdmin, companyFinance, sellerData, precurseBundle, previousMonthAdmin] = await Promise.all([
@@ -405,7 +406,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       call(getCompanyFinance, `${origin}/api/weekly-projections/company-finance?cutoff_date=${cutoffDate}&include_scopes=1&scope_ids=${scopeQuery}`),
       call(getForumSellers, `${origin}/api/weekly-projections/forum-sellers?all_stores=1&cutoff_date=${cutoffDate}`),
       getPrecurseBundle(),
-      call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${previousWeekStart}&cutoff_date=${previousMonthEnd}&include_scopes=1&scope_ids=${scopeQuery}`),
+      call(getAdmin, `${origin}/api/weekly-projections/admin?week_start=${previousWeekStart}&cutoff_date=${previousMonthCutoff}&include_scopes=1&scope_ids=${scopeQuery}`),
     ]);
     requireAdmin(companyAdmin, 'COMPANY');
     requireFinance(companyFinance, 'COMPANY');
