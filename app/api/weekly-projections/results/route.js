@@ -142,12 +142,21 @@ async function getP1BrandIndicators(period, cutoffDate, storeIds) {
   });
   // Reuse the SALES_WORK presentation projection used by the existing Forum publisher:
   // P1 recognizes sales and identities; this route only groups its complete rows.
-  if (work?.source !== 'SALES' || work.dataset !== 'SALES_WORK' || work.grain !== 'RECOGNIZED_SALE' ||
-      !Array.isArray(work.rows) || work.rows.length !== work.size?.filtered_n ||
-      total?.authority !== 'P1_CERTIFIED' || !total.evidence_id ||
-      total.payload?.value !== work.rows.filter(row => row.sale_date >= dateFrom).length ||
-      total.temporal?.date_from !== dateFrom || total.temporal?.date_to !== cutoffDate ||
-      new Set(work.rows.map(row => row.vin)).size !== work.rows.length) throw new Error('P1_SALES_WORK_PARITY_FAILED');
+  const parityChecks = {
+    source: work?.source === 'SALES',
+    dataset: work?.dataset === 'SALES_WORK',
+    grain: work?.grain === 'RECOGNIZED_SALE',
+    rows: Array.isArray(work?.rows),
+    filtered_count: Array.isArray(work?.rows) && work.rows.length === work.size?.filtered_n,
+    authority: total?.authority === 'P1_CERTIFIED',
+    evidence: Boolean(total?.evidence_id),
+    total_count: Array.isArray(work?.rows) && total?.payload?.value === work.rows.filter(row => row.sale_date >= dateFrom).length,
+    date_from: total?.temporal?.date_from === dateFrom,
+    date_to: total?.temporal?.date_to === cutoffDate,
+    unique_vins: Array.isArray(work?.rows) && new Set(work.rows.map(row => row.vin)).size === work.rows.length,
+  };
+  const parityFailures = Object.entries(parityChecks).filter(([, valid]) => !valid).map(([name]) => name);
+  if (parityFailures.length) throw new Error('P1_SALES_WORK_PARITY_FAILED: ' + parityFailures.join(','));
   const label = value => String(value ?? '').trim().toUpperCase();
   const brandKey = new Map(brandMembers.map(row => [String(row.member_id),
     label(row.member_label) === 'FOTON' ? 'foton' : ['DONGFENG', 'DFM'].includes(label(row.member_label)) ? 'dongfeng' : null]));
