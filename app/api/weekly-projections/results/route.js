@@ -263,8 +263,8 @@ function resultRow({ weekStart, cutoffDate, env, dimension, scopeKey, storeId = 
 
 function sum(rows, field) { return rows.reduce((total, row) => total + Number(row[field] || 0), 0); }
 
-function yoySales(periods, reference) {
-  const period=Array.isArray(periods)?periods.find(p=>p.label==='YOY'):null;
+function historicalSales(periods, reference, label) {
+  const period=Array.isArray(periods)?periods.find(p=>p.label===label):null;
   if(!reference?.date_from||!reference?.cutoff_date||!period||period.date_from!==reference.date_from||period.cutoff_date!==reference.cutoff_date||
       !Number.isInteger(period.mtd_units)||period.mtd_units<0)return null;
   return {date_from:period.date_from,cutoff_date:period.cutoff_date,total_units:period.mtd_units,
@@ -324,6 +324,7 @@ export async function GET(request) {
     });
     const payload = cached.payload.admin;
     const yoyPeriod = payload.historical_context.periods.find(p=>p.label==='YOY');
+    const momPeriod = payload.historical_context.periods.find(p=>p.label==='M-1');
     // Legacy snapshots lack seller details; an absent array is never an observed zero.
     if(yoyPeriod&&!Array.isArray(yoyPeriod.details))yoyPeriod.details=null;
     payload.projections = projections;
@@ -364,7 +365,8 @@ export async function GET(request) {
       ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
       admin: payload, companyFinance: cached.payload.companyFinance,
       storeSales: storeSales.map(r => ({ sucursal_id: r.sucursal_id, total_units: Number(r.total_units || 0),
-        yoy: yoySales(r.historical_periods, yoyPeriod) })),
+        yoy: historicalSales(r.historical_periods, yoyPeriod, 'YOY'),
+        mom: historicalSales(r.historical_periods, momPeriod, 'M-1') })),
       forumSellerData: storeId ? {
         aliases: cached.payload.aliases,
         forum: sellerPayloads.map(x => x.forum).filter(Boolean),
