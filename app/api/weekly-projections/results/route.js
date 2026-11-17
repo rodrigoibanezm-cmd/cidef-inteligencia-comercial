@@ -119,8 +119,8 @@ function certifiedMembers(evidence, name) {
   return evidence.payload.members;
 }
 
-async function getP1BrandIndicators(period, cutoffDate, storeIds) {
-  const runId = 'weekly-projection-brands-' + period + '-' + cutoffDate;
+async function getP1BrandIndicators(period, cutoffDate, storeIds, refreshId) {
+  const runId = 'weekly-projection-brands-' + refreshId;
   const dateFrom = period + '-01', weekFrom = shiftDate(cutoffDate, -6);
   const fetchFrom = weekFrom < dateFrom ? weekFrom : dateFrom;
   // Like production, prepare every store before iterating; never reload P1 per store.
@@ -425,7 +425,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     requireArray(sellerData.sellers, 'SELLER_ROSTER');
     if (!companyAdmin.scopes || !companyFinance.scopes || !previousFullMonthAdmin.scopes) throw new Error('Incomplete grouped store results');
 
-    const brandIndicators = await getP1BrandIndicators(period, cutoffDate, scopeIds);
+    const brandIndicators = await getP1BrandIndicators(period, cutoffDate, scopeIds, job.job_id);
     companyAdmin.brand_indicators = brandIndicators.company;
     companyFinance.brand_indicators = brandIndicators.company;
 
