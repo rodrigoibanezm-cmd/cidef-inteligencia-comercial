@@ -156,7 +156,11 @@ async function getP1BrandIndicators(period, cutoffDate, storeIds) {
     unique_vins: Array.isArray(work?.rows) && new Set(work.rows.map(row => row.vin)).size === work.rows.length,
   };
   const parityFailures = Object.entries(parityChecks).filter(([, valid]) => !valid).map(([name]) => name);
-  if (parityFailures.length) throw new Error('P1_SALES_WORK_PARITY_FAILED: ' + parityFailures.join(','));
+  if (parityFailures.length) {
+    const totalRows = Array.isArray(work?.rows) ? work.rows.filter(row => row.sale_date >= dateFrom).length : null;
+    console.error('SALES parity diagnostic', JSON.stringify({runId,dateFrom,cutoffDate,expected:total?.payload?.value,observed:totalRows,filtered:work?.size?.filtered_n,failed:parityFailures}));
+    throw new Error('P1_SALES_WORK_PARITY_FAILED: ' + parityFailures.join(',') + (parityFailures.includes('total_count') ? ` (P1=${total?.payload?.value}, filas=${totalRows})` : ''));
+  }
   const label = value => String(value ?? '').trim().toUpperCase();
   const brandKey = new Map(brandMembers.map(row => [String(row.member_id),
     label(row.member_label) === 'FOTON' ? 'foton' : ['DONGFENG', 'DFM'].includes(label(row.member_label)) ? 'dongfeng' : null]));
