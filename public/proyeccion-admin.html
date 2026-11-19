@@ -155,7 +155,7 @@ const weeks=payload.weekly_overview||[],head=$('#weeklyProgressHead'),body=$('#w
 if(!weeks.length){head.textContent='';body.textContent='';$('#weeklyProgressNote').textContent='Sin datos semanales para este corte';return}
 head.innerHTML='<tr><th>Indicador</th>'+weeks.map(w=>'<th title="'+esc(w.from+' a '+w.to)+'">'+esc(w.label)+'</th>').join('')+'</tr>';
 const values=[
-['VIN entrada','entry'],['VIN salida','exit'],['Ventas semana','weekly_sales'],['Proyección semana','projection'],['Brecha semana','gap']];
+['VIN entrada','entry'],['Ventas semana','weekly_sales'],['Proyección semana','projection'],['Brecha semana','gap']];
 body.innerHTML=values.map(([title,field])=>'<tr><th>'+title+'</th>'+weeks.map(w=>{
 const v=w[field],unknown=v==null,css=unknown?'weekly-pending':field==='gap'?(v<0?'weekly-gap-negative':v>0?'weekly-gap-positive':''):'';
 return '<td class="'+css+'">'+(unknown?'—':Number(v).toLocaleString('es-CL'))+'</td>'
