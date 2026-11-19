@@ -336,6 +336,41 @@ export async function GET(request) {
     payload.projections = projections;
     payload.sent_not_invoiced = sent;
     payload.summary = { total_units: sum(projections, 'projected_units'), sent_not_invoiced_units: sum(sent, 'units') };
+    // Weekly overview from the existing certified SALES VIN dates and saved Monday projections.
+    const month = cutoffDate.slice(0, 7), first = new Date(month + '-01T12:00:00Z');
+    const firstMonday = new Date(first);
+    firstMonday.setUTCDate(firstMonday.getUTCDate() + (8 - firstMonday.getUTCDay()) % 7);
+    const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0, 12));
+    const weeklyTargets = await sql`
+      SELECT week_start::text AS week_start, sum(projected_units)::int AS units
+      FROM weekly_sales_projection
+      WHERE week_start >= ${firstMonday.toISOString().slice(0, 10)}::date
+        AND week_start <= ${lastDay.toISOString().slice(0, 10)}::date
+        AND (${storeId}::bigint IS NULL OR sucursal_id = ${storeId}::bigint)
+      GROUP BY week_start
+    `;
+    const targetsByWeek = new Map(weeklyTargets.map(row => [row.week_start, Number(row.units)]));
+    const salesDates = payload.sales_mtd.details.map(row => row.fecha_venta);
+    if (salesDates.length !== Number(payload.sales_mtd.total_units)) {
+      throw new Error('Incomplete certified monthly SALES detail for weekly overview');
+    }
+    payload.weekly_overview = [];
+    for (let start = new Date(firstMonday), i = 1; start <= lastDay; start.setUTCDate(start.getUTCDate() + 7), i++) {
+      const from = start.toISOString().slice(0, 10);
+      const end = new Date(start);
+      end.setUTCDate(Math.min(start.getUTCDate() + 6, lastDay.getUTCDate()));
+      const to = end.toISOString().slice(0, 10);
+      const entry = salesDates.filter(date => date < from).length;
+      const observed = from <= cutoffDate, effectiveEnd = to < cutoffDate ? to : cutoffDate;
+      const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
+      const target = targetsByWeek.get(from) || 0;
+      payload.weekly_overview.push({
+        label: 'S' + i, from, to, entry: observed ? entry : null, exit,
+        weekly_sales: observed ? exit - entry : null, projection: target,
+        gap: observed ? exit - entry - target : null,
+        status: !observed ? 'pending' : to <= cutoffDate ? 'closed' : 'partial',
+      });
+    }
     const current = payload.historical_context.periods.find(p => p.label === 'CURRENT');
     payload.next_cut_context.expected_units = Number(current.mtd_units || 0) + payload.summary.total_units;
 
