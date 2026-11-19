@@ -96,7 +96,7 @@ function renderStoreFinanceTable(rows,sentRows){
   const v=key==='prevFoton'?values.prevSoldFoton:key==='prevDfm'?values.prevSoldDfm:
    key==='prevProjectedFoton'?values.prevProjectedFoton||0:key==='prevProjectedDfm'?values.prevProjectedDfm||0:
    key==='projectionFoton'?values.projectionFoton||0:key==='projectionDfm'?values.projectionDfm||0:
-   key==='soldFoton'?values.soldFoton||0:key==='soldDfm'?values.soldDfm||0:values[key]??0;
+   key==='soldFoton'?values.soldFoton||0:key==='soldDfm'?values.soldDfm||0:values[key]===null?null:(values[key]??0);
   return '<td class="num'+(key==='gap'&&v<0?' weekly-gap-negative':'')+'">'+numeric(v)+'</td>';
  };
  const dataCells=t=>matrixColumns.map(col=>cell(t,col[1])).join('');
