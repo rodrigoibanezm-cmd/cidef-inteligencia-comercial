@@ -5,115 +5,114 @@
 <section class="section"><div class="section-head"><h2>Ventas</h2><div class="muted" id="salesDataNote"></div></div><div class="hero-grid"><article class="hero"><div class="projection-ref">vs proyección<strong id="monthProjectionRef">—</strong><span id="monthProjectionGap" class="gap">—</span></div><div class="hero-label">Unidades mes</div><div class="hero-value" id="monthUnits">— <span>VIN</span></div><div id="monthBrandBreakdown" class="brand-breakdown" hidden></div><div class="monthly-potential"><div id="monthSentTotal">—</div><div id="monthPotentialBrand" class="monthly-potential-detail"></div></div><div class="period" id="monthPeriod">—</div><div class="data-note" id="monthData">—</div><div class="refs"><div class="ref">Octubre 2025 · mes completo<strong id="lastYearMonth">—</strong><div id="lastYearBrand" class="monthly-last-brand"></div><div class="monthly-yoy">vs mismo corte <strong id="monthYoy">—</strong></div></div><div class="trend-ref"><div class="trend-title">Últimos 4 meses · mismo corte</div><div id="monthTrend"></div></div></div></article><article class="projection-card"><div class="title">Proyección semana siguiente</div><div class="flow-line"><div class="flow-step"><strong id="flowSold">—</strong><span>vendidos</span></div><div class="flow-op">+</div><div class="flow-step"><strong id="nextProjection">—</strong><span>proyección</span></div><div class="flow-op">+</div><div class="flow-step"><strong id="sentNotInvoiced">—</strong><span>enviado no facturado</span></div></div><div class="flow-total"><strong id="nextTotal">—</strong><span>VIN potenciales</span></div><div id="nextBrandBreakdown" class="brand-breakdown" hidden></div><div class="next-equation" id="nextExpected">—</div><div class="sent-note">Enviado no facturado no es venta realizada.</div><div class="next-context"><div class="trend-title" id="nextTrendTitle">Últimos 4 meses · mismo corte</div><div id="nextTrend"></div></div></article></div></section>
 <section id="companyFinance" class="section" hidden><div class="section-head"><h2 id="financeTitle">Forum y otros créditos · Compañía</h2><div class="muted" id="financeCut"></div></div><div class="finance-cards"><article class="projection-card finance-card"><div class="title">Cotizaciones</div><div class="finance-value" id="financeQuotes">—</div><div id="financeQuotesBrand" class="brand-breakdown" hidden></div><div id="financeQuotesTrend"></div></article><article class="projection-card finance-card"><div class="title">Aprobados</div><div class="finance-value" id="financeApproved">—</div><div id="financeApprovedBrand" class="brand-breakdown" hidden></div><div id="financeApprovedTrend"></div></article><article class="projection-card finance-card"><div class="title">UFI ejecutadas</div><div class="finance-value" id="financeUfi">—</div><div id="financeUfiBrand" class="brand-breakdown" hidden></div><div id="financeUfiTrend"></div></article><article class="projection-card finance-card"><div class="title">Otros créditos</div><div class="finance-value" id="financeOther">—</div><div id="financeOtherBrand" class="brand-breakdown" hidden></div><div id="financeOtherTrend"></div></article><article class="projection-card finance-card"><div class="title">Pre-cursadas</div><div class="finance-value" id="financePrecurse">—</div><div id="financePrecurseBrand" class="brand-breakdown" hidden></div><div class="muted" id="financePrecurseNote"></div></article></div><div class="muted finance-note">Últimos 4 meses al mismo día del mes · Forum: cotizaciones y aprobados · UFI: VIN vendidos con financiera Forum según Sales · otros créditos: VIN con otra financiera · pre-cursadas: stock del último snapshot P1 certificado.</div></section><section class="section"><div class="section-head"><h2>Proyecciones</h2><div class="muted" id="projectionCut"></div></div><div class="projection-grid"><article class="hero"><div class="hero-label">Unidades última semana</div><div class="hero-value" id="weekUnits">— <span>VIN</span></div><div id="weekBrandBreakdown" class="brand-breakdown" hidden></div><div class="period" id="weekPeriod">—</div><div class="data-note">Últimos 7 días al corte guardado</div><div class="refs"><div class="ref">vs misma semana 2025<strong id="weekYoy">—</strong></div><div class="trend-ref"><div class="trend-title">Últimos 4 meses · misma semana</div><div id="weekTrend"></div></div></div></article><article class="projection-card weekly-progress"><div class="title">Evolución semanal del mes</div><div class="data-note">Semanas de lunes a domingo · corte actual parcial</div><div class="weekly-progress-scroll"><table class="weekly-progress-table"><thead id="weeklyProgressHead"></thead><tbody id="weeklyProgressBody"></tbody></table></div><div class="data-note" id="weeklyProgressNote"></div></article></div><div class="grid projection-breakdown-grid" id="projectionBreakdownGrid"><div class="panel" id="byStorePanel"><h3>Proyección por tienda</h3><div class="legend"><span><i></i>Proyección</span><span><i class="sent"></i>Enviado no facturado</span></div><div id="byStore"></div></div><div class="panel projection-brand-panel"><h3>Proyección por marca</h3><div class="legend"><span><i></i>Proyección</span><span><i class="sent"></i>Enviado no facturado</span></div><div id="byBrand"></div></div></div></section><section id="sellerBreakdown" class="section" hidden><div class="section-head"><h2>Resumen por vendedor</h2><div class="muted">Mes actual · ordenado por VIN vendidos</div></div><div class="table-wrap seller-summary-wrap"><table class="table seller-summary-table"><thead><tr class="seller-group-head"><th rowspan="2" class="seller-name-col">Vendedor</th><th colspan="5" class="seller-commercial">Gestión comercial</th><th colspan="4" class="seller-forum">Forum</th><th class="seller-other">Otras financieras</th></tr><tr class="seller-column-head"><th class="num seller-commercial">VIN vendidos</th><th class="num seller-commercial">Mes anterior</th><th class="num seller-commercial">Proyección</th><th class="num seller-commercial">Enviado no facturado</th><th class="num seller-commercial">Total potencial</th><th class="num seller-forum">Cotizaciones</th><th class="num seller-forum">Aprobados</th><th class="num seller-forum">UFI ejecutadas</th><th class="num seller-forum">Pre-cursadas</th><th class="num seller-other">Otros créditos</th></tr></thead><tbody id="sellerBreakdownBody"></tbody></table></div><div class="muted seller-footnote" id="sellerBreakdownFootnote">Forum: cotizaciones y aprobados por operación del mes · UFI por fecha de curse · otros créditos excluyen Forum.</div></section><div class="toolbar"><h2>Detalle de proyecciones</h2><button class="export" id="exportXls">Exportar XLS</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Tienda</th><th>Vendedor</th><th>Marca</th><th>Modelo</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="toolbar"><h2>Enviado no facturado</h2><div class="muted" id="sentSummary"></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Tienda</th><th>Vendedor</th><th>Marca</th><th>Modelo</th><th class="num">VIN</th></tr></thead><tbody id="sentTbody"></tbody></table></div></main><div id="status" class="status"></div>
 <script>
-const API='/api/weekly-projections',$=s=>document.querySelector(s);let payload=null,branches=[],loadingTimer=null,storeSellers=[],forumSellerData={aliases:[],forum:[]},companyFinanceData=null,storeSalesData=[];function ymd(d=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}function previousDay(v){const d=new Date(v+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10)}function monday(v=ymd()){const d=new Date(v+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)}function weekday(v){return new Intl.DateTimeFormat('es-CL',{timeZone:'America/Santiago',weekday:'short'}).format(new Date(v+'T12:00:00Z'))}function sd(v){if(!v)return'—';const a=String(v).slice(0,10).split('-');return a[2]+'-'+a[1]}function ld(v){if(!v)return'—';const a=String(v).slice(0,10).split('-'),m=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return Number(a[2])+' '+m[Number(a[1])-1]}function ms(v){return ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][Number(String(v).slice(5,7))-1]}function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}async function json(u,options){const r=await fetch(u,options),j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Error');return j}function setLoading(pct,stage){$('#loadingBar').style.width=pct+'%';$('#loadingPct').textContent=pct+'%';if(stage)$('#loadingStage').textContent=stage}function startLoading(){clearInterval(loadingTimer);$('#loading').classList.remove('hidden');setLoading(8,'Cargando ventas…');let p=8;loadingTimer=setInterval(()=>{p=Math.min(88,p+(p<45?7:p<70?4:2));const stage=p<35?'Cargando ventas…':p<65?'Leyendo históricos guardados…':p<82?'Cargando proyecciones…':'Leyendo snapshot…';setLoading(p,stage)},260)}async function finishLoading(){clearInterval(loadingTimer);setLoading(100,'Tablero actualizado');await new Promise(r=>setTimeout(r,180));$('#loading').classList.add('hidden')}function change(v){if(v==null||!isFinite(v))return'<span class="delta flat">—</span>';const p=Math.round(v*100);return `<span class="delta ${p>0?'up':p<0?'down':'flat'}">${p>0?'+':''}${p}% ${p>0?'↑':p<0?'↓':''}</span>`}function tone(v){return v>=.05?'positive':v<=-.05?'critical':'warning'}function spark(periods,field,ch){const o=['M-3','M-2','M-1','CURRENT'].map(x=>periods.find(p=>p.label===x)),vals=o.map(p=>Number(p?.[field]||0)),mn=Math.min(...vals),mx=Math.max(...vals),sp=mx-mn||1,x=[50,150,250,350],y=vals.map(v=>70-(v-mn)/sp*30),c={positive:'#249b61',warning:'#dfa100',critical:'#d93c43'}[tone(ch)],pct=Math.round(ch*100);return `<div class="trend-head"><span class="trend-note ${tone(ch)}">${pct>0?'+':''}${pct}% vs promedio 3 meses anteriores</span></div><div class="spark-chart"><svg viewBox="0 0 400 104">${vals.map((v,i)=>`<text x="${x[i]}" y="16" text-anchor="middle" fill="#25344e" font-size="13" font-weight="800">${v}</text>`).join('')}<polyline points="${vals.map((v,i)=>x[i]+','+y[i]).join(' ')}" fill="none" stroke="${c}" stroke-width="2.5"/>${vals.map((v,i)=>`<circle cx="${x[i]}" cy="${y[i]}" r="4" fill="${c}"/>`).join('')}${o.map((p,i)=>`<text x="${x[i]}" y="98" text-anchor="middle" fill="#6b7890" font-size="11">${ms(p.month)}</text>`).join('')}</svg></div>`}function nextSpark(ctx){const vals=[...ctx.prior_periods.map(p=>Number(p.mtd_units||0)),Number(ctx.expected_units||0)],labels=[...ctx.prior_periods.map(p=>ms(p.month)),ms(ctx.cutoff_date)],mn=Math.min(...vals),mx=Math.max(...vals),sp=mx-mn||1,x=[50,150,250,350],y=vals.map(v=>70-(v-mn)/sp*30),ch=ctx.change_vs_prior_average||0,c={positive:'#249b61',warning:'#dfa100',critical:'#d93c2c'}[tone(ch)],pct=Math.round(ch*100);return `<div class="trend-head"><span class="trend-note ${tone(ch)}">${pct>0?'+':''}${pct}% vs promedio 3 meses anteriores</span></div><div class="spark-chart"><svg viewBox="0 0 400 104">${vals.map((v,i)=>`<text x="${x[i]}" y="16" text-anchor="middle" fill="#25344e" font-size="13" font-weight="800">${v}</text>`).join('')}<polyline points="${vals.map((v,i)=>x[i]+','+y[i]).join(' ')}" fill="none" stroke="${c}" stroke-width="2.5"/>${vals.map((v,i)=>`<circle cx="${x[i]}" cy="${y[i]}" r="4" fill="${c}"/>`).join('')}${labels.map((v,i)=>`<text x="${x[i]}" y="98" text-anchor="middle" fill="#6b7890" font-size="11">${v}</text>`).join('')}</svg></div>`}function group(rows,key,field='projected_units'){const m=new Map;rows.forEach(r=>{const k=key(r)||'Sin dato';m.set(k,(m.get(k)||0)+Number(r[field]||1))});return [...m]}function stackedData(projectedRows,sentRows,key,allKeys=[]){const p=new Map(group(projectedRows,key,'projected_units')),s=new Map(group(sentRows,key,'units')),keys=new Set([...allKeys,...p.keys(),...s.keys()]);return [...keys].map(k=>[k,Number(p.get(k)||0),Number(s.get(k)||0)]).sort((a,b)=>(b[1]+b[2])-(a[1]+a[2])||a[0].localeCompare(b[0],'es'))}function stackedBars(id,d){const mx=Math.max(1,...d.map(x=>x[1]+x[2]));$(id).innerHTML=d.length?d.map(([k,p,s])=>{const total=p+s;return `<div class="barrow"><span>${esc(k)}</span><div class="bar"><div class="fill" style="width:${p/mx*100}%"></div><div class="fill sent" style="width:${s/mx*100}%"></div></div><span class="barvalue"><strong>${total}</strong> <span>${p}+${s}</span></span></div>`}).join(''):'<div class="empty">Sin datos</div>'}const storeSections={commercial:true,forum:true,other:true};
+const API='/api/weekly-projections',$=s=>document.querySelector(s);let payload=null,branches=[],loadingTimer=null,storeSellers=[],forumSellerData={aliases:[],forum:[]},companyFinanceData=null,storeSalesData=[];function ymd(d=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}function previousDay(v){const d=new Date(v+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10)}function monday(v=ymd()){const d=new Date(v+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)}function weekday(v){return new Intl.DateTimeFormat('es-CL',{timeZone:'America/Santiago',weekday:'short'}).format(new Date(v+'T12:00:00Z'))}function sd(v){if(!v)return'—';const a=String(v).slice(0,10).split('-');return a[2]+'-'+a[1]}function ld(v){if(!v)return'—';const a=String(v).slice(0,10).split('-'),m=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return Number(a[2])+' '+m[Number(a[1])-1]}function ms(v){return ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][Number(String(v).slice(5,7))-1]}function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}async function json(u,options){const r=await fetch(u,options),j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Error');return j}function setLoading(pct,stage){$('#loadingBar').style.width=pct+'%';$('#loadingPct').textContent=pct+'%';if(stage)$('#loadingStage').textContent=stage}function startLoading(){clearInterval(loadingTimer);$('#loading').classList.remove('hidden');setLoading(8,'Cargando ventas…');let p=8;loadingTimer=setInterval(()=>{p=Math.min(88,p+(p<45?7:p<70?4:2));const stage=p<35?'Cargando ventas…':p<65?'Leyendo históricos guardados…':p<82?'Cargando proyecciones…':'Leyendo snapshot…';setLoading(p,stage)},260)}async function finishLoading(){clearInterval(loadingTimer);setLoading(100,'Tablero actualizado');await new Promise(r=>setTimeout(r,180));$('#loading').classList.add('hidden')}function change(v){if(v==null||!isFinite(v))return'<span class="delta flat">—</span>';const p=Math.round(v*100);return `<span class="delta ${p>0?'up':p<0?'down':'flat'}">${p>0?'+':''}${p}% ${p>0?'↑':p<0?'↓':''}</span>`}function tone(v){return v>=.05?'positive':v<=-.05?'critical':'warning'}function spark(periods,field,ch){const o=['M-3','M-2','M-1','CURRENT'].map(x=>periods.find(p=>p.label===x)),vals=o.map(p=>Number(p?.[field]||0)),mn=Math.min(...vals),mx=Math.max(...vals),sp=mx-mn||1,x=[50,150,250,350],y=vals.map(v=>70-(v-mn)/sp*30),c={positive:'#249b61',warning:'#dfa100',critical:'#d93c43'}[tone(ch)],pct=Math.round(ch*100);return `<div class="trend-head"><span class="trend-note ${tone(ch)}">${pct>0?'+':''}${pct}% vs promedio 3 meses anteriores</span></div><div class="spark-chart"><svg viewBox="0 0 400 104">${vals.map((v,i)=>`<text x="${x[i]}" y="16" text-anchor="middle" fill="#25344e" font-size="13" font-weight="800">${v}</text>`).join('')}<polyline points="${vals.map((v,i)=>x[i]+','+y[i]).join(' ')}" fill="none" stroke="${c}" stroke-width="2.5"/>${vals.map((v,i)=>`<circle cx="${x[i]}" cy="${y[i]}" r="4" fill="${c}"/>`).join('')}${o.map((p,i)=>`<text x="${x[i]}" y="98" text-anchor="middle" fill="#6b7890" font-size="11">${ms(p.month)}</text>`).join('')}</svg></div>`}function nextSpark(ctx){const vals=[...ctx.prior_periods.map(p=>Number(p.mtd_units||0)),Number(ctx.expected_units||0)],labels=[...ctx.prior_periods.map(p=>ms(p.month)),ms(ctx.cutoff_date)],mn=Math.min(...vals),mx=Math.max(...vals),sp=mx-mn||1,x=[50,150,250,350],y=vals.map(v=>70-(v-mn)/sp*30),ch=ctx.change_vs_prior_average||0,c={positive:'#249b61',warning:'#dfa100',critical:'#d93c2c'}[tone(ch)],pct=Math.round(ch*100);return `<div class="trend-head"><span class="trend-note ${tone(ch)}">${pct>0?'+':''}${pct}% vs promedio 3 meses anteriores</span></div><div class="spark-chart"><svg viewBox="0 0 400 104">${vals.map((v,i)=>`<text x="${x[i]}" y="16" text-anchor="middle" fill="#25344e" font-size="13" font-weight="800">${v}</text>`).join('')}<polyline points="${vals.map((v,i)=>x[i]+','+y[i]).join(' ')}" fill="none" stroke="${c}" stroke-width="2.5"/>${vals.map((v,i)=>`<circle cx="${x[i]}" cy="${y[i]}" r="4" fill="${c}"/>`).join('')}${labels.map((v,i)=>`<text x="${x[i]}" y="98" text-anchor="middle" fill="#6b7890" font-size="11">${v}</text>`).join('')}</svg></div>`}function group(rows,key,field='projected_units'){const m=new Map;rows.forEach(r=>{const k=key(r)||'Sin dato';m.set(k,(m.get(k)||0)+Number(r[field]||1))});return [...m]}function stackedData(projectedRows,sentRows,key,allKeys=[]){const p=new Map(group(projectedRows,key,'projected_units')),s=new Map(group(sentRows,key,'units')),keys=new Set([...allKeys,...p.keys(),...s.keys()]);return [...keys].map(k=>[k,Number(p.get(k)||0),Number(s.get(k)||0)]).sort((a,b)=>(b[1]+b[2])-(a[1]+a[2])||a[0].localeCompare(b[0],'es'))}function stackedBars(id,d){const mx=Math.max(1,...d.map(x=>x[1]+x[2]));$(id).innerHTML=d.length?d.map(([k,p,s])=>{const total=p+s;return `<div class="barrow"><span>${esc(k)}</span><div class="bar"><div class="fill" style="width:${p/mx*100}%"></div><div class="fill sent" style="width:${s/mx*100}%"></div></div><span class="barvalue"><strong>${total}</strong> <span>${p}+${s}</span></span></div>`}).join(''):'<div class="empty">Sin datos</div>'}const storeSections={previous:true,current:true,commercial:true};
 const expandedStores=new Set();
+let adjacentProjections=[];
+const matrixColumns=[
+ ['previous','prevSold','Venta'],['previous','prevFoton','FOTON'],['previous','prevDfm','DFM'],
+ ['previous','prevProjected','Proyección'],['previous','prevProjectedFoton','FOTON proy.'],['previous','prevProjectedDfm','DFM proy.'],['previous','gap','Brecha'],
+ ['current','projection','Proyección'],['current','projectionFoton','FOTON'],['current','projectionDfm','DFM'],['current','sent','Enviado no fact.'],
+ ['commercial','sold','Vendidos'],['commercial','soldFoton','FOTON'],['commercial','soldDfm','DFM'],['commercial','entryNext','Entrada próx. semana']
+];
+const matrixGroups=[['previous','Semana anterior'],['current','Semana actual'],['commercial','Comercial']];
+function matrixBrand(brand){
+ const b=String(brand||'').trim().toUpperCase();
+ return b==='FOTON'?'Foton':b==='DONGFENG'||b==='DFM'?'Dfm':'';
+}
+function matrixDateOffset(value,days){
+ const d=new Date(value+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);
+}
 function applyStoreSections(){
  const table=$('#byStore .store-finance-table');if(!table)return;
- const sections=[['commercial',1,5],['forum',5,9],['other',9,10]];
- const headers=[...table.tHead.rows[1].cells],rows=[...table.tBodies[0].rows];
- sections.forEach(([name,from,to],sectionIndex)=>{
-   const expanded=storeSections[name],groupHeader=table.tHead.rows[0].cells[sectionIndex+1];
-   const button=groupHeader.querySelector('button'),label={commercial:'Gestión comercial',forum:'Forum',other:'Otras financieras'}[name];
-   button.textContent=(expanded?'− ':'+ ')+label;button.setAttribute('aria-expanded',String(expanded));
-   groupHeader.colSpan=expanded?to-from:1;
-   for(let i=from;i<to;i++){
-     headers[i-1].hidden=!expanded;
-     for(const row of rows)row.cells[i].hidden=!expanded;
-   }
- });
+ const columnHeaders=[...table.tHead.rows[1].cells],bodyRows=[...table.tBodies[0].rows];
+ let first=1;
+ for(const [key,label] of matrixGroups){
+  const cols=matrixColumns.filter(c=>c[0]===key),expanded=storeSections[key],button=table.querySelector('[data-store-group="'+key+'"]');
+  button.textContent=(expanded?'− ':'+ ')+label;button.setAttribute('aria-expanded',String(expanded));
+  button.parentElement.colSpan=expanded?cols.length:1;
+  for(let j=0;j<cols.length;j++){
+   columnHeaders[first+j-1].hidden=!expanded;
+   for(const row of bodyRows)row.cells[first+j].hidden=!expanded;
+  }
+  first+=cols.length;
+ }
 }
 document.addEventListener('click',event=>{
- const button=event.target.closest('button[data-store-toggle]');if(!button)return;
- const id=button.dataset.storeToggle;
- if(expandedStores.has(id))expandedStores.delete(id);else expandedStores.add(id);
- button.textContent=(expandedStores.has(id)?'− ':'+ ')+button.dataset.storeName;
- button.setAttribute('aria-expanded',String(expandedStores.has(id)));
- document.querySelectorAll('#byStore tr.seller-drill').forEach(row=>{
-  if(row.dataset.parentStore===id)row.hidden=!expandedStores.has(id);
- });
-});
-document.addEventListener('click',event=>{
- const button=event.target.closest('button[data-store-group]');if(!button)return;
- const key=button.dataset.storeGroup;storeSections[key]=!storeSections[key];applyStoreSections();
+ const store=event.target.closest('button[data-store-toggle]');
+ if(store){
+  const id=store.dataset.storeToggle;
+  if(expandedStores.has(id))expandedStores.delete(id);else expandedStores.add(id);
+  store.textContent=(expandedStores.has(id)?'− ':'+ ')+store.dataset.storeName;
+  store.setAttribute('aria-expanded',String(expandedStores.has(id)));
+  document.querySelectorAll('#byStore tr.seller-drill').forEach(row=>{
+   if(row.dataset.parentStore===id)row.hidden=!expandedStores.has(id);
+  });
+  return;
+ }
+ const group=event.target.closest('button[data-store-group]');
+ if(group){const key=group.dataset.storeGroup;storeSections[key]=!storeSections[key];applyStoreSections()}
 });
 function renderStoreFinanceTable(rows,sentRows){
-  const selected=$('#store').value;
-  $('#projectionBreakdownGrid').classList.toggle('company-store-grid',!selected);
-  if(selected){stackedBars('#byStore',stackedData(rows,sentRows,r=>r.sucursal));return}
-  const records=stackedData(rows,sentRows,r=>r.sucursal,branches.map(s=>s.nombre_canonico));
-  const finance=new Map((companyFinanceData?.stores||[]).map(r=>[String(r.sucursal_id),{...r,otros:0}]));
-  const ufiByVin=new Map();
-  for(const sale of payload.sales_mtd.details||[]){
-    if(!sale.sucursal_id||sellerKey(sale.entidad_financiera||'')!=='FORUM')continue;
-    const vin=String(sale.vin||'').trim().toUpperCase();
-    if(vin)ufiByVin.set(vin,String(sale.sucursal_id));
-  }
-  for(const row of finance.values())row.ufi=0;
-  for(const storeId of ufiByVin.values()){
-    const existing=finance.get(storeId)||{sucursal_id:storeId,cotizaciones:0,aprobados:0,ufi:0,otros:0};
-    existing.ufi++;finance.set(storeId,existing);
-  }
-  const otherByVin=new Map();
-  for(const sale of payload.sales_mtd.details||[]){
-    const financier=sellerKey(sale.entidad_financiera||'');
-    if(!sale.sucursal_id||!financier||financier==='FORUM'||financier==='SIN VENDEDOR')continue;
-    const vin=String(sale.vin||'').trim().toUpperCase();
-    if(vin)otherByVin.set(vin,String(sale.sucursal_id));
-  }
-  for(const storeId of otherByVin.values()){
-    const existing=finance.get(storeId)||{sucursal_id:storeId,cotizaciones:0,aprobados:0,ufi:0,otros:0};
-    existing.otros++;finance.set(storeId,existing);
-  }
-  const ids=new Map(branches.map(s=>[s.nombre_canonico,String(s.sucursal_id)]));
-  const soldByStore=new Map(storeSalesData.map(r=>[String(r.sucursal_id),Number(r.total_units||0)]));
-  const yoy=yoyPeriod(),historicalByStore=new Map(storeSalesData.map(r=>[String(r.sucursal_id),r.yoy])),momByStore=new Map(storeSalesData.map(r=>[String(r.sucursal_id),r.mom])),fullByStore=new Map(storeSalesData.map(r=>[String(r.sucursal_id),r]));
-  const max=Math.max(1,...records.map(r=>r[1]+r[2]));
-  const sums={sold:0,yoy:yoy&&records.length?0:null,mom:records.length?0:null,yoyFull:records.length?0:null,momFull:records.length?0:null,projection:0,sent:0,cotizaciones:0,aprobados:0,ufi:0,otros:0,precurse:0};
-  const sellersByStore=new Map();
-  const sellerRow=(sid,personId,name)=>{
-    const storeKey=String(sid),key=String(personId),store=sellersByStore.get(storeKey)||new Map();
-    if(!store.has(key))store.set(key,{name:name||'Sin vendedor asignado',sold:0,projection:0,sent:0});
-    sellersByStore.set(storeKey,store);return store.get(key);
+ $('#projectionBreakdownGrid').classList.add('company-store-grid');
+ const storeFilter=$('#store').value;
+ const stores=new Map((storeFilter?branches.filter(b=>String(b.sucursal_id)===storeFilter):branches).map(b=>[String(b.sucursal_id),{
+  id:String(b.sucursal_id),name:b.nombre_canonico,sellers:new Map(),totals:{}
+ }]));
+ const previousMonday=matrixDateOffset(monday($('#week').value),-7),currentMonday=monday($('#week').value);
+ const previousEnd=matrixDateOffset(currentMonday,-1),cutoff=payload.sales_mtd.cutoff_date;
+ const prevSalesAvailable=previousMonday.slice(0,7)===cutoff.slice(0,7)&&previousEnd<=cutoff;
+ function apply(id,personId,name,metric,value,brand){
+  const store=stores.get(String(id));if(!store)return;
+  const add=(totals)=>{
+   totals[metric]=(totals[metric]||0)+value;
+   const bk=matrixBrand(brand);
+   if(bk)totals[metric+bk]=(totals[metric+bk]||0)+value;
   };
-  for(const sale of payload.sales_mtd.details||[]){
-    if(sale.sucursal_id==null)continue;
-    sellerRow(sale.sucursal_id,sale.persona_id??'unassigned',sale.vendedor_nombre||sale.vendedor).sold++;
-  }
-  for(const projection of rows){
-    if(projection.sucursal_id==null)continue;
-    sellerRow(projection.sucursal_id,projection.persona_id??'unassigned',projection.vendedor).projection+=Number(projection.projected_units||0);
-  }
-  for(const sentRow of sentRows){
-    if(sentRow.sucursal_id==null)continue;
-    sellerRow(sentRow.sucursal_id,sentRow.persona_id??'unassigned',sentRow.vendedor).sent+=Number(sentRow.units||0);
-  }
-  const lines=records.map(([name,projected,sent])=>{
-    const m=finance.get(ids.get(name))||{};
-    const cotizaciones=Number(m.cotizaciones||0),aprobados=Number(m.aprobados||0),ufi=Number(m.ufi||0),otros=Number(m.otros||0),precurse=Number(m.precurse||0);
-    const sold=soldByStore.get(ids.get(name));
-    const historical=historicalByStore.get(ids.get(name));
-    const previousYear=yoy&&historical?.date_from===yoy.date_from&&historical?.cutoff_date===yoy.cutoff_date&&Number.isInteger(historical.total_units)&&historical.total_units>=0?historical.total_units:null;
-    sums.yoy=sums.yoy!==null&&previousYear!==null?sums.yoy+previousYear:null;
-    const previousMonthData=momByStore.get(ids.get(name));
-    const previousMonth=previousMonthData&&Number.isInteger(previousMonthData.total_units)&&previousMonthData.total_units>=0?previousMonthData.total_units:null;
-    sums.mom=sums.mom!==null&&previousMonth!==null?sums.mom+previousMonth:null;
-    const full=fullByStore.get(ids.get(name));
-    const yoyFull=Number.isSafeInteger(full?.yoy_full)&&full.yoy_full>=0?full.yoy_full:null;
-    const momFull=Number.isSafeInteger(full?.mom_full)&&full.mom_full>=0?full.mom_full:null;
-    sums.yoyFull=sums.yoyFull!==null&&yoyFull!==null?sums.yoyFull+yoyFull:null;
-    sums.momFull=sums.momFull!==null&&momFull!==null?sums.momFull+momFull:null;
-    if(sold!==undefined)sums.sold+=sold;
-    sums.projection+=projected;sums.sent+=sent;sums.cotizaciones+=cotizaciones;sums.aprobados+=aprobados;sums.ufi+=ufi;sums.otros+=otros;sums.precurse+=precurse;
-    const storeId=ids.get(name),opened=expandedStores.has(storeId),sellerRows=[...(sellersByStore.get(storeId)?.values()||[])].sort((a,b)=>a.name.localeCompare(b.name,'es'));
-    const details=sellerRows.map(seller=>`<tr class="seller-drill" data-parent-store="${esc(storeId)}" ${opened?'':'hidden'}><td>${esc(seller.name)}</td><td class="num">${seller.sold}</td><td class="num">—</td><td class="num">—</td><td class="num">${seller.projection+seller.sent} <small>${seller.projection}+${seller.sent}</small></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>`).join('');
-    return `<tr><td class="store-title"><button class="store-toggle" type="button" data-store-toggle="${esc(storeId)}" data-store-name="${esc(name)}" aria-expanded="${opened}">${opened?'−': '+'} ${esc(name)}</button></td><td class="num"><strong>${sold===undefined?'—':sold}</strong></td><td class="num">${previousYear===null?'—':previousYear} / ${previousMonth===null?'—':previousMonth}</td><td class="num">${yoyFull===null?'—':yoyFull} / ${momFull===null?'—':momFull}</td><td><div class="store-projection"><div class="store-mini-bar"><div class="fill" style="width:${projected/max*100}%"></div><div class="fill sent" style="width:${sent/max*100}%"></div></div><strong>${projected+sent}</strong> <small>${projected}+${sent}</small></div></td><td class="num store-forum store-group-start">${cotizaciones}</td><td class="num store-forum">${aprobados}</td><td class="num store-forum">${ufi}</td><td class="num store-forum">${precurse}</td><td class="num store-other store-group-start">${otros}</td></tr>${details}`;
-  }).join('');
-  // Keep historical stores outside today's roster in the company coverage, without assigning their VIN to active stores.
-  const activeIds=new Set(ids.values());
-  const outside=yoy&&Array.isArray(yoy.details)&&yoy.details.length===yoy.mtd_units?yoy.details.filter(r=>!activeIds.has(String(r.sucursal_id))).length:null;
-  const historicalNote=yoy?`Año anterior · ${esc(yoy.date_from)} → ${esc(yoy.cutoff_date)} · Empresa: ${yoy.mtd_units} VIN.${outside?` ${outside} VIN de sucursales fuera del catálogo actual, no incluidos en Total tiendas.`:''}`:'Año anterior: sin información certificada.';
-  $('#byStore').innerHTML=`<div class="store-finance-scroll"><table class="store-finance-table"><thead><tr class="store-finance-groups"><th rowspan="2">Tienda</th><th colspan="4"><button type="button" data-store-group="commercial" aria-expanded="true">− Gestión comercial</button></th><th colspan="4" class="store-forum"><button type="button" data-store-group="forum" aria-expanded="true">− Forum</button></th><th class="store-other"><button type="button" data-store-group="other" aria-expanded="true">− Otras financieras</button></th></tr><tr><th>Ventas</th><th>YoY / MoM</th><th style="text-align:center">YoY / MoM<span style="display:block">mes completo</span></th><th>Proyección + enviado</th><th class="store-forum store-group-start">Cotizaciones</th><th class="store-forum">Aprobados</th><th class="store-forum">UFI ejecutadas</th><th class="store-forum">Pre-cursadas</th><th class="store-other store-group-start">Otros créditos</th></tr></thead><tbody>${lines}<tr class="store-finance-total"><td>Total tiendas</td><td class="num">${sums.sold}</td><td class="num">${sums.yoy===null?'—':sums.yoy} / ${sums.mom===null?'—':sums.mom}</td><td class="num">${sums.yoyFull===null?'—':sums.yoyFull} / ${sums.momFull===null?'—':sums.momFull}</td><td class="num">${sums.projection+sums.sent} <small>${sums.projection}+${sums.sent}</small></td><td class="num store-forum store-group-start">${sums.cotizaciones}</td><td class="num store-forum">${sums.aprobados}</td><td class="num store-forum">${sums.ufi}</td><td class="num store-forum">${sums.precurse}</td><td class="num store-other store-group-start">${sums.otros}</td></tr></tbody></table></div><div class="muted seller-footnote">${historicalNote}</div>`;
-  applyStoreSections();
+  add(store.totals);
+  const sid=String(personId??'unassigned');
+  if(!store.sellers.has(sid))store.sellers.set(sid,{name:name||'Sin vendedor asignado',totals:{}});
+  add(store.sellers.get(sid).totals);
+ }
+ for(const sale of payload.sales_mtd.details||[]){
+  apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'sold',1,sale.marca);
+  if(prevSalesAvailable&&sale.fecha_venta>=previousMonday&&sale.fecha_venta<=previousEnd)
+   apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'prevSold',1,sale.marca);
+ }
+ for(const row of adjacentProjections){
+  if(row.week_start===previousMonday)
+   apply(row.sucursal_id,row.persona_id,row.vendedor,'prevProjected',Number(row.units||0),row.marca);
+ }
+ for(const row of rows)apply(row.sucursal_id,row.persona_id,row.vendedor,'projection',Number(row.projected_units||0),row.marca);
+ for(const row of sentRows)apply(row.sucursal_id,row.persona_id,row.vendedor,'sent',Number(row.units||0),row.marca);
+ const numeric=v=>v==null?'—':Number(v).toLocaleString('es-CL');
+ const metrics=t=>{
+  const sold=t.sold||0,proj=t.projection||0,prev=t.prevSold||0,previousProjected=t.prevProjected||0;
+  return {...t,prevSold:prevSalesAvailable?prev:null,prevSoldFoton:prevSalesAvailable?(t.prevSoldFoton||0):null,
+   prevSoldDfm:prevSalesAvailable?(t.prevSoldDfm||0):null,
+   gap:prevSalesAvailable?prev-previousProjected:null,entryNext:sold+proj};
+ };
+ const cell=(t,key)=>{
+  const values=metrics(t);
+  const v=key==='prevFoton'?values.prevSoldFoton:key==='prevDfm'?values.prevSoldDfm:
+   key==='prevProjectedFoton'?values.prevProjectedFoton||0:key==='prevProjectedDfm'?values.prevProjectedDfm||0:
+   key==='projectionFoton'?values.projectionFoton||0:key==='projectionDfm'?values.projectionDfm||0:
+   key==='soldFoton'?values.soldFoton||0:key==='soldDfm'?values.soldDfm||0:values[key]??0;
+  return '<td class="num'+(key==='gap'&&v<0?' weekly-gap-negative':'')+'">'+numeric(v)+'</td>';
+ };
+ const dataCells=t=>matrixColumns.map(col=>cell(t,col[1])).join('');
+ const totals={};const lines=[];
+ for(const store of stores.values()){
+  for(const [k,v] of Object.entries(store.totals))totals[k]=(totals[k]||0)+v;
+  const expanded=expandedStores.has(store.id);
+  lines.push('<tr><td class="store-title"><button type="button" class="store-toggle" data-store-toggle="'+esc(store.id)+'" data-store-name="'+esc(store.name)+'" aria-expanded="'+expanded+'">'+(expanded?'− ':'+ ')+esc(store.name)+'</button></td>'+dataCells(store.totals)+'</tr>');
+  const sellers=[...store.sellers.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
+  for(const seller of sellers)
+   lines.push('<tr class="seller-drill" data-parent-store="'+esc(store.id)+'" '+(expanded?'':'hidden')+'><td>'+esc(seller.name)+'</td>'+dataCells(seller.totals)+'</tr>');
+ }
+ lines.push('<tr class="store-finance-total"><td>Total tiendas</td>'+dataCells(totals)+'</tr>');
+ const groupHeads=matrixGroups.map(([key,label])=>'<th colspan="'+matrixColumns.filter(c=>c[0]===key).length+'"><button type="button" data-store-group="'+key+'" aria-expanded="true">− '+label+'</button></th>').join('');
+ $('#byStore').innerHTML='<div class="store-finance-scroll"><table class="store-finance-table"><thead><tr class="store-finance-groups"><th rowspan="2">Tienda / vendedor</th>'+groupHeads+'</tr><tr>'+matrixColumns.map(c=>'<th>'+c[2]+'</th>').join('')+'</tr></thead><tbody>'+lines.join('')+'</tbody></table></div><div class="muted seller-footnote">'+(prevSalesAvailable?'Brecha = venta semana anterior − proyección.':'Venta de semana anterior no disponible en el histórico del mes seleccionado.')+' Entrada próxima semana = vendido acumulado + proyección semanal.</div>';
+ applyStoreSections();
 }
 function sellerKey(value){return String(value||'Sin vendedor').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase()}
 function yoyPeriod(){const p=payload?.historical_context?.periods?.find(p=>p.label==='YOY');return p?.date_from&&p?.cutoff_date&&Number.isInteger(p.mtd_units)&&p.mtd_units>=0?p:null}
@@ -254,7 +253,7 @@ async function load(quiet=false){
     if(selected!==$('#week').value||bid!==$('#store').value){rerun=true;return}
     payload=result.admin;storeSellers=roster.vendedores||roster.sellers||[];
     forumSellerData=result.forumSellerData||{aliases:[],forum:[]};
-    companyFinanceData=result.companyFinance;storeSalesData=result.storeSales||[];
+    companyFinanceData=result.companyFinance;storeSalesData=result.storeSales||[];adjacentProjections=result.adjacentProjections||[];
     const snapshot=result.snapshot||{},sources=snapshot.sources;
     $('#resultUpdated').textContent='Corte '+ld(result.cutoff_date)+' · guardado '+new Date(result.updated_at).toLocaleString('es-CL',{timeZone:'America/Santiago',dateStyle:'short',timeStyle:'short'})+(sources?' · SALES '+ld(sources.sales_cutoff)+' · FORUM '+ld(sources.forum_cutoff):'');
     $('#status').classList.remove('show');
