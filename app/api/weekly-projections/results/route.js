@@ -328,6 +328,25 @@ export async function GET(request) {
       if (!date || !Number.isFinite(date.getTime())) throw new Error('INVALID_SENT_ENTRY_DATE');
       return dayInSantiago.format(date) === today;
     });
+    // Previous and next Monday projections, read-only, using the same existing table.
+    const previousMonday = new Date(weekStart + 'T12:00:00Z');
+    previousMonday.setUTCDate(previousMonday.getUTCDate() - 7);
+    const nextMonday = new Date(weekStart + 'T12:00:00Z');
+    nextMonday.setUTCDate(nextMonday.getUTCDate() + 7);
+    const adjacentProjections = await sql`
+      SELECT p.week_start::text AS week_start, p.sucursal_id::text AS sucursal_id,
+             p.persona_id::text AS persona_id,
+             COALESCE(pe.nombre_canonico, p.source_vendedor_raw, 'Sin vendedor') AS vendedor,
+             COALESCE(ma.nombre_canonico, p.source_brand_raw, 'Sin marca') AS marca,
+             COUNT(*)::int AS units
+      FROM weekly_sales_projection p
+      LEFT JOIN personas_master pe ON pe.persona_id=p.persona_id
+      LEFT JOIN modelos_master_v01 mo ON mo.modelo_id=p.modelo_id
+      LEFT JOIN marcas_master_v01 ma ON ma.marca_id=mo.marca_id
+      WHERE p.week_start IN (${previousMonday.toISOString().slice(0,10)}::date,${nextMonday.toISOString().slice(0,10)}::date)
+        AND (${storeId}::bigint IS NULL OR p.sucursal_id=${storeId}::bigint)
+      GROUP BY p.week_start,p.sucursal_id,p.persona_id,pe.nombre_canonico,p.source_vendedor_raw,ma.nombre_canonico,p.source_brand_raw
+    `;
     const payload = cached.payload.admin;
     const yoyPeriod = payload.historical_context.periods.find(p=>p.label==='YOY');
     const momPeriod = payload.historical_context.periods.find(p=>p.label==='M-1');
@@ -405,6 +424,7 @@ export async function GET(request) {
     return NextResponse.json({
       ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
       admin: payload, companyFinance: cached.payload.companyFinance,
+      adjacentProjections,
       storeSales: storeSales.map(r => ({ sucursal_id: r.sucursal_id, total_units: Number(r.total_units || 0),
         yoy: historicalSales(r.historical_periods, yoyPeriod, 'YOY'),
         mom: historicalSales(r.historical_periods, momPeriod, 'M-1'),
