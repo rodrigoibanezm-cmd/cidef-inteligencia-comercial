@@ -81,8 +81,16 @@ function renderStoreFinanceTable(rows,sentRows){
    if(bk)totals[metric+bk]=(totals[metric+bk]||0)+value;
   };
   add(store.totals);
-  const sid=String(personId??'unassigned');
-  if(!store.sellers.has(sid))store.sellers.set(sid,{name:name||'Sin vendedor asignado',totals:{}});
+  // Display-only reconciliation for the two verified duplicate names; never merge across stores.
+  const normalized=sellerKey(name);
+  const storeName=sellerKey(store.name);
+  const alias=storeName==='CIDEF LAS CONDES'&&normalized==='ADA GONZALEZ'
+   ?'ADA GONZALEZ'
+   :storeName==='CIDEF MALL CENCO FLORIDA'&&
+     (normalized==='SOLANGEL HERNANDEZ'||normalized==='SOLANGEL NEWKENY HERNANDEZ PEREIRA')
+     ?'SOLANGEL NEWKENY HERNANDEZ PEREIRA':null;
+  const sid=alias?'alias:'+alias:String(personId??'unassigned');
+  if(!store.sellers.has(sid))store.sellers.set(sid,{name:alias?alias:(name||'Sin vendedor asignado'),totals:{}});
   add(store.sellers.get(sid).totals);
  }
  for(const sale of payload.sales_mtd.details||[]){
