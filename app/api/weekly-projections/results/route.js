@@ -375,16 +375,15 @@ export async function GET(request) {
     if (salesDates.length !== Number(payload.sales_mtd.total_units)) {
       throw new Error('Incomplete certified monthly SALES detail for weekly overview');
     }
-    // A weekly shipment is dated by sent_at, never by its projection week_start.
-    // Use resolution timestamps to reconstruct whether it was still pending at
-    // the end of that week. Cancelled later does not erase its earlier state.
-    // SALES is cut at the previous calendar day, but today's entered shipments
-    // remain live in the current card. Keep their as-of date explicit.
+    // Pending shipments are one-week commitments: read only records
+    // assigned to the immediately preceding Monday's close. Never accumulate
+    // pending records from earlier weeks, even when their status remains PENDING.
     const yesterday = new Date(today + 'T12:00:00Z');
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const shipmentCutoff = cutoffDate === yesterday.toISOString().slice(0,10) ? today : cutoffDate;
     const sentHistory = await sql`
       SELECT x.units,
+             x.week_start::text AS week_start,
              (x.sent_at AT TIME ZONE 'America/Santiago')::date::text AS sent_date,
              (x.resolved_at AT TIME ZONE 'America/Santiago')::date::text AS resolved_date,
              x.status
@@ -393,12 +392,13 @@ export async function GET(request) {
       WHERE sm.tipo_canal='CIDEF'
         AND lower(trim(sm.nombre_canonico))<>'casa matriz'
         AND (${storeId}::bigint IS NULL OR x.sucursal_id=${storeId}::bigint)
-        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date BETWEEN ${month + '-01'}::date AND ${shipmentCutoff}::date
+        AND x.week_start >= ${month + '-01'}::date
+        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date <= ${shipmentCutoff}::date
         AND (x.status='PENDING' OR x.resolved_at IS NOT NULL)
     `;
-    const pendingInWeek = (from, date) => sentHistory.reduce((total, x) =>
-      x.sent_date >= from && x.sent_date <= date &&
-      (x.resolved_date ? x.resolved_date > date : x.status === 'PENDING')
+    const pendingAtStart = weekStart => sentHistory.reduce((total, x) =>
+      x.week_start === weekStart && x.sent_date <= weekStart &&
+      (x.resolved_date ? x.resolved_date > weekStart : x.status === 'PENDING')
         ? total + Number(x.units || 0) : total, 0);
     payload.weekly_overview = [];
     let startDate = month + '-01';
@@ -412,14 +412,15 @@ export async function GET(request) {
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
       const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) ?? null;
       const billed = observed ? exit - entry : null;
-      const sentEnd = to < shipmentCutoff ? to : shipmentCutoff;
-      const sentUnits = observed && from <= shipmentCutoff ? pendingInWeek(from, sentEnd) : null;
-      const sold = billed !== null && sentUnits !== null ? billed + sentUnits : null;
+      const priorCutoff = previousClose.toISOString().slice(0, 10);
+      const sentUnits = i === 1 ? 0 : priorCutoff <= shipmentCutoff ? pendingAtStart(priorCutoff) : null;
+      const sold = sentUnits == null ? null : entry + sentUnits;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
-        weekly_sales: billed, invoiced_units: billed, sent_not_invoiced_units: sentUnits,
+        weekly_sales: billed, invoiced_units: billed, invoiced_start_units: entry,
+        sent_not_invoiced_units: sentUnits,
         sold_units: sold, projection: target,
-        gap: sold !== null && target !== null ? sold - target : null,
+        gap: billed !== null && target !== null ? billed - target : null,
         status: !observed ? 'pending' : to <= cutoffDate ? 'closed' : 'partial',
       });
       const next = new Date(to + 'T12:00:00Z');
