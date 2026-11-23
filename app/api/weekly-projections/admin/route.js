@@ -156,7 +156,7 @@ export async function GET(request) {
       FROM sales_sent_not_invoiced x
       LEFT JOIN sucursales_master s ON s.sucursal_id=x.sucursal_id
       LEFT JOIN personas_master pe ON pe.persona_id=x.persona_id
-      LEFT JOIN weekly_projection_sellers wps ON wps.persona_id=x.persona_id AND wps.sucursal_id=x.sucursal_id
+      LEFT JOIN LATERAL (SELECT min(nombre) AS nombre FROM weekly_projection_sellers WHERE persona_id=x.persona_id AND sucursal_id=x.sucursal_id) wps ON true
       LEFT JOIN modelos_master_v01 m ON m.modelo_id=x.modelo_id
       LEFT JOIN marcas_master_v01 ma ON ma.marca_id=m.marca_id
       WHERE x.status='PENDING'
