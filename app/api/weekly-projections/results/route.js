@@ -375,18 +375,25 @@ export async function GET(request) {
     if (salesDates.length !== Number(payload.sales_mtd.total_units)) {
       throw new Error('Incomplete certified monthly SALES detail for weekly overview');
     }
-    // PENDING is a present-state snapshot, not a history of earlier Monday closes.
-    // Only attach today's unresolved entries to the observed week when cutoff is today.
-    const currentSent = cutoffDate === today ? Number((await sql`
-      SELECT COALESCE(SUM(x.units),0)::int AS units
+    // Reconstruct the pending balance as of each commercial cutoff from lifecycle timestamps.
+    // A resolved/cancelled entry was pending until its resolved_at date.
+    const sentHistory = await sql`
+      SELECT x.units,
+             (x.sent_at AT TIME ZONE 'America/Santiago')::date::text AS sent_date,
+             (x.resolved_at AT TIME ZONE 'America/Santiago')::date::text AS resolved_date,
+             x.status
       FROM sales_sent_not_invoiced x
       JOIN sucursales_master sm ON sm.sucursal_id=x.sucursal_id
-      WHERE x.status='PENDING'
-        AND sm.tipo_canal='CIDEF'
+      WHERE sm.tipo_canal='CIDEF'
         AND lower(trim(sm.nombre_canonico))<>'casa matriz'
-        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date=${today}::date
         AND (${storeId}::bigint IS NULL OR x.sucursal_id=${storeId}::bigint)
-    `)[0]?.units || 0) : null;
+        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date <= ${cutoffDate}::date
+        AND (x.status='PENDING' OR x.resolved_at IS NOT NULL)
+    `;
+    const pendingAt = date => sentHistory.reduce((total, x) =>
+      x.sent_date <= date &&
+      (x.resolved_date ? x.resolved_date > date : x.status === 'PENDING')
+        ? total + Number(x.units || 0) : total, 0);
     payload.weekly_overview = [];
     for (let close = new Date(firstMonday), i = 1; close <= lastDay; close.setUTCDate(close.getUTCDate() + 7), i++) {
       const to = close.toISOString().slice(0, 10);
@@ -398,8 +405,7 @@ export async function GET(request) {
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
       const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) ?? null;
       const billed = observed ? exit - entry : null;
-      const isLiveWeek = observed && from <= today && to >= today && cutoffDate === today;
-      const sentUnits = isLiveWeek ? currentSent : null;
+      const sentUnits = observed ? pendingAt(effectiveEnd) : null;
       const sold = billed !== null && sentUnits !== null ? billed + sentUnits : null;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
