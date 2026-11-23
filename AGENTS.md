@@ -29,3 +29,17 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - Botón Buscar opcional en línea `Enviado no facturado`: intenta resolver el modelo activo del catálogo; evita selección automática si el resultado no es único. Guardar sin nota sigue disponible.
 - **Limitación deliberada:** el número de nota se usa solo para búsqueda, no queda persistido en `sales_sent_not_invoiced` (no existe contrato de almacenamiento verificado). No inventar columna ni migración sin estudiar el esquema. Si se requiere persistencia, tratarla como tarea distinta.
 - Validación realizada: análisis de sintaxis de scripts API y frontend, comprobación estática de endpoint/deduplicación. Pendiente validación de búsqueda real contra Azure, publicación a staging y posible eliminación de fecha de proyección (alcance separado).
+
+## Metodología de ejecución autorizada (2026-11-23)
+- El usuario define un objetivo completo y autoriza una vez: auditar, implementar, hacer pruebas mínimas, corregir y documentar autónomamente, sin solicitar permisos por archivo, commit o test.
+- Mantener un único objetivo y preferir una modificación funcional pequeña por ejecución, hasta 2 archivos salvo autorización explícita para un alcance mayor. Si el usuario autoriza varios cambios relacionados, no fraccionarlos artificialmente en solicitudes de aprobación.
+- Nunca desplegar ni modificar `main` sin autorización específica. No tocar componentes existentes sanos, datos de producción ni infraestructura.
+- GitHub Actions: reutilizar los workflows existentes; build y validaciones proporcionales al cambio, sin controles superfluos. No introducir workflows ni despliegues automáticos sin necesidad y autorización.
+- Detenerse únicamente ante riesgo crítico, decisiones comerciales pendientes o cambios irreversibles.
+
+## Tarjetas de proyecciones — histórico y composición (2026-11-23)
+- En `staging`, `public/proyeccion-admin.html`: tarjeta mes titulada **Facturados del mes**; flujo del siguiente corte ordenado **Facturados + Enviado no facturado + Proyección** (mismos totales, sin alterar fuentes).
+- Los gráficos históricos de ventas, proyección, semana y Forum/financiamiento muestran **cuatro meses anteriores al mes del corte**, sin incluir el mes actual; noviembre 2026 implica julio–octubre 2026. El valor actual o proyectado solo se usa para contrastar contra promedio de esos 4 meses.
+- `app/api/weekly-projections/admin/route.js` aporta M-4…M-1 + CURRENT, tanto en compañía como por sucursal y en próximo corte. Referencia `historical_context.recent_4m`.
+- `app/api/weekly-projections/company-finance/route.js` aporta M-4…M-1 + CURRENT para gráficos Forum/financiamiento.
+- Pruebas mínimas: sintaxis JS de frontend y endpoints, y comprobaciones estáticas de fechas, orden y meses. Sin cambios de base de datos ni despliegue. Las vistas que consumen snapshots necesitan **Actualizar** luego de desplegar staging para regenerar resultados con M-4.
