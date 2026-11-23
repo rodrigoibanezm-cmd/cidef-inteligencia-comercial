@@ -357,10 +357,10 @@ export async function GET(request) {
     payload.summary = { total_units: sum(projections, 'projected_units'), sent_not_invoiced_units: sum(sent, 'units') };
     // Weekly overview from the existing certified SALES VIN dates and saved Monday projections.
     const month = cutoffDate.slice(0, 7), first = new Date(month + '-01T12:00:00Z');
-    // First commercial close is the Monday on or after day 7; subsequent weeks run Tuesday–Monday.
+    // Calendar segments close every Monday. The first can be shorter than seven
+    // days (November 2026: S1 Nov 1–2); the last ends on the month's final day.
     const firstMonday = new Date(first);
-    firstMonday.setUTCDate(7);
-    firstMonday.setUTCDate(firstMonday.getUTCDate() + (8 - firstMonday.getUTCDay()) % 7);
+    firstMonday.setUTCDate(first.getUTCDate() + (8 - first.getUTCDay()) % 7);
     const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0, 12));
     const weeklyTargets = await sql`
       SELECT week_start::text AS week_start, sum(projected_units)::int AS units
@@ -375,11 +375,11 @@ export async function GET(request) {
     if (salesDates.length !== Number(payload.sales_mtd.total_units)) {
       throw new Error('Incomplete certified monthly SALES detail for weekly overview');
     }
-    // Pending shipments belong to their recorded projection week; the month-wide
-    // historical balance must never be misreported as that week's new shipments.
+    // A weekly shipment is dated by sent_at, never by its projection week_start.
+    // Use resolution timestamps to reconstruct whether it was still pending at
+    // the end of that week. Cancelled later does not erase its earlier state.
     const sentHistory = await sql`
       SELECT x.units,
-             COALESCE(x.week_start, date_trunc('week', x.sent_at AT TIME ZONE 'America/Santiago')::date)::text AS week_start,
              (x.sent_at AT TIME ZONE 'America/Santiago')::date::text AS sent_date,
              (x.resolved_at AT TIME ZONE 'America/Santiago')::date::text AS resolved_date,
              x.status
@@ -388,26 +388,26 @@ export async function GET(request) {
       WHERE sm.tipo_canal='CIDEF'
         AND lower(trim(sm.nombre_canonico))<>'casa matriz'
         AND (${storeId}::bigint IS NULL OR x.sucursal_id=${storeId}::bigint)
-        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date <= ${cutoffDate}::date
-        AND x.status <> 'CANCELLED'
+        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date BETWEEN ${month + '-01'}::date AND ${cutoffDate}::date
+        AND (x.status='PENDING' OR x.resolved_at IS NOT NULL)
     `;
-    const pendingAt = (weekStart, date) => sentHistory.reduce((total, x) =>
-      x.week_start === weekStart && x.sent_date <= date &&
+    const pendingInWeek = (from, date) => sentHistory.reduce((total, x) =>
+      x.sent_date >= from && x.sent_date <= date &&
       (x.resolved_date ? x.resolved_date > date : x.status === 'PENDING')
         ? total + Number(x.units || 0) : total, 0);
     payload.weekly_overview = [];
-    for (let close = new Date(firstMonday), i = 1; close <= lastDay; close.setUTCDate(close.getUTCDate() + 7), i++) {
-      const to = close.toISOString().slice(0, 10);
+    let startDate = month + '-01';
+    for (let close = new Date(firstMonday), i = 1; startDate <= lastDay.toISOString().slice(0,10); close.setUTCDate(close.getUTCDate() + 7), i++) {
+      const to = close > lastDay ? lastDay.toISOString().slice(0,10) : close.toISOString().slice(0,10);
+      const from = startDate;
       const previousClose = new Date(close);
       previousClose.setUTCDate(previousClose.getUTCDate() - 7);
-      const from = i === 1 ? month + '-01' : new Date(previousClose.getTime() + 86400000).toISOString().slice(0, 10);
       const entry = salesDates.filter(date => date < from).length;
       const observed = from <= cutoffDate, effectiveEnd = to < cutoffDate ? to : cutoffDate;
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
       const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) ?? null;
       const billed = observed ? exit - entry : null;
-      const assignedWeek = new Date(close.getTime() - 7 * 86400000).toISOString().slice(0, 10);
-      const sentUnits = observed && i > 1 ? pendingAt(assignedWeek, effectiveEnd) : null;
+      const sentUnits = observed ? pendingInWeek(from, effectiveEnd) : null;
       const sold = billed !== null && sentUnits !== null ? billed + sentUnits : null;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
@@ -416,6 +416,9 @@ export async function GET(request) {
         gap: sold !== null && target !== null ? sold - target : null,
         status: !observed ? 'pending' : to <= cutoffDate ? 'closed' : 'partial',
       });
+      const next = new Date(to + 'T12:00:00Z');
+      next.setUTCDate(next.getUTCDate() + 1);
+      startDate = next.toISOString().slice(0,10);
     }
     const current = payload.historical_context.periods.find(p => p.label === 'CURRENT');
     payload.next_cut_context.expected_units = Number(current.mtd_units || 0) + payload.summary.total_units;
