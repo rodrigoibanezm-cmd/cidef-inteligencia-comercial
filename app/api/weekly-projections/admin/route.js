@@ -54,7 +54,7 @@ export async function GET(request) {
     const cutoffDate=requestedCutoff;
     const historyFrom=shiftYear(monthStart(cutoffDate),-1);
     const salesRaw=await sql`
-      SELECT DISTINCT ON (upper(trim(v.nro_vin_chasis)))
+      SELECT DISTINCT ON (date_trunc('month', (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END)), upper(trim(v.nro_vin_chasis)))
         upper(trim(v.nro_vin_chasis)) vin,
         (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END)::text fecha_venta,
         sm.sucursal_id::text sucursal_id,
@@ -119,15 +119,20 @@ export async function GET(request) {
         AND nullif(trim(v.nro_vin_chasis),'') IS NOT NULL
         AND (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) BETWEEN ${historyFrom}::date AND ${cutoffDate}::date
         AND lower(coalesce(trim(v.desc_sucursal_vta),'')) <> 'casa matriz'
-      ORDER BY upper(trim(v.nro_vin_chasis)), (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) DESC
+      ORDER BY date_trunc('month', (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END)), upper(trim(v.nro_vin_chasis)), (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) DESC
     `;
-    const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
+    // Retain existing latest-invoice-per-VIN measures, but count historic
+    // full months independently so later invoices cannot erase an earlier VIN.
+    const monthlySales=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
+    const latestByVin=new Map();
+    for(const row of monthlySales)latestByVin.set(row.vin,row);
+    const all=[...latestByVin.values()];
     const cuts=[['M-4',shiftMonth(cutoffDate,-4)],['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
     const periods=cuts.map(([label,date])=>{
       const period=periodSnapshot(all,date,label,storeId,label==='YOY');
       if(label.startsWith('M-')){
         const end=ymd(new Date(Date.UTC(Number(date.slice(0,4)),Number(date.slice(5,7)),0)));
-        period.full_month_units=periodSnapshot(all,end,label,storeId).mtd_units;
+        period.full_month_units=periodSnapshot(monthlySales,end,label,storeId).mtd_units;
       }
       return period;
     });
@@ -195,7 +200,7 @@ export async function GET(request) {
           const period=periodSnapshot(all,date,label,id,label==='YOY');
           if(label.startsWith('M-')){
             const end=ymd(new Date(Date.UTC(Number(date.slice(0,4)),Number(date.slice(5,7)),0)));
-            period.full_month_units=periodSnapshot(all,end,label,id).mtd_units;
+            period.full_month_units=periodSnapshot(monthlySales,end,label,id).mtd_units;
           }
           return period;
         });
