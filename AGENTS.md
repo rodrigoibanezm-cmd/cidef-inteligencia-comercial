@@ -65,3 +65,8 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - `invoiced_start_units` = VIN certificados SALES facturados antes de comenzar la semana; `sold_units` = ese saldo facturado inicial + enviados no facturados del corte inmediatamente anterior; `weekly_sales` = VIN facturados durante esa semana; `projection` S1 = null.
 - Auditoría de registros compartidos por usuario: enviados válidos por `week_start` y fechas a corte: S2 (09-nov)=5; S3 (16-nov)=10; S4 (23-nov)=14. Se excluyen registros asignados a semanas anteriores, así como cancelaciones anteriores al corte. Estos números proceden del extracto aportado por el usuario, no de un snapshot actualizado.
 - Los cambios están en `staging` (API de resultados + front), con comprobación estática de sintaxis; **no desplegar automáticamente** ni modificar producción. Para ver cifras reales es necesario desplegar staging y regenerar snapshot desde «Actualizar».
+
+## Histórico de meses completos — consistencia VIN (2026-11-23)
+- `app/api/weekly-projections/admin/route.js`: preservar la deduplicación global de VIN para métricas existentes (`all`), pero generar `full_month_units` desde `monthlySales` deduplicado por (mes de factura, VIN). Una factura de noviembre no debe hacer desaparecer un VIN del total completo de octubre.
+- Octubre 2026 completo debe coincidir entre la card «octubre de 2026 · mes completo» y el último punto del gráfico «4 meses anteriores · mes completo» (referencia comprobada antes de corregir: 451 card vs 450 gráfico).
+- Cambios en `staging`; ejecutar deploy separado y comprobar respuesta read-only del API por el corte 2026-11-22. No desplegar producción.
