@@ -561,6 +561,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
         breakdown.filter(row => row.kind === 'PROJECTION').reduce((n, row) => n + row.units, 0) !== expectedProjection ||
         breakdown.filter(row => row.kind === 'SENT_NOT_INVOICED').reduce((n, row) => n + row.units, 0) !== expectedSent)
       throw new Error('PRODUCT_BREAKDOWN_TOTAL_MISMATCH');
+    companyAdmin.previous_full_month_units = previousFullMonthAdmin.sales_mtd.total_units;
     companyAdmin.product_breakdown = breakdown;
     const storeAdminScopes = companyAdmin.scopes, storeFinanceScopes = companyFinance.scopes;
     delete companyAdmin.scopes;
