@@ -375,6 +375,9 @@ export async function GET(request) {
     if (salesDates.length !== Number(payload.sales_mtd.total_units)) {
       throw new Error('Incomplete certified monthly SALES detail for weekly overview');
     }
+    // PENDING is a present-state snapshot, not a history of earlier Monday closes.
+    // Only attach today's unresolved entries to the observed week when cutoff is today.
+    const currentSent = cutoffDate === today ? sum(sent, 'units') : null;
     payload.weekly_overview = [];
     for (let close = new Date(firstMonday), i = 1; close <= lastDay; close.setUTCDate(close.getUTCDate() + 7), i++) {
       const to = close.toISOString().slice(0, 10);
@@ -384,11 +387,16 @@ export async function GET(request) {
       const entry = salesDates.filter(date => date < from).length;
       const observed = from <= cutoffDate, effectiveEnd = to < cutoffDate ? to : cutoffDate;
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
-      const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) || 0;
+      const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) ?? null;
+      const billed = observed ? exit - entry : null;
+      const isLiveWeek = observed && from <= today && to >= today && cutoffDate === today;
+      const sentUnits = isLiveWeek ? currentSent : null;
+      const sold = billed !== null && sentUnits !== null ? billed + sentUnits : null;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
-        weekly_sales: observed ? exit - entry : null, projection: target,
-        gap: observed && target !== null ? exit - entry - target : null,
+        weekly_sales: billed, invoiced_units: billed, sent_not_invoiced_units: sentUnits,
+        sold_units: sold, projection: target,
+        gap: sold !== null && target !== null ? sold - target : null,
         status: !observed ? 'pending' : to <= cutoffDate ? 'closed' : 'partial',
       });
     }
