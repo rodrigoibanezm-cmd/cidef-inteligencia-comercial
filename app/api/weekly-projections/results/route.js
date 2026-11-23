@@ -357,10 +357,10 @@ export async function GET(request) {
     payload.summary = { total_units: sum(projections, 'projected_units'), sent_not_invoiced_units: sum(sent, 'units') };
     // Weekly overview from the existing certified SALES VIN dates and saved Monday projections.
     const month = cutoffDate.slice(0, 7), first = new Date(month + '-01T12:00:00Z');
-    // Calendar segments close every Monday. The first can be shorter than seven
-    // days (November 2026: S1 Nov 1–2); the last ends on the month's final day.
+    // First November 2026 cutoff is Monday Nov 9; later cutoffs are weekly.
     const firstMonday = new Date(first);
-    firstMonday.setUTCDate(first.getUTCDate() + (8 - first.getUTCDay()) % 7);
+    firstMonday.setUTCDate(7);
+    firstMonday.setUTCDate(firstMonday.getUTCDate() + (8 - firstMonday.getUTCDay()) % 7);
     const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0, 12));
     const weeklyTargets = await sql`
       SELECT week_start::text AS week_start, sum(projected_units)::int AS units
@@ -413,7 +413,7 @@ export async function GET(request) {
       const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) ?? null;
       const billed = observed ? exit - entry : null;
       const sentEnd = to < shipmentCutoff ? to : shipmentCutoff;
-      const sentUnits = from <= shipmentCutoff ? pendingInWeek(from, sentEnd) : null;
+      const sentUnits = observed && from <= shipmentCutoff ? pendingInWeek(from, sentEnd) : null;
       const sold = billed !== null && sentUnits !== null ? billed + sentUnits : null;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
