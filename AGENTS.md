@@ -43,3 +43,11 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - `app/api/weekly-projections/admin/route.js` aporta M-4…M-1 + CURRENT, tanto en compañía como por sucursal y en próximo corte. Referencia `historical_context.recent_4m`.
 - `app/api/weekly-projections/company-finance/route.js` aporta M-4…M-1 + CURRENT para gráficos Forum/financiamiento.
 - Pruebas mínimas: sintaxis JS de frontend y endpoints, y comprobaciones estáticas de fechas, orden y meses. Sin cambios de base de datos ni despliegue. Las vistas que consumen snapshots necesitan **Actualizar** luego de desplegar staging para regenerar resultados con M-4.
+
+## Evolución semanal de noviembre 2026 — corrección (2026-11-23)
+- Cortes comerciales **invariables**: S1 01–09, S2 10–16, S3 17–23 y S4 24–30. **No** usar lunes 2 como primer cierre. Primer cierre = lunes en o después del día 7; cierres siguientes cada 7 días.
+- La tabla semanal presenta únicamente **Facturados**, **Total**, **Proyectados semana**, **Brecha**. Eliminar la fila independiente «Enviados no facturados», pero mantenerlos como componente del Total.
+- Facturados = ventas del intervalo según fechas SALES certificadas P1; Total semanal = facturados del intervalo + registros enviados en ese intervalo que permanecían no facturados al corte de la semana (reconstrucción `sent_at`/`resolved_at`, sin sumar saldos de otras semanas). Brecha semanal = Total − proyección correspondiente al corte. S1 no tiene proyección de referencia.
+- La consulta histórica se limita al mes del corte; **no** tratar el saldo histórico total como enviados de una semana ni confundir enviados con proyectados. El total mes usa facturados del período + pendientes vigentes al corte de la vista.
+- Fuente actual verificada antes de desplegar: facturados S1=46, S2=92, S3=85, total 223 (al 22-nov); proyecciones S2=90, S3=94, S4=52; pendientes vigentes 7 (23-nov). Los pendientes históricos por semana **requieren regenerar y comprobar el resultado en staging**, no inferir de las cifras anteriores 67/90/105.
+- Cambios aplicados solamente en rama `staging`, sin deploy ni cambios en `main`. Validar sintaxis y períodos; al desplegar staging regenerar snapshot con «Actualizar» y verificar que Totales/Brechas coincidan.
