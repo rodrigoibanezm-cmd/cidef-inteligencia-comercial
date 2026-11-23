@@ -51,3 +51,9 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - La consulta histórica se limita al mes del corte; **no** tratar el saldo histórico total como enviados de una semana ni confundir enviados con proyectados. El total mes usa facturados del período + pendientes vigentes al corte de la vista.
 - Fuente actual verificada antes de desplegar: facturados S1=46, S2=92, S3=85, total 223 (al 22-nov); proyecciones S2=90, S3=94, S4=52; pendientes vigentes 7 (23-nov). Los pendientes históricos por semana **requieren regenerar y comprobar el resultado en staging**, no inferir de las cifras anteriores 67/90/105.
 - Cambios aplicados solamente en rama `staging`, sin deploy ni cambios en `main`. Validar sintaxis y períodos; al desplegar staging regenerar snapshot con «Actualizar» y verificar que Totales/Brechas coincidan.
+
+## Legibilidad tabla semanal (2026-11-23)
+- Tabla «Evolución semanal del mes» debe ocupar las dos columnas completas de `projection-grid` (no apretarse junto a «Unidades última semana»).
+- Mostrar solamente S1–S4 para noviembre 2026, en 4 filas: Facturados, Total, Proyectados semana, Brecha. **Sin columna «Total mes»** ni suma de brechas; no aporta y confunde.
+- Celdas y fechas centradas y legibles, encabezados amplios, primera columna de indicadores visible, resaltar fila Total, y scroll horizontal solo en pantallas estrechas.
+- Implementación exclusivamente de presentación en `public/proyeccion-admin.html`; no tocar API ni datos. El frontend de staging requiere nuevo despliegue después de este commit.
