@@ -123,7 +123,14 @@ export async function GET(request) {
     `;
     const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
     const cuts=[['M-4',shiftMonth(cutoffDate,-4)],['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
-    const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId,label==='YOY'));
+    const periods=cuts.map(([label,date])=>{
+      const period=periodSnapshot(all,date,label,storeId,label==='YOY');
+      if(label.startsWith('M-')){
+        const end=ymd(new Date(Date.UTC(Number(date.slice(0,4)),Number(date.slice(5,7)),0)));
+        period.full_month_units=periodSnapshot(all,end,label,storeId).mtd_units;
+      }
+      return period;
+    });
     const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-4','M-3','M-2','M-1'].includes(p.label));
     const lastYearMonth=shiftYear(cutoffDate,-1);
     const lastYearMonthEnd=ymd(new Date(Date.UTC(Number(lastYearMonth.slice(0,4)),Number(lastYearMonth.slice(5,7)),0)));
@@ -184,7 +191,14 @@ export async function GET(request) {
       const ids=(url.searchParams.get('scope_ids')||'').split(',').filter(id=>/^\d+$/.test(id));
       response.scopes={};
       for(const id of ids){
-        const scopedPeriods=cuts.map(([label,date])=>periodSnapshot(all,date,label,id,label==='YOY'));
+        const scopedPeriods=cuts.map(([label,date])=>{
+          const period=periodSnapshot(all,date,label,id,label==='YOY');
+          if(label.startsWith('M-')){
+            const end=ymd(new Date(Date.UTC(Number(date.slice(0,4)),Number(date.slice(5,7)),0)));
+            period.full_month_units=periodSnapshot(all,end,label,id).mtd_units;
+          }
+          return period;
+        });
         const scopedCurrent=scopedPeriods.find(p=>p.label==='CURRENT'), scopedYoy=scopedPeriods.find(p=>p.label==='YOY');
         const scopedPrior=scopedPeriods.filter(p=>['M-4','M-3','M-2','M-1'].includes(p.label));
         const scopedAvgMtd=scopedPrior.reduce((sum,p)=>sum+p.mtd_units,0)/4, scopedAvgWeek=scopedPrior.reduce((sum,p)=>sum+p.last_7d_units,0)/4;
