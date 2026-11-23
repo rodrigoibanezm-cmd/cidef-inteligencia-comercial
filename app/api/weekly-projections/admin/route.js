@@ -122,14 +122,14 @@ export async function GET(request) {
       ORDER BY upper(trim(v.nro_vin_chasis)), (CASE WHEN trim(v.fecha_factura::text) ~ '^[0-9]+$' THEN DATE '1899-12-30' + trim(v.fecha_factura::text)::integer ELSE nullif(trim(v.fecha_factura::text),'')::date END) DESC
     `;
     const all=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
-    const cuts=[['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
+    const cuts=[['M-4',shiftMonth(cutoffDate,-4)],['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
     const periods=cuts.map(([label,date])=>periodSnapshot(all,date,label,storeId,label==='YOY'));
-    const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-3','M-2','M-1'].includes(p.label));
+    const current=periods.find(p=>p.label==='CURRENT'), yoyP=periods.find(p=>p.label==='YOY'), prior=periods.filter(p=>['M-4','M-3','M-2','M-1'].includes(p.label));
     const lastYearMonth=shiftYear(cutoffDate,-1);
     const lastYearMonthEnd=ymd(new Date(Date.UTC(Number(lastYearMonth.slice(0,4)),Number(lastYearMonth.slice(5,7)),0)));
     const lastYearFullMonth=periodSnapshot(all,lastYearMonthEnd,'YOY_FULL',storeId).mtd_units;
     const lastYearBrand=monthBrandTotals(all,monthStart(lastYearMonth),lastYearMonthEnd,storeId);
-    const avgMtd=prior.reduce((s,p)=>s+p.mtd_units,0)/3, avgWeek=prior.reduce((s,p)=>s+p.last_7d_units,0)/3;
+    const avgMtd=prior.reduce((s,p)=>s+p.mtd_units,0)/4, avgWeek=prior.reduce((s,p)=>s+p.last_7d_units,0)/4;
     const currentDetails=all.filter(r=>(!storeId||String(r.sucursal_id)===String(storeId))&&r.fecha_venta>=current.date_from&&r.fecha_venta<=cutoffDate);
     const currentRows=[...byStore(currentDetails).values()];
     const previousCutRows=await sql`SELECT max(week_start)::text week_start FROM weekly_sales_projection WHERE week_start < ${weekStart}::date AND to_char(week_start,'YYYY-MM')=${weekStart.slice(0,7)}`;
@@ -176,7 +176,7 @@ export async function GET(request) {
     if(previousCut&&!storeId){const pm=byStore(previousProjectionRows,'projected_units'), prevSales=byStore(all.filter(r=>r.fecha_venta>=monthStart(previousCut)&&r.fecha_venta<=previousCut)), curSales=byStore(currentDetails);const keys=new Set([...pm.keys(),...prevSales.keys(),...curSales.keys()]);for(const k of keys){const p=pm.get(k),a=prevSales.get(k),c=curSales.get(k),prev=Number(a?.units||0),proj=Number(p?.units||0),cur=Number(c?.units||0);stores.push({sucursal_id:p?.sucursal_id||a?.sucursal_id||c?.sucursal_id,sucursal:p?.sucursal||a?.sucursal||c?.sucursal,previous_sales_mtd:prev,previous_projection:proj,expected_current:prev+proj,current_sales_mtd:cur,new_sales:cur-prev,projection_fulfillment:ratio(cur-prev,proj),expected_fulfillment:ratio(cur,prev+proj)})}}
     const summary={total_units:projections.reduce((s,r)=>s+Number(r.projected_units||0),0),sent_not_invoiced_units:sentNotInvoiced.reduce((s,r)=>s+Number(r.units||0),0)};
     const nextCut=plusDays(weekStart,7), expectedNext=current.mtd_units+summary.total_units;
-    const nextPrior=[-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(minusDays(nextCut,1),delta),`M-${3-i}`,storeId));
+    const nextPrior=[-4,-3,-2,-1].map((delta,i)=>periodSnapshot(all,shiftMonth(minusDays(nextCut,1),delta),`M-${4-i}`,storeId));
     const nextAvg=nextPrior.reduce((s,p)=>s+p.mtd_units,0)/nextPrior.length;
     const nextCutContext={cutoff_date:nextCut,expected_units:expectedNext,prior_periods:nextPrior,prior_average:nextAvg,change_vs_prior_average:ratio(expectedNext-nextAvg,nextAvg)};
     const response={ok:true,week_start:weekStart,sucursal_id:storeId,summary,sent_not_invoiced:sentNotInvoiced,sales_mtd:{month:cutoffDate.slice(0,7),date_from:current.date_from,date_to:cutoffDate,cutoff_date:cutoffDate,total_units:current.mtd_units,rows:currentRows,details:currentDetails},historical_context:{periods,yoy:{mtd_change:ratio(current.mtd_units-yoyP.mtd_units,yoyP.mtd_units),last_7d_change:ratio(current.last_7d_units-yoyP.last_7d_units,yoyP.last_7d_units),current_mtd:current.mtd_units,yoy_mtd:yoyP.mtd_units,yoy_full_month:lastYearFullMonth,yoy_full_month_by_brand:lastYearBrand,current_last_7d:current.last_7d_units,yoy_last_7d:yoyP.last_7d_units},recent_3m:{mtd_average:avgMtd,last_7d_average:avgWeek,mtd_change:ratio(current.mtd_units-avgMtd,avgMtd),last_7d_change:ratio(current.last_7d_units-avgWeek,avgWeek)}},next_cut_context:nextCutContext,evolution:previousCut?{previous_cut:previousCut,current_cut:weekStart,previous_sales_mtd:prevPeriod.mtd_units,previous_projection:previousProjection,expected_current:prevPeriod.mtd_units+previousProjection,current_sales_mtd:current.mtd_units,new_sales:current.mtd_units-prevPeriod.mtd_units,projection_fulfillment:ratio(current.mtd_units-prevPeriod.mtd_units,previousProjection),expected_fulfillment:ratio(current.mtd_units,prevPeriod.mtd_units+previousProjection),stores}:null,projections};
