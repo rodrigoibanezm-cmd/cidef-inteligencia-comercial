@@ -22,8 +22,8 @@ export async function GET(request) {
         Number.isNaN(Date.parse(cutoff)) || new Date(cutoff).toISOString().slice(0,10)!==cutoff) {
       return NextResponse.json({ok:false,error:'Invalid cutoff_date'}, {status:400});
     }
-    const periods = [-3,-2,-1,0].map((n,i) => ({
-      label: i===3?'CURRENT':`M-${-n}`,
+    const periods = [-4,-3,-2,-1,0].map((n,i) => ({
+      label: n===0?'CURRENT':`M-${-n}`,
       month: priorCutoff(cutoff,n).slice(0,7),
       cutoff_date: priorCutoff(cutoff,n)
     }));
