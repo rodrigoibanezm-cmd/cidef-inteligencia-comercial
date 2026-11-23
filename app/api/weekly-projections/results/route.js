@@ -378,6 +378,11 @@ export async function GET(request) {
     // A weekly shipment is dated by sent_at, never by its projection week_start.
     // Use resolution timestamps to reconstruct whether it was still pending at
     // the end of that week. Cancelled later does not erase its earlier state.
+    // SALES is cut at the previous calendar day, but today's entered shipments
+    // remain live in the current card. Keep their as-of date explicit.
+    const yesterday = new Date(today + 'T12:00:00Z');
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    const shipmentCutoff = cutoffDate === yesterday.toISOString().slice(0,10) ? today : cutoffDate;
     const sentHistory = await sql`
       SELECT x.units,
              (x.sent_at AT TIME ZONE 'America/Santiago')::date::text AS sent_date,
@@ -388,7 +393,7 @@ export async function GET(request) {
       WHERE sm.tipo_canal='CIDEF'
         AND lower(trim(sm.nombre_canonico))<>'casa matriz'
         AND (${storeId}::bigint IS NULL OR x.sucursal_id=${storeId}::bigint)
-        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date BETWEEN ${month + '-01'}::date AND ${cutoffDate}::date
+        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date BETWEEN ${month + '-01'}::date AND ${shipmentCutoff}::date
         AND (x.status='PENDING' OR x.resolved_at IS NOT NULL)
     `;
     const pendingInWeek = (from, date) => sentHistory.reduce((total, x) =>
@@ -407,7 +412,8 @@ export async function GET(request) {
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
       const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) ?? null;
       const billed = observed ? exit - entry : null;
-      const sentUnits = observed ? pendingInWeek(from, effectiveEnd) : null;
+      const sentEnd = to < shipmentCutoff ? to : shipmentCutoff;
+      const sentUnits = from <= shipmentCutoff ? pendingInWeek(from, sentEnd) : null;
       const sold = billed !== null && sentUnits !== null ? billed + sentUnits : null;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
