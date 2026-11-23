@@ -26,17 +26,17 @@
 #byStore .store-finance-table .store-finance-total td{height:34px;background:#dfe7f0!important;border-top:2px solid #9aabc1;font-weight:800}
 #byStore .store-finance-table [hidden]{display:none!important}
 .weekly-progress-table th,.weekly-progress-table td{text-align:center;border-right:1px solid #e3e8ef;padding:8px 7px}.weekly-progress-table th:last-child,.weekly-progress-table td:last-child{border-right:0}.weekly-progress-table th:first-child{min-width:168px;text-align:left}.weekly-progress-date{display:block;font-size:10px;font-weight:400;margin-top:4px;color:#718096}.weekly-progress-table .weekly-total-column{background:#edf3fa;font-weight:800}.weekly-progress-table .weekly-sold-row th,.weekly-progress-table .weekly-sold-row td{background:#eaf1fb;font-weight:800;border-top:1px solid #cbd6e6}.weekly-progress-table .weekly-sold-row .weekly-total-column{background:#dbe7f7}.weekly-progress-table .weekly-gap-row th,.weekly-progress-table .weekly-gap-row td{border-top:1px solid #cbd6e6;font-weight:700}.weekly-progress-table td.weekly-gap-negative{color:#c24136}.weekly-progress-table td.weekly-gap-positive{color:#168053}
-.weekly-progress{grid-column:1/-1}
+.weekly-progress{grid-column:auto}
 .weekly-progress-scroll{overflow-x:auto;margin-top:18px}
-.weekly-progress-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:16px;white-space:normal}
-.weekly-progress-table th:first-child{width:30%;min-width:180px;text-align:left}
-.weekly-progress-table th,.weekly-progress-table td{padding:15px 18px;border-right:0;border-bottom:1px solid #e4e9f0;text-align:center}
+.weekly-progress-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;white-space:normal}
+.weekly-progress-table th:first-child{width:35%;min-width:140px;text-align:left}
+.weekly-progress-table th,.weekly-progress-table td{padding:12px 6px;border-right:0;border-bottom:1px solid #e4e9f0;text-align:center}
 .weekly-progress-table thead th{font-size:15px;color:#27364b;background:#f3f6fa}
 .weekly-progress-table thead th:first-child{border-radius:8px 0 0 0}
 .weekly-progress-table thead th:last-child{border-radius:0 8px 0 0}
 .weekly-progress-date{font-size:12px;margin-top:6px;white-space:nowrap}
-.weekly-progress-table tbody th{font-size:14px;color:#344158}
-.weekly-progress-table tbody td{font-size:19px;font-weight:700;color:#18283e}
+.weekly-progress-table tbody th{font-size:12px;color:#344158}
+.weekly-progress-table tbody td{font-size:16px;font-weight:700;color:#18283e}
 .weekly-progress-table .weekly-sold-row th,.weekly-progress-table .weekly-sold-row td{background:#e8eef8;border-top:0}
 .weekly-progress-table .weekly-gap-row td{font-weight:800}
 @media(max-width:650px){.weekly-progress-table{min-width:650px}.weekly-progress-table th,.weekly-progress-table td{padding:13px 10px}.weekly-progress-table tbody td{font-size:17px}}
@@ -319,8 +319,6 @@ function renderWeeklyProgress(){
  const fmt=v=>v==null?'—':Number(v).toLocaleString('es-CL');
  const fields=[
   ['Facturados al inicio','invoiced_start_units'],
-  ['+ Enviados no facturados','sent_not_invoiced_units'],
-  ['= Total inicial','sold_units'],
   ['Proyectados semana','projection'],
   ['Facturados de la semana','weekly_sales'],
   ['Brecha','gap']
@@ -331,7 +329,7 @@ function renderWeeklyProgress(){
   const values=weeks.map(w=>{const value=field==='gap'?(w.weekly_sales==null||w.projection==null?null:Number(w.weekly_sales)-Number(w.projection)):field==='projection'&&w.label==='S1'?null:w[field];return '<td class="'+(value==null?'weekly-pending':field==='gap'?(value<0?'weekly-gap-negative':value>0?'weekly-gap-positive':''):'')+'">'+(field==='gap'&&value>0?'+':'')+fmt(value)+'</td>'}).join('');
   return '<tr class="'+emphasis+'"><th>'+title+'</th>'+values+'</tr>';
  }).join('');
- $('#weeklyProgressNote').textContent='Inicio = facturados acumulados + enviados pendientes del corte anterior (solo esa semana). La proyección de S1 no se considera.';
+ $('#weeklyProgressNote').textContent='Facturados al inicio = ventas acumuladas antes de la semana. Brecha = facturados de la semana − proyectados.';
 }
 function render(){renderWeeklyProgress();renderSellerBreakdown();renderCompanyFinance();const h=payload.historical_context,p=h.periods,c=p.find(x=>x.label==='CURRENT'),r=h.recent_4m,y=h.yoy,e=payload.evolution,rows=payload.projections,latest=[...(payload.sales_mtd.details||[])].map(x=>x.fecha_venta).sort().pop();$('#monthUnits').innerHTML=`${c.mtd_units} <span>VIN</span>`;renderBrandBreakdown('#monthBrandBreakdown','sales',payload);$('#weekUnits').innerHTML=`${c.last_7d_units} <span>VIN</span>`;renderBrandBreakdown('#weekBrandBreakdown','weekly_sales',payload);$('#monthPeriod').textContent=`${ld(c.date_from)} → ${ld(c.cutoff_date)}`;$('#weekPeriod').textContent=`${weekday(c.week_from)} ${sd(c.week_from)} → ${weekday(c.cutoff_date)} ${sd(c.cutoff_date)}`;$('#monthData').textContent=latest?`Datos cargados al ${sd(latest)}`:'';$('#salesDataNote').textContent=latest?`Última venta cargada: ${sd(latest)}`:'';const monthLabel=date=>new Intl.DateTimeFormat('es-CL',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));const previousFullDate=new Date(c.cutoff_date+'T12:00:00Z');previousFullDate.setUTCDate(1);previousFullDate.setUTCMonth(previousFullDate.getUTCMonth()-1);$('#lastYearMonthLabel').textContent=monthLabel(p.find(x=>x.label==='YOY').month+'-01')+' · mes completo';$('#lastMonthFullLabel').textContent=monthLabel(previousFullDate.toISOString().slice(0,10))+' · mes completo';$('#lastMonthFull').textContent=payload.previous_full_month_units==null?'—':Number(payload.previous_full_month_units).toLocaleString('es-CL')+' VIN';$('#lastYearMonth').textContent=Number.isFinite(Number(y.yoy_full_month))&&y.yoy_full_month!=null?Number(y.yoy_full_month).toLocaleString('es-CL')+' VIN':'—';$('#monthSentTotal').innerHTML=`<div class="monthly-potential-formula">${c.mtd_units} facturados + ${Number(payload.summary?.sent_not_invoiced_units||0)} enviados no facturados =</div><div class="monthly-potential-total">${Number(c.mtd_units)+Number(payload.summary?.sent_not_invoiced_units||0)} <span>VIN vendidos</span></div>`;const asBrand=value=>{const brand=String(value||'').trim().toUpperCase();return brand==='FOTON'?'foton':['DONGFENG','DFM'].includes(brand)?'dongfeng':'other'};
 const brandCounts=rows=>{const counts={foton:0,dongfeng:0,other:0};for(const row of rows||[])counts[asBrand(row.marca)]+=Number(row.units??1);return counts};
