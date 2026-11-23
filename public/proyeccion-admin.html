@@ -322,12 +322,13 @@ function renderWeeklyProgress(){
   ['+ Enviados no facturados','sent_not_invoiced_units'],
   ['= Total inicial','sold_units'],
   ['Proyectados semana','projection'],
-  ['Facturados de la semana','weekly_sales']
+  ['Facturados de la semana','weekly_sales'],
+  ['Brecha','gap']
  ];
  head.innerHTML='<tr><th>Indicador</th>'+weeks.map(w=>'<th title="'+esc(w.from+' a '+w.to)+'">'+esc(w.label)+'<span class="weekly-progress-date">'+sd(w.from)+'–'+sd(w.to)+'</span></th>').join('')+'</tr>';
  body.innerHTML=fields.map(([title,field])=>{
   const emphasis=field==='sold_units'?'weekly-sold-row':'';
-  const values=weeks.map(w=>'<td class="'+(w[field]==null?'weekly-pending':'')+'">'+fmt(field==='projection'&&w.label==='S1'?null:w[field])+'</td>').join('');
+  const values=weeks.map(w=>{const value=field==='gap'?(w.weekly_sales==null||w.projection==null?null:Number(w.weekly_sales)-Number(w.projection)):field==='projection'&&w.label==='S1'?null:w[field];return '<td class="'+(value==null?'weekly-pending':field==='gap'?(value<0?'weekly-gap-negative':value>0?'weekly-gap-positive':''):'')+'">'+(field==='gap'&&value>0?'+':'')+fmt(value)+'</td>'}).join('');
   return '<tr class="'+emphasis+'"><th>'+title+'</th>'+values+'</tr>';
  }).join('');
  $('#weeklyProgressNote').textContent='Inicio = facturados acumulados + enviados pendientes del corte anterior (solo esa semana). La proyección de S1 no se considera.';
