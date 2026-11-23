@@ -22,3 +22,10 @@
 **Regla de rechazo:** si la solución solicitada es innecesaria, duplica una capacidad existente, introduce complejidad evitable, no está respaldada por evidencia o requiere decisiones técnicas pendientes, **DETENERSE SIN IMPLEMENTAR**. Informar: (a) qué requisito se busca cubrir, (b) evidencia que contradice la propuesta, (c) alternativa más simple y (d) decisión concreta que necesita aprobación. No sustituir silenciosamente por otra implementación.
 
 Si pasa el control, informar brevemente el resultado de esas cinco comprobaciones **antes de implementar** y ejecutar solo el alcance autorizado. La instrucción del usuario de «implementar» no elimina este control. Nunca desplegar sin autorización explícita.
+
+## Nota de venta opcional — Proyecciones, staging (2026-11-23)
+- Implementado en `staging`, sin despliegue ni escrituras de prueba. Dos archivos funcionales: `app/api/weekly-projections/not-invoiced/route.js` y `public/proyeccion-semanal.html`.
+- `GET /api/weekly-projections/not-invoiced?nota_de_venta=N` consulta exclusivamente `notas_venta_raw`, devuelve marca y `modelo_comercial`, deduplica notas repetidas por marca/modelo; si una nota contiene distintos modelos solicita selección manual.
+- Botón Buscar opcional en línea `Enviado no facturado`: intenta resolver el modelo activo del catálogo; evita selección automática si el resultado no es único. Guardar sin nota sigue disponible.
+- **Limitación deliberada:** el número de nota se usa solo para búsqueda, no queda persistido en `sales_sent_not_invoiced` (no existe contrato de almacenamiento verificado). No inventar columna ni migración sin estudiar el esquema. Si se requiere persistencia, tratarla como tarea distinta.
+- Validación realizada: análisis de sintaxis de scripts API y frontend, comprobación estática de endpoint/deduplicación. Pendiente validación de búsqueda real contra Azure, publicación a staging y posible eliminación de fecha de proyección (alcance separado).
