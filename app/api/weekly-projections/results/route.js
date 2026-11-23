@@ -382,11 +382,11 @@ export async function GET(request) {
       const entry = salesDates.filter(date => date < from).length;
       const observed = from <= cutoffDate, effectiveEnd = to < cutoffDate ? to : cutoffDate;
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
-      const target = targetsByWeek.get(from) || 0;
+      const target = i === 1 ? null : targetsByWeek.get(from) || 0;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
         weekly_sales: observed ? exit - entry : null, projection: target,
-        gap: observed ? exit - entry - target : null,
+        gap: observed && target !== null ? exit - entry - target : null,
         status: !observed ? 'pending' : to <= cutoffDate ? 'closed' : 'partial',
       });
     }
