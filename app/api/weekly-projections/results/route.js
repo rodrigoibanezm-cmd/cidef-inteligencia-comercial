@@ -357,7 +357,9 @@ export async function GET(request) {
     payload.summary = { total_units: sum(projections, 'projected_units'), sent_not_invoiced_units: sum(sent, 'units') };
     // Weekly overview from the existing certified SALES VIN dates and saved Monday projections.
     const month = cutoffDate.slice(0, 7), first = new Date(month + '-01T12:00:00Z');
+    // First commercial close is the Monday on or after day 7; subsequent weeks run Tuesday–Monday.
     const firstMonday = new Date(first);
+    firstMonday.setUTCDate(7);
     firstMonday.setUTCDate(firstMonday.getUTCDate() + (8 - firstMonday.getUTCDay()) % 7);
     const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0, 12));
     const weeklyTargets = await sql`
@@ -374,15 +376,15 @@ export async function GET(request) {
       throw new Error('Incomplete certified monthly SALES detail for weekly overview');
     }
     payload.weekly_overview = [];
-    for (let start = new Date(firstMonday), i = 1; start <= lastDay; start.setUTCDate(start.getUTCDate() + 7), i++) {
-      const from = start.toISOString().slice(0, 10);
-      const end = new Date(start);
-      end.setUTCDate(Math.min(start.getUTCDate() + 6, lastDay.getUTCDate()));
-      const to = end.toISOString().slice(0, 10);
+    for (let close = new Date(firstMonday), i = 1; close <= lastDay; close.setUTCDate(close.getUTCDate() + 7), i++) {
+      const to = close.toISOString().slice(0, 10);
+      const previousClose = new Date(close);
+      previousClose.setUTCDate(previousClose.getUTCDate() - 7);
+      const from = i === 1 ? month + '-01' : new Date(previousClose.getTime() + 86400000).toISOString().slice(0, 10);
       const entry = salesDates.filter(date => date < from).length;
       const observed = from <= cutoffDate, effectiveEnd = to < cutoffDate ? to : cutoffDate;
       const exit = observed ? salesDates.filter(date => date <= effectiveEnd).length : null;
-      const target = i === 1 ? null : targetsByWeek.get(from) || 0;
+      const target = i === 1 ? null : targetsByWeek.get(previousClose.toISOString().slice(0, 10)) || 0;
       payload.weekly_overview.push({
         label: 'S' + i, from, to, entry: observed ? entry : null, exit,
         weekly_sales: observed ? exit - entry : null, projection: target,
