@@ -378,11 +378,14 @@ export async function GET(request) {
     // PENDING is a present-state snapshot, not a history of earlier Monday closes.
     // Only attach today's unresolved entries to the observed week when cutoff is today.
     const currentSent = cutoffDate === today ? Number((await sql`
-      SELECT COALESCE(SUM(units),0)::int AS units
-      FROM sales_sent_not_invoiced
-      WHERE status='PENDING'
-        AND (sent_at AT TIME ZONE 'America/Santiago')::date=${today}::date
-        AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)
+      SELECT COALESCE(SUM(x.units),0)::int AS units
+      FROM sales_sent_not_invoiced x
+      JOIN sucursales_master sm ON sm.sucursal_id=x.sucursal_id
+      WHERE x.status='PENDING'
+        AND sm.tipo_canal='CIDEF'
+        AND lower(trim(sm.nombre_canonico))<>'casa matriz'
+        AND (x.sent_at AT TIME ZONE 'America/Santiago')::date=${today}::date
+        AND (${storeId}::bigint IS NULL OR x.sucursal_id=${storeId}::bigint)
     `)[0]?.units || 0) : null;
     payload.weekly_overview = [];
     for (let close = new Date(firstMonday), i = 1; close <= lastDay; close.setUTCDate(close.getUTCDate() + 7), i++) {
