@@ -57,3 +57,11 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - Mostrar solamente S1–S4 para noviembre 2026, en 4 filas: Facturados, Total, Proyectados semana, Brecha. **Sin columna «Total mes»** ni suma de brechas; no aporta y confunde.
 - Celdas y fechas centradas y legibles, encabezados amplios, primera columna de indicadores visible, resaltar fila Total, y scroll horizontal solo en pantallas estrechas.
 - Implementación exclusivamente de presentación en `public/proyeccion-admin.html`; no tocar API ni datos. El frontend de staging requiere nuevo despliegue después de este commit.
+
+## Saldo inicial de cada semana: definición corregida (2026-11-23)
+- S1 = 1–9 nov; S2 = 10–16; S3 = 17–23; S4 = 24–30. No cambiar cortes.
+- Visualizar cinco filas en ese orden: Facturados al inicio, + Enviados no facturados, = Total inicial, Proyectados semana, Facturados de la semana. Sin columna total mes. Proyección S1 no aplica: no mostrar 10 VIN históricos del 02-nov.
+- «Enviados no facturados» representa únicamente los registros asignados al **corte anterior inmediato** mediante `sales_sent_not_invoiced.week_start`, creados hasta ese corte y no resueltos a ese día. No sumar pendientes de semanas previas aunque sigan con status=PENDING, ni contar envíos posteriores al corte, ni deducirlos de la suma de proyecciones.
+- `invoiced_start_units` = VIN certificados SALES facturados antes de comenzar la semana; `sold_units` = ese saldo facturado inicial + enviados no facturados del corte inmediatamente anterior; `weekly_sales` = VIN facturados durante esa semana; `projection` S1 = null.
+- Auditoría de registros compartidos por usuario: enviados válidos por `week_start` y fechas a corte: S2 (09-nov)=5; S3 (16-nov)=10; S4 (23-nov)=14. Se excluyen registros asignados a semanas anteriores, así como cancelaciones anteriores al corte. Estos números proceden del extracto aportado por el usuario, no de un snapshot actualizado.
+- Los cambios están en `staging` (API de resultados + front), con comprobación estática de sintaxis; **no desplegar automáticamente** ni modificar producción. Para ver cifras reales es necesario desplegar staging y regenerar snapshot desde «Actualizar».
