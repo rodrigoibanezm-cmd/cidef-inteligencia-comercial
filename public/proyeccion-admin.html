@@ -94,9 +94,13 @@ function renderStoreFinanceTable(rows,sentRows){
  }]));
  const comparisonData=new Map(storeSalesData.map(r=>[String(r.sucursal_id),r]));
  const forumData=new Map((companyFinanceData?.stores||[]).map(r=>[String(r.sucursal_id),r]));
- const previousMonday=matrixDateOffset(monday($('#week').value),-7),currentMonday=monday($('#week').value),nextMonday=matrixDateOffset(currentMonday,7);
- const previousEnd=matrixDateOffset(currentMonday,-1),cutoff=payload.sales_mtd.cutoff_date;
- const prevSalesAvailable=previousMonday.slice(0,7)===cutoff.slice(0,7)&&previousEnd<=cutoff;
+ // A Monday commitment applies to the following Tuesday–Monday sales week.
+ const nextMonday=monday($('#week').value),currentMonday=matrixDateOffset(nextMonday,-7),previousMonday=matrixDateOffset(nextMonday,-14);
+ const previousEnd=currentMonday,previousFrom=matrixDateOffset(previousMonday,1),cutoff=payload.sales_mtd.cutoff_date;
+ const prevSalesAvailable=previousFrom.slice(0,7)===cutoff.slice(0,7)&&previousEnd<=cutoff;
+ const firstClose=new Date(cutoff.slice(0,7)+'-07T12:00:00Z');
+ firstClose.setUTCDate(firstClose.getUTCDate()+(8-firstClose.getUTCDay())%7);
+ const firstCloseDate=firstClose.toISOString().slice(0,10);
  function apply(id,personId,name,metric,value,brand){
   const store=stores.get(String(id));if(!store)return;
   const add=(totals)=>{
@@ -119,16 +123,16 @@ function renderStoreFinanceTable(rows,sentRows){
  }
  for(const sale of payload.sales_mtd.details||[]){
   apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'sold',1,sale.marca);
-  if(prevSalesAvailable&&sale.fecha_venta>=previousMonday&&sale.fecha_venta<=previousEnd)
+  if(prevSalesAvailable&&sale.fecha_venta>=previousFrom&&sale.fecha_venta<=previousEnd)
    apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'prevSold',1,sale.marca);
  }
  for(const row of adjacentProjections){
-  if(row.week_start===previousMonday)
+  if(row.week_start===previousMonday&&previousEnd!==firstCloseDate)
    apply(row.sucursal_id,row.persona_id,row.vendedor,'prevProjected',Number(row.units||0),row.marca);
-  if(row.week_start===nextMonday)
-   apply(row.sucursal_id,row.persona_id,row.vendedor,'nextProjection',Number(row.units||0),row.marca);
+  if(row.week_start===currentMonday)
+   apply(row.sucursal_id,row.persona_id,row.vendedor,'projection',Number(row.units||0),row.marca);
  }
- for(const row of rows)apply(row.sucursal_id,row.persona_id,row.vendedor,'projection',Number(row.projected_units||0),row.marca);
+ for(const row of rows)apply(row.sucursal_id,row.persona_id,row.vendedor,'nextProjection',Number(row.projected_units||0),row.marca);
  for(const row of sentRows)apply(row.sucursal_id,row.persona_id,row.vendedor,'sent',Number(row.units||0),row.marca);
  const numeric=v=>v==null?'—':Number(v).toLocaleString('es-CL');
  const comparisons=(store,seller)=>{
@@ -148,7 +152,7 @@ function renderStoreFinanceTable(rows,sentRows){
   const sold=t.sold||0,proj=t.projection||0,prev=t.prevSold||0,previousProjected=t.prevProjected||0;
   return {...t,prevSold:prevSalesAvailable?prev:null,prevSoldFoton:prevSalesAvailable?(t.prevSoldFoton||0):null,
    prevSoldDfm:prevSalesAvailable?(t.prevSoldDfm||0):null,
-   gap:prevSalesAvailable?prev-previousProjected:null,entryNext:sold+proj};
+   gap:prevSalesAvailable&&previousEnd!==firstCloseDate?prev-previousProjected:null,entryNext:sold+proj};
  };
  const cell=(t,key,group,index,extras={})=>{
   const values={...metrics(t),...extras},fd={
