@@ -290,15 +290,16 @@ export async function GET(request) {
     `;
     if (!rows.length) return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
     const cached = rows[0];
-    const storeSales = !storeId ? await sql`
+    const storeSales = await sql`
       SELECT sucursal_id::text AS sucursal_id, payload->'admin'->'sales_mtd'->>'total_units' AS total_units,
          payload->'admin'->'historical_context'->'periods' AS historical_periods,
          payload->'admin'->'historical_context'->'yoy'->>'yoy_full_month' AS yoy_full_month,
-         payload->'admin'->>'previous_full_month_units' AS mom_full_month
+         payload->'admin'->>'previous_full_month_units' AS mom_full_month,
+         payload->'admin'->'previous_full_month_sales' AS mom_full_sales
       FROM weekly_projection_results
       WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
-        AND dimension='STORE'
-    ` : [];
+        AND dimension='STORE' AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)
+    `;
     const branches = await call(getBranches, `${url.origin}/api/weekly-projections/sucursales`);
     const scopeStores = storeId ? branches.sucursales.filter(s => String(s.sucursal_id) === storeId) : branches.sucursales;
     if (!scopeStores.length) throw new Error('No fue posible resolver la tienda del resultado');
@@ -468,6 +469,7 @@ export async function GET(request) {
         yoy: historicalSales(r.historical_periods, yoyPeriod, 'YOY'),
         mom: historicalSales(r.historical_periods, momPeriod, 'M-1'),
         yoy_full: r.yoy_full_month == null ? null : Number(r.yoy_full_month),
+        mom_full_sales: Array.isArray(r.mom_full_sales) ? r.mom_full_sales : null,
         mom_full: r.mom_full_month == null ? null : Number(r.mom_full_month) })),
       forumSellerData: {
         aliases: storeId ? cached.payload.aliases : [],
@@ -613,7 +615,9 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
         evidence_id: precurseStoreEvidence.evidence_id,
       };
       const previousMonthSales = previousMonthAdmin.scopes?.[storeId]?.sales_mtd?.details || [];
-      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin: { ...admin, previous_month_sales: previousMonthSales.map(({ vin, persona_id, vendedor, vendedor_nombre }) => ({ vin, persona_id, vendedor, vendedor_nombre })), previous_full_month_units: previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.total_units ?? null }, companyFinance: finance, aliases } }));
+      const fullMonthSales = previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.details;
+      const previousFullMonthSales = Array.isArray(fullMonthSales) && fullMonthSales.length === previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.total_units ? fullMonthSales.map(({persona_id,vendedor,vendedor_nombre})=>({persona_id,vendedor,vendedor_nombre})) : null;
+      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin: { ...admin, previous_month_sales: previousMonthSales.map(({ vin, persona_id, vendedor, vendedor_nombre }) => ({ vin, persona_id, vendedor, vendedor_nombre })), previous_full_month_sales: previousFullMonthSales, previous_full_month_units: previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.total_units ?? null }, companyFinance: finance, aliases } }));
       const sellerIds = new Set([
         ...sellerData.sellers.filter(s => String(s.sucursal_id) === storeId).map(s => String(s.persona_id)),
         ...resolvedSellerGroups.map(member => String(member.member_id)),
