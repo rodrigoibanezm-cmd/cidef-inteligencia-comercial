@@ -585,7 +585,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     delete companyAdmin.projections;
     delete companyAdmin.sent_not_invoiced;
     // Historical YOY details stay in historical_context.periods for company and every store.
-    companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
+    companyAdmin.sales_mtd.details = companyAdmin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta, marca }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta, marca }));
     rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'COMPANY', scopeKey: 'COMPANY', payload: { admin: companyAdmin, companyFinance } }));
 
     job.totalStores = branches.sucursales.length;
@@ -598,7 +598,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       admin.product_breakdown = byStoreBreakdown(storeId);
       delete admin.projections;
       delete admin.sent_not_invoiced;
-      admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta }));
+      admin.sales_mtd.details = admin.sales_mtd.details.map(({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta, marca }) => ({ vin, sucursal_id, sucursal, vendedor, persona_id, vendedor_nombre, entidad_financiera, fecha_venta, marca }));
       const storeBrandIndicators = brandIndicators.stores[storeId];
       admin.brand_indicators = storeBrandIndicators;
       finance.brand_indicators = storeBrandIndicators;
