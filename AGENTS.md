@@ -90,3 +90,8 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - `app/api/weekly-projections/results/route.js`: el transporte usa exclusivamente `data_query`. FORUM usa request declarativo; SALES batch y detalle conservan sus contratos mediante `action=sales_observe_many` y `action=data_fetch`.
 - No reactivar herramientas legacy ni alterar P1. Azure es la única fuente oficial; nunca consultar Neon.
 - Sintaxis validada; consulta real FORUM PRECURSE por `data_query` devolvió evidencia COMPLETE, 13 miembros. SALES batch requiere confirmar ejecución integral; una llamada de verificación falló internamente. Pendiente deploy staging y regenerar snapshot. Producción intacta.
+
+
+## Identidad vendedores Salesforce — 2026-11-24
+- Snapshot CRM resuelve únicamente contra dotación activa Azure y alias validados existentes. Prioridad: coincidencia exacta, normalización de tildes y separadores, firma de todos los tokens ordenados. No usar coincidencias parciales ni incorporar vendedores. Ambigüedad sigue sin resolver.
+- Prueba mínima: cinco casos (apellidos invertidos, nombre parcial rechazado, prioridad exacta, vendedor fuera de dotación rechazado, variante exacta sin tilde). Sintaxis OK. Pendiente deploy staging y nuevo snapshot para medir cobertura real; no atribuir automáticamente la diferencia de Won al cruce.
