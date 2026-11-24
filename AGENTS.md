@@ -80,3 +80,7 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - La matriz de `proyeccion-admin.html` debe mostrar exclusivamente los vendedores devueltos por `GET /api/weekly-projections/vendedores?sucursal_id=...`, exactamente como `proyeccion-semanal.html` de producción. Mantener nombres, persona_id y orden del catálogo activo; no inventar filas, nombres, alias ni incorporar vendedores de SALES, Forum o históricos a la dotación visible.
 - Los movimientos se atribuyen por sucursal y persona_id; los no asociados siguen incluidos en los totales de sucursal, nunca crean vendedores visibles. La diferencia entre total y filas visibles puede corresponder a personas fuera de dotación.
 - Validación estática y sintaxis JS correctas en staging; pendiente despliegue y comprobación visual. No modificar producción ni datos.
+
+## Enviados no facturados vigentes del corte (2026-11-24)
+- En `staging`, `app/api/weekly-projections/results/route.js` conserva todos los registros PENDING de la semana seleccionada devueltos por el endpoint existente `not-invoiced`. No filtrar por día de ingreso: el cambio de medianoche no debe ocultar pendientes.
+- No modificar la lógica histórica de saldos semanales, ni el alcance por week_start, ni los datos. Validación de sintaxis y prueba mínima con registros de dos días: ambos se incluyen. Pendiente deploy staging y comprobación de datos reales.
