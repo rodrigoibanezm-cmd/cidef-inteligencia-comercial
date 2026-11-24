@@ -451,13 +451,15 @@ export async function GET(request) {
       }
     }
 
-    const sellers = storeId ? await sql`
-      SELECT payload FROM weekly_projection_results
+    // Reuse the saved seller snapshot for both network and individual store views.
+    const sellers = await sql`
+      SELECT payload, sucursal_id::text AS sucursal_id, persona_id::text AS persona_id
+      FROM weekly_projection_results
       WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
-        AND dimension='SELLER' AND sucursal_id=${storeId}::bigint
-      ORDER BY persona_id
-    ` : [];
-    const sellerPayloads = sellers.map(r => r.payload);
+        AND dimension='SELLER' AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)
+      ORDER BY sucursal_id, persona_id
+    `;
+    const sellerPayloads = sellers.map(r => ({...r.payload.forum, sucursal_id:r.sucursal_id, persona_id:r.persona_id})).filter(r=>r.precurse_evidence_id || r.cotizaciones != null || r.ufi != null);
     return NextResponse.json({
       ok: true, week_start: weekStart, cutoff_date: cutoffDate, sucursal_id: storeId,
       admin: payload, companyFinance: cached.payload.companyFinance,
@@ -467,10 +469,10 @@ export async function GET(request) {
         mom: historicalSales(r.historical_periods, momPeriod, 'M-1'),
         yoy_full: r.yoy_full_month == null ? null : Number(r.yoy_full_month),
         mom_full: r.mom_full_month == null ? null : Number(r.mom_full_month) })),
-      forumSellerData: storeId ? {
-        aliases: cached.payload.aliases,
-        forum: sellerPayloads.map(x => x.forum).filter(Boolean),
-      } : { aliases: [], forum: [] },
+      forumSellerData: {
+        aliases: storeId ? cached.payload.aliases : [],
+        forum: sellerPayloads,
+      },
       updated_at: cached.updated_at,
     });
   } catch (error) {
