@@ -95,3 +95,8 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 ## Identidad vendedores Salesforce — 2026-11-24
 - Snapshot CRM resuelve únicamente contra dotación activa Azure y alias validados existentes. Prioridad: coincidencia exacta, normalización de tildes y separadores, firma de todos los tokens ordenados. No usar coincidencias parciales ni incorporar vendedores. Ambigüedad sigue sin resolver.
 - Prueba mínima: cinco casos (apellidos invertidos, nombre parcial rechazado, prioridad exacta, vendedor fuera de dotación rechazado, variante exacta sin tilde). Sintaxis OK. Pendiente deploy staging y nuevo snapshot para medir cobertura real; no atribuir automáticamente la diferencia de Won al cruce.
+
+
+## Totales CRM independientes de dotación — 2026-11-24
+- Los leads se agregan por sucursal CRM y los Won por sucursal única observada en los leads del propietario durante el período; si no existe evidencia de sucursal CRM, se usa asignación activa Azure inequívoca. No asignar casos ambiguos ni sucursales fuera del tablero. La sucursal de un Won es una atribución por propietario, no un campo directo de Opportunity.
+- Incluir gestión de vendedores ausentes o en licencia en totales de sucursal; conservar listado activo sin modificaciones. Administración excluida. Pruebas de activo, licencia, ausente, administración y ambigüedad aprobadas; pendiente despliegue staging y actualización del snapshot para verificar totales reales. Sin cambios de datos ni producción.
