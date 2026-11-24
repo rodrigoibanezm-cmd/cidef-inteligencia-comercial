@@ -92,7 +92,7 @@ async function callP1Tool(runId, name, args) {
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: { run_id: runId, ...args } } }),
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'data_query', arguments: name === 'data_observe' ? { run_id: runId, source: args.source, request: { measure: args.measure, ...(args.period_from ? { time: { from_period: args.period_from, to_period: args.period_to, cutoff: args.cutoff } } : {}), filters: args.filters, group_by: [args.dimension] } } : { run_id: runId, action: name, arguments: args } } }),
     cache: 'no-store',
     signal: AbortSignal.timeout(120000),
   });
