@@ -75,3 +75,8 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - Solo `staging`: `public/proyeccion-admin.html` agrupa Mes anterior y Año anterior (Al corte / Total mes), elimina las dos columnas redundantes del bloque comparativo y conserva los dos totales fijos de la izquierda según mockup aprobado.
 - Colores azul/verde, separadores y cifras centradas; encabezados fijos de dos líneas. No cambia API, fuentes ni datos.
 - Validación estática: cuatro columnas comparativas, correspondencia de grupos y visibilidad por pestaña. Pendiente build y verificación visual tras deploy staging.
+
+## Dotación de vendedores — regla permanente (2026-11-23)
+- La matriz de `proyeccion-admin.html` debe mostrar exclusivamente los vendedores devueltos por `GET /api/weekly-projections/vendedores?sucursal_id=...`, exactamente como `proyeccion-semanal.html` de producción. Mantener nombres, persona_id y orden del catálogo activo; no inventar filas, nombres, alias ni incorporar vendedores de SALES, Forum o históricos a la dotación visible.
+- Los movimientos se atribuyen por sucursal y persona_id; los no asociados siguen incluidos en los totales de sucursal, nunca crean vendedores visibles. La diferencia entre total y filas visibles puede corresponder a personas fuera de dotación.
+- Validación estática y sintaxis JS correctas en staging; pendiente despliegue y comprobación visual. No modificar producción ni datos.
