@@ -236,6 +236,13 @@ function renderStoreFinanceTable(rows,sentRows){
   if(row.week_start===currentMonday)
    apply(row.sucursal_id,row.persona_id,row.vendedor,'projection',Number(row.units||0),row.marca);
  }
+ // Manual branch-level commitments for the 16 Nov 2026 cut; seller and brand detail unavailable.
+ if(currentMonday==='2026-11-16'){
+  for(const [id,units] of [['3',10],['78',2]]){
+   const store=stores.get(id);
+   if(store && !store.totals.projection)store.totals.projection=units;
+  }
+ }
  for(const row of rows)apply(row.sucursal_id,row.persona_id,row.vendedor,'nextProjection',Number(row.projected_units||0),row.marca);
  for(const row of sentRows)apply(row.sucursal_id,row.persona_id,row.vendedor,'sent',Number(row.units||0),row.marca);
  for(const [storeId,store] of stores){const history=comparisonData.get(storeId)?.mom_full_sales;if(!Array.isArray(history)||history.length!==comparisonData.get(storeId)?.mom_full)continue;previousMonthAvailable.add(storeId);for(const row of history)apply(storeId,row.persona_id,row.vendedor_nombre||row.vendedor,'previousMonth',1,null);}
