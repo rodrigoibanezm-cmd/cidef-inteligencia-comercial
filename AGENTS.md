@@ -70,3 +70,8 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 - `app/api/weekly-projections/admin/route.js`: preservar la deduplicación global de VIN para métricas existentes (`all`), pero generar `full_month_units` desde `monthlySales` deduplicado por (mes de factura, VIN). Una factura de noviembre no debe hacer desaparecer un VIN del total completo de octubre.
 - Octubre 2026 completo debe coincidir entre la card «octubre de 2026 · mes completo» y el último punto del gráfico «4 meses anteriores · mes completo» (referencia comprobada antes de corregir: 451 card vs 450 gráfico).
 - Cambios en `staging`; ejecutar deploy separado y comprobar respuesta read-only del API por el corte 2026-11-22. No desplegar producción.
+
+## Tabla comparativa compacta (2026-11-23)
+- Solo `staging`: `public/proyeccion-admin.html` agrupa Mes anterior y Año anterior (Al corte / Total mes), elimina las dos columnas redundantes del bloque comparativo y conserva los dos totales fijos de la izquierda según mockup aprobado.
+- Colores azul/verde, separadores y cifras centradas; encabezados fijos de dos líneas. No cambia API, fuentes ni datos.
+- Validación estática: cuatro columnas comparativas, correspondencia de grupos y visibilidad por pestaña. Pendiente build y verificación visual tras deploy staging.
