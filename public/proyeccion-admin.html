@@ -41,13 +41,14 @@
 .weekly-progress-table .weekly-gap-row td{font-weight:800}
 @media(max-width:650px){.weekly-progress-table{min-width:650px}.weekly-progress-table th,.weekly-progress-table td{padding:13px 10px}.weekly-progress-table tbody td{font-size:17px}}
 
-/* Store and two sales totals remain visible on horizontal scroll. */
+/* Store and three sales totals remain visible on horizontal scroll. */
 #byStore .store-finance-table{--matrix-store-width:218px;--matrix-fixed-width:72px}
 #byStore .store-finance-table thead tr:first-child th:first-child,
 #byStore .store-finance-table tbody td:first-child{width:var(--matrix-store-width);min-width:var(--matrix-store-width);max-width:var(--matrix-store-width)}
 #byStore .store-finance-table .matrix-fixed{position:sticky;min-width:var(--matrix-fixed-width);width:var(--matrix-fixed-width);max-width:var(--matrix-fixed-width);background:#fff;z-index:2;text-align:center}
 #byStore .store-finance-table .matrix-fixed-current{left:var(--matrix-store-width)}
-#byStore .store-finance-table .matrix-fixed-prior{left:calc(var(--matrix-store-width) + var(--matrix-fixed-width));box-shadow:2px 0 0 #c2cfde}
+#byStore .store-finance-table .matrix-fixed-sold{left:calc(var(--matrix-store-width) + var(--matrix-fixed-width));font-weight:700}
+#byStore .store-finance-table .matrix-fixed-prior{left:calc(var(--matrix-store-width) + 2 * var(--matrix-fixed-width));box-shadow:2px 0 0 #c2cfde}
 #byStore .store-finance-table thead .matrix-fixed{background:#e9eef5;z-index:4}
 #byStore .store-finance-table tbody tr:nth-child(even):not(.store-finance-total) .matrix-fixed{background:#f7f9fc}
 #byStore .store-finance-table tbody tr:hover:not(.store-finance-total) .matrix-fixed{background:#ebf3fb}
@@ -264,11 +265,15 @@ function renderStoreFinanceTable(rows,sentRows){
   const cls='num matrix-'+group+(pair?' matrix-fd':'')+(key==='gap'&&value<0?' weekly-gap-negative':'')+(index===0||['prevProjected','gap','sent','entryNext'].includes(key)?' matrix-divider':'');
   return '<td class="'+cls+'">'+display+'</td>';
  };
+ const soldPair=(invoiced,sent)=>numeric(invoiced)+' / '+numeric(sent);
+ const soldTotal=(invoiced,sent)=>invoiced==null||sent==null?null:Number(invoiced)+Number(sent);
  const fixedCells=(store,seller=false)=>{
   const data=seller?null:comparisonData.get(store.id);
   const sold=seller?(seller.totals.sold??0):data?.total_units??store.totals.sold??0;
   const previous=seller?(previousMonthAvailable.has(store.id)?seller.totals.previousMonth??0:null):data?.mom_full??null;
-  return '<td class="matrix-fixed matrix-fixed-current num">'+numeric(sold)+'</td>'+
+  const sent=(seller?seller.totals:store.totals).sent??0;
+  return '<td class="matrix-fixed matrix-fixed-current num">'+soldPair(sold,sent)+'</td>'+
+   '<td class="matrix-fixed matrix-fixed-sold num">'+numeric(soldTotal(sold,sent))+'</td>'+
    '<td class="matrix-fixed matrix-fixed-prior num">'+numeric(previous)+'</td>';
  };
  const dataCells=(t,store,seller=false)=>{
@@ -298,7 +303,8 @@ function renderStoreFinanceTable(rows,sentRows){
  const sumExtras={...companyComparison,...crmMetrics(crmTotal),quotes:companyForum.cotizaciones??null,
   approved:companyForum.aprobados??null,precurse:companyFinanceData?.precurse?.value??null,curse:totals.forumFinanced??0,penetration:penetration(totals.forumFinanced??0,totals.sold??0)};
  lines.push('<tr class="store-finance-total"><td>Total tiendas</td>'+
-  '<td class="matrix-fixed matrix-fixed-current num">'+numeric(companyComparison.compareSold)+'</td>'+
+  '<td class="matrix-fixed matrix-fixed-current num">'+soldPair(companyComparison.compareSold,totals.sent??0)+'</td>'+
+  '<td class="matrix-fixed matrix-fixed-sold num">'+numeric(soldTotal(companyComparison.compareSold,totals.sent??0))+'</td>'+
   '<td class="matrix-fixed matrix-fixed-prior num">'+numeric(companyComparison.momFull)+'</td>'+
   matrixColumns.map((col,i)=>cell(totals,col[1],col[0],i,sumExtras)).join('')+'</tr>');
  const groupHeads=matrixGroups.map(([key,label])=>'<th data-matrix-group="'+key+'" colspan="'+matrixColumns.filter(c=>c[0]===key).length+'">'+label+'</th>').join('');
@@ -313,7 +319,7 @@ function renderStoreFinanceTable(rows,sentRows){
  ];
  const overview='<div class="store-domain-overview">'+kpis.map(([key,label,description,value])=>
   '<button class="store-domain-kpi" type="button" data-domain-tab="'+key+'"><span>'+label+'</span><strong>'+value+'</strong><small>'+description+'</small></button>').join('')+'</div>';
- $('#byStore').innerHTML=overview+tabs+'<div class="store-finance-scroll"><table class="store-finance-table"><thead><tr class="store-finance-groups"><th rowspan="2">Tienda / vendedor</th><th rowspan="2" class="matrix-fixed matrix-fixed-current">Total<br>al corte</th><th rowspan="2" class="matrix-fixed matrix-fixed-prior">Mes<br>pasado</th>'+groupHeads+'</tr><tr>'+matrixColumns.map((c,i)=>'<th class="matrix-'+c[0]+(c[1].endsWith('FD')?' matrix-fd':'')+(i===0||['prevProjected','gap','sent','entryNext','nextProjection'].includes(c[1])?' matrix-divider':'')+'">'+c[2]+'</th>').join('')+'</tr></thead><tbody>'+lines.join('')+'</tbody></table></div><div class="muted seller-footnote">'+(prevSalesAvailable?'Brecha = venta semana anterior − proyección.':'Venta de semana anterior no disponible en el histórico del mes seleccionado.')+' Entrada próxima semana = vendido acumulado + proyección semanal. Indicadores sin fuente disponible se muestran como —.</div>';
+ $('#byStore').innerHTML=overview+tabs+'<div class="store-finance-scroll"><table class="store-finance-table"><thead><tr class="store-finance-groups"><th rowspan="2">Tienda / vendedor</th><th rowspan="2" class="matrix-fixed matrix-fixed-current">Facturado /<br>enviado</th><th rowspan="2" class="matrix-fixed matrix-fixed-sold">Total<br>vendido</th><th rowspan="2" class="matrix-fixed matrix-fixed-prior">Mes<br>pasado</th>'+groupHeads+'</tr><tr>'+matrixColumns.map((c,i)=>'<th class="matrix-'+c[0]+(c[1].endsWith('FD')?' matrix-fd':'')+(i===0||['prevProjected','gap','sent','entryNext','nextProjection'].includes(c[1])?' matrix-divider':'')+'">'+c[2]+'</th>').join('')+'</tr></thead><tbody>'+lines.join('')+'</tbody></table></div><div class="muted seller-footnote">'+(prevSalesAvailable?'Brecha = venta semana anterior − proyección.':'Venta de semana anterior no disponible en el histórico del mes seleccionado.')+' Entrada próxima semana = vendido acumulado + proyección semanal. Indicadores sin fuente disponible se muestran como —.</div>';
  applyStoreDomain();
 }
 function sellerKey(value){return String(value||'Sin vendedor').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase()}
