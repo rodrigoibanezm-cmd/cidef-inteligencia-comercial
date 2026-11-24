@@ -86,7 +86,7 @@ const matrixColumns=[
  ['current','projection','Proyección'],['current','projectionFD','F / D'],['current','sent','Enviado no fact.'],
  ['next','nextProjection','Proyección'],['next','nextProjectionFD','F / D'],
  ['commercial','sold','Vendidos'],['commercial','soldFD','F / D'],['commercial','entryNext','Entrada próx. semana'],
- ['forum','quotes','Cotizaciones'],['forum','approved','Aprobados'],['forum','precurse','Precursados'],['forum','curse','Cursados'],['forum','penetration','Penetración'],
+ ['forum','quotes','Cotizaciones'],['forum','approved','Aprobados'],['forum','precurse','Precursados'],['forum','curse','UFI ejecutadas'],['forum','penetration','Penetración'],
  ['crm','workedPct','% leads trabajados'],['crm','wins','Won'],['crm','showroom','Leads Showroom'],
  ['comparisonMom','momCut','Al corte'],['comparisonMom','momFull','Total mes'],['comparisonYoy','yoyCut','Al corte'],['comparisonYoy','yoyFull','Total mes']
 ];
@@ -141,6 +141,10 @@ function renderStoreFinanceTable(rows,sentRows){
  }]));
  const comparisonData=new Map(storeSalesData.map(r=>[String(r.sucursal_id),r]));
  const forumData=new Map((companyFinanceData?.stores||[]).map(r=>[String(r.sucursal_id),r]));
+  if(storeFilter){const current=companyFinanceData?.periods?.find(p=>p.label==='CURRENT');if(current)forumData.set(storeFilter,{...current,precurse:companyFinanceData?.precurse?.value});}
+  const forumSellers=forumSellerData.forum||[];
+  const forumByStore=new Map();
+  for(const row of forumSellers){const id=String(row.sucursal_id);if(!forumByStore.has(id))forumByStore.set(id,[]);forumByStore.get(id).push(row);}
  // A Monday commitment applies to the following Tuesday–Monday sales week.
  const nextMonday=monday($('#week').value),currentMonday=matrixDateOffset(nextMonday,-7),previousMonday=matrixDateOffset(nextMonday,-14);
  const previousEnd=currentMonday,previousFrom=matrixDateOffset(previousMonday,1),cutoff=payload.sales_mtd.cutoff_date;
@@ -165,11 +169,13 @@ function renderStoreFinanceTable(rows,sentRows){
      (normalized==='SOLANGEL HERNANDEZ'||normalized==='SOLANGEL NEWKENY HERNANDEZ PEREIRA')
      ?'SOLANGEL NEWKENY HERNANDEZ PEREIRA':null;
   const sid=alias?'alias:'+alias:String(personId??'unassigned');
-  if(!store.sellers.has(sid))store.sellers.set(sid,{name:alias?alias:(name||'Sin vendedor asignado'),totals:{}});
-  add(store.sellers.get(sid).totals);
+  if(!store.sellers.has(sid))store.sellers.set(sid,{name:alias?alias:(name||'Sin vendedor asignado'),totals:{},personIds:new Set()});
+   const seller=store.sellers.get(sid);if(personId!=null)seller.personIds.add(String(personId));
+   add(seller.totals);
  }
  for(const sale of payload.sales_mtd.details||[]){
   apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'sold',1,sale.marca);
+   if(sellerKey(sale.entidad_financiera)==='FORUM')apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'forumFinanced',1,sale.marca);
   if(prevSalesAvailable&&sale.fecha_venta>=previousFrom&&sale.fecha_venta<=previousEnd)
    apply(sale.sucursal_id,sale.persona_id,sale.vendedor_nombre||sale.vendedor,'prevSold',1,sale.marca);
  }
@@ -181,7 +187,10 @@ function renderStoreFinanceTable(rows,sentRows){
  }
  for(const row of rows)apply(row.sucursal_id,row.persona_id,row.vendedor,'nextProjection',Number(row.projected_units||0),row.marca);
  for(const row of sentRows)apply(row.sucursal_id,row.persona_id,row.vendedor,'sent',Number(row.units||0),row.marca);
- const numeric=v=>v==null?'—':Number(v).toLocaleString('es-CL');
+ for(const row of forumSellers){const store=stores.get(String(row.sucursal_id));if(!store)continue;const id=String(row.persona_id);if([...store.sellers.values()].some(s=>s.personIds.has(id)))continue;apply(store.id,id,row.nombre||'Vendedor P1 '+id,'forumRoster',0,null);}
+  const numeric=v=>v==null?'—':Number(v).toLocaleString('es-CL');
+  const penetration=(financed,sold)=>sold>0?100*financed/sold:null;
+  const forumSum=(rows,key)=>rows.length?rows.reduce((n,r)=>n+Number(r[key]??0),0):null;
  const comparisons=(store,seller)=>{
   if(seller)return {compareSold:null,momCut:null,yoyCut:null,momFull:null,yoyFull:null};
   const row=comparisonData.get(store.id);
@@ -190,11 +199,15 @@ function renderStoreFinanceTable(rows,sentRows){
    momFull:row?.mom_full??null,yoyFull:row?.yoy_full??null};
  };
  const forumMeasures=(store,seller)=>{
-  if(seller)return {quotes:null,approved:null,precurse:null,curse:null,penetration:null};
-  const row=forumData.get(store.id);
-  return {quotes:row?.cotizaciones??null,approved:row?.aprobados??null,
-   precurse:row?.precurse??null,curse:null,penetration:null};
- };
+   const list=forumByStore.get(store.id)||[],row=forumData.get(store.id);
+   const selected=seller?list.filter(r=>seller.personIds.has(String(r.persona_id))):list;
+   const t=seller?seller.totals:store.totals;
+   // UFI ejecutadas use the existing SALES financed-VIN definition, not FORUM operation counts.
+   return {quotes:seller?forumSum(selected,'cotizaciones'):row?.cotizaciones??null,
+    approved:seller?forumSum(selected,'aprobados'):row?.aprobados??null,
+    precurse:seller?forumSum(selected,'precurse'):row?.precurse??null,
+    curse:t.forumFinanced??0,penetration:penetration(t.forumFinanced??0,t.sold??0)};
+  };
  const metrics=t=>{
   const sold=t.sold||0,proj=t.projection||0,prev=t.prevSold||0,previousProjected=t.prevProjected||0;
   return {...t,prevSold:prevSalesAvailable?prev:null,prevSoldFoton:prevSalesAvailable?(t.prevSoldFoton||0):null,
@@ -211,7 +224,7 @@ function renderStoreFinanceTable(rows,sentRows){
   };
   const pair=fd[key];
   const value=values[key]??null;
-  const display=pair?(key==='prevSoldFD'&&!prevSalesAvailable?'—':numeric(values[pair[0]]||0)+' / '+numeric(values[pair[1]]||0)):numeric(value);
+  const display=key==='penetration'?(value==null?'—':Math.round(value)+'%'):pair?(key==='prevSoldFD'&&!prevSalesAvailable?'—':numeric(values[pair[0]]||0)+' / '+numeric(values[pair[1]]||0)):numeric(value);
   const cls='num matrix-'+group+(pair?' matrix-fd':'')+(key==='gap'&&value<0?' weekly-gap-negative':'')+(index===0||['prevProjected','gap','sent','entryNext'].includes(key)?' matrix-divider':'');
   return '<td class="'+cls+'">'+display+'</td>';
  };
@@ -223,7 +236,7 @@ function renderStoreFinanceTable(rows,sentRows){
    '<td class="matrix-fixed matrix-fixed-prior num">'+numeric(previous)+'</td>';
  };
  const dataCells=(t,store,seller=false)=>{
-  const extras={...comparisons(store,seller),...forumMeasures(store,seller)};
+  const extras={...comparisons(store,Boolean(seller)),...forumMeasures(store,seller)};
   return matrixColumns.map((col,i)=>cell(t,col[1],col[0],i,extras)).join('');
  };
  const totals={};const lines=[];
@@ -233,7 +246,7 @@ function renderStoreFinanceTable(rows,sentRows){
   lines.push('<tr><td class="store-title"><button type="button" class="store-toggle" data-store-toggle="'+esc(store.id)+'" data-store-name="'+esc(store.name)+'" aria-expanded="'+expanded+'">'+(expanded?'− ':'+ ')+esc(store.name)+'</button></td>'+fixedCells(store)+dataCells(store.totals,store)+'</tr>');
   const sellers=[...store.sellers.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
   for(const seller of sellers)
-   lines.push('<tr class="seller-drill" data-parent-store="'+esc(store.id)+'" '+(expanded?'':'hidden')+'><td>'+esc(seller.name)+'</td>'+fixedCells(store,true)+dataCells(seller.totals,store,true)+'</tr>');
+   lines.push('<tr class="seller-drill" data-parent-store="'+esc(store.id)+'" '+(expanded?'':'hidden')+'><td>'+esc(seller.name)+'</td>'+fixedCells(store,true)+dataCells(seller.totals,store,seller)+'</tr>');
  }
  const summary={id:'TOTAL',totals};
  const companyForum=(companyFinanceData?.periods||[]).find(p=>p.label==='CURRENT')||{};
@@ -245,7 +258,7 @@ function renderStoreFinanceTable(rows,sentRows){
   yoyFull:payload.historical_context.yoy?.yoy_full_month??null
  };
  const sumExtras={...companyComparison,quotes:companyForum.cotizaciones??null,
-  approved:companyForum.aprobados??null,precurse:companyFinanceData?.precurse?.value??null,curse:null,penetration:null};
+  approved:companyForum.aprobados??null,precurse:companyFinanceData?.precurse?.value??null,curse:totals.forumFinanced??0,penetration:penetration(totals.forumFinanced??0,totals.sold??0)};
  lines.push('<tr class="store-finance-total"><td>Total tiendas</td>'+
   '<td class="matrix-fixed matrix-fixed-current num">'+numeric(companyComparison.compareSold)+'</td>'+
   '<td class="matrix-fixed matrix-fixed-prior num">'+numeric(companyComparison.momFull)+'</td>'+
@@ -256,7 +269,7 @@ function renderStoreFinanceTable(rows,sentRows){
  const kpis=[
   ['projection','Proyección','Semana actual',numeric(totals.projection||0)+' VIN'],
   ['commercial','Comercial','Ventas acumuladas',numeric(companyComparison.compareSold)+' VIN'],
-  ['forum','Forum','Penetración','—'],
+  ['forum','Forum','Penetración',sumExtras.penetration==null?'—':Math.round(sumExtras.penetration)+'%'],
   ['crm','CRM','% leads trabajados','—'],
   ['comparisons','Comparativos','MoM / YoY · mismo corte',numeric(companyComparison.momCut)+' / '+numeric(companyComparison.yoyCut)]
  ];
