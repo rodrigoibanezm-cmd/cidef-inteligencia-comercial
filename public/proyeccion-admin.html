@@ -143,6 +143,7 @@ function renderStoreFinanceTable(rows,sentRows){
  const forumData=new Map((companyFinanceData?.stores||[]).map(r=>[String(r.sucursal_id),r]));
   if(storeFilter){const current=companyFinanceData?.periods?.find(p=>p.label==='CURRENT');if(current)forumData.set(storeFilter,{...current,precurse:companyFinanceData?.precurse?.value});}
   const forumSellers=forumSellerData.forum||[];
+  const previousMonthAvailable=new Set();
   const forumByStore=new Map();
   for(const row of forumSellers){const id=String(row.sucursal_id);if(!forumByStore.has(id))forumByStore.set(id,[]);forumByStore.get(id).push(row);}
  // A Monday commitment applies to the following Tuesday–Monday sales week.
@@ -187,7 +188,8 @@ function renderStoreFinanceTable(rows,sentRows){
  }
  for(const row of rows)apply(row.sucursal_id,row.persona_id,row.vendedor,'nextProjection',Number(row.projected_units||0),row.marca);
  for(const row of sentRows)apply(row.sucursal_id,row.persona_id,row.vendedor,'sent',Number(row.units||0),row.marca);
- for(const row of forumSellers){const store=stores.get(String(row.sucursal_id));if(!store)continue;const id=String(row.persona_id);if([...store.sellers.values()].some(s=>s.personIds.has(id)))continue;apply(store.id,id,row.nombre||'Vendedor P1 '+id,'forumRoster',0,null);}
+ for(const [storeId,store] of stores){const history=comparisonData.get(storeId)?.mom_full_sales;if(!Array.isArray(history)||history.length!==comparisonData.get(storeId)?.mom_full)continue;previousMonthAvailable.add(storeId);for(const row of history)apply(storeId,row.persona_id,row.vendedor_nombre||row.vendedor,'previousMonth',1,null);}
+  for(const row of forumSellers){const store=stores.get(String(row.sucursal_id));if(!store)continue;const id=String(row.persona_id);if([...store.sellers.values()].some(s=>s.personIds.has(id)))continue;apply(store.id,id,row.nombre||'Vendedor P1 '+id,'forumRoster',0,null);}
   const numeric=v=>v==null?'—':Number(v).toLocaleString('es-CL');
   const penetration=(financed,sold)=>sold>0?100*financed/sold:null;
   const forumSum=(rows,key)=>rows.length?rows.reduce((n,r)=>n+Number(r[key]??0),0):null;
@@ -230,8 +232,8 @@ function renderStoreFinanceTable(rows,sentRows){
  };
  const fixedCells=(store,seller=false)=>{
   const data=seller?null:comparisonData.get(store.id);
-  const sold=seller?null:data?.total_units??store.totals.sold??0;
-  const previous=seller?null:data?.mom_full??null;
+  const sold=seller?(seller.totals.sold??0):data?.total_units??store.totals.sold??0;
+  const previous=seller?(previousMonthAvailable.has(store.id)?seller.totals.previousMonth??0:null):data?.mom_full??null;
   return '<td class="matrix-fixed matrix-fixed-current num">'+numeric(sold)+'</td>'+
    '<td class="matrix-fixed matrix-fixed-prior num">'+numeric(previous)+'</td>';
  };
@@ -246,7 +248,7 @@ function renderStoreFinanceTable(rows,sentRows){
   lines.push('<tr><td class="store-title"><button type="button" class="store-toggle" data-store-toggle="'+esc(store.id)+'" data-store-name="'+esc(store.name)+'" aria-expanded="'+expanded+'">'+(expanded?'− ':'+ ')+esc(store.name)+'</button></td>'+fixedCells(store)+dataCells(store.totals,store)+'</tr>');
   const sellers=[...store.sellers.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
   for(const seller of sellers)
-   lines.push('<tr class="seller-drill" data-parent-store="'+esc(store.id)+'" '+(expanded?'':'hidden')+'><td>'+esc(seller.name)+'</td>'+fixedCells(store,true)+dataCells(seller.totals,store,seller)+'</tr>');
+   lines.push('<tr class="seller-drill" data-parent-store="'+esc(store.id)+'" '+(expanded?'':'hidden')+'><td>'+esc(seller.name)+'</td>'+fixedCells(store,seller)+dataCells(seller.totals,store,seller)+'</tr>');
  }
  const summary={id:'TOTAL',totals};
  const companyForum=(companyFinanceData?.periods||[]).find(p=>p.label==='CURRENT')||{};
