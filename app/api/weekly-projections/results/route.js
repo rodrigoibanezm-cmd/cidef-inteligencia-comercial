@@ -528,7 +528,20 @@ async function getCrmSnapshot(cutoffDate, branches, sellerData, jobId) {
   const stores=new Map(branches.map(b=>[String(b.sucursal_id),{leads:0,worked:0,wins:0,showroom:0}]));
   const sellers=new Map(sellerData.sellers.map(x=>[String(x.sucursal_id)+':'+String(x.persona_id),{leads:0,worked:0,wins:0,showroom:0}]));
   const names=new Map(users.map(x=>[x.id,x.name]));
-  const ownerMatches=owner=>sellerData.aliases.filter(a=>norm(a.alias)===norm(names.get(owner))&&names.get(owner));
+  // Exact validated aliases take precedence; only complete token signatures may fall back.
+  // The current Azure roster remains the sole authority for displayed sellers.
+  const fold=x=>norm(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+  const signature=x=>fold(x).split(' ').filter(Boolean).sort().join(' ');
+  const ownerMatches=owner=>{
+    const name=names.get(owner);
+    if(!name||!fold(name))return [];
+    const candidates=sellerData.aliases.filter(a=>a.alias&&sellers.has(String(a.sucursal_id)+':'+String(a.persona_id)));
+    const exact=candidates.filter(a=>norm(a.alias)===norm(name));
+    if(exact.length)return exact;
+    const normalized=candidates.filter(a=>fold(a.alias)===fold(name));
+    if(normalized.length)return normalized;
+    return candidates.filter(a=>signature(a.alias)===signature(name));
+  };
   const addLead=(t,row)=>{if(!t)return;t.leads+=row.count;if(row.status&&row.status!=='Nuevo')t.worked+=row.count;if(row.origin==='SHOWROOM')t.showroom+=row.count};
   let unresolvedLeads=0,unresolvedWins=0;
   for(const row of leads){
