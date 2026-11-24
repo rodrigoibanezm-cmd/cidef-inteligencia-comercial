@@ -544,18 +544,30 @@ async function getCrmSnapshot(cutoffDate, branches, sellerData, jobId) {
   };
   const addLead=(t,row)=>{if(!t)return;t.leads+=row.count;if(row.status&&row.status!=='Nuevo')t.worked+=row.count;if(row.origin==='SHOWROOM')t.showroom+=row.count};
   let unresolvedLeads=0,unresolvedWins=0;
+  const ownerBranches=new Map();
   for(const row of leads){
     const sid=unique(aliases.filter(a=>norm(a.alias)===norm(row.branch)&&row.branch).map(a=>a.id));
+    // Preserve non-store evidence too: do not silently assign Administration or dealers to a store.
+    if(row.branch){
+      if(!ownerBranches.has(row.owner))ownerBranches.set(row.owner,new Set());
+      ownerBranches.get(row.owner).add(sid??'UNRESOLVED:'+norm(row.branch));
+    }
     if(!stores.has(sid)){unresolvedLeads+=row.count;continue;}
     addLead(stores.get(sid),row);
     const pid=unique(ownerMatches(row.owner).filter(a=>String(a.sucursal_id)===sid).map(a=>String(a.persona_id)));
     addLead(sellers.get(sid+':'+pid),row);
   }
   for(const row of wins){
-    const key=unique(ownerMatches(row.owner).map(a=>String(a.sucursal_id)+':'+String(a.persona_id)));
-    if(!sellers.has(key)){unresolvedWins+=row.count;continue;}
-    sellers.get(key).wins+=row.count;
-    stores.get(key.split(':')[0]).wins+=row.count;
+    const matches=ownerMatches(row.owner);
+    const observed=[...(ownerBranches.get(row.owner)||[])];
+    // Opportunity has no branch field. Use the unique CRM lead branch, or the
+    // unambiguous active Azure assignment when no CRM branch was observed.
+    const sid=observed.length?unique(observed):unique(matches.map(a=>String(a.sucursal_id)));
+    if(!stores.has(sid)){unresolvedWins+=row.count;continue;}
+    stores.get(sid).wins+=row.count;
+    const pid=unique(matches.filter(a=>String(a.sucursal_id)===sid).map(a=>String(a.persona_id)));
+    const seller=sellers.get(sid+':'+pid);
+    if(seller)seller.wins+=row.count;
   }
   return {stores,sellers,unresolvedLeads,unresolvedWins};
 }
