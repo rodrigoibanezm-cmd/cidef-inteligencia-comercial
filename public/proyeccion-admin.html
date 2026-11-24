@@ -122,7 +122,7 @@ const matrixColumns=[
  ['next','nextProjection','Proyección'],['next','nextProjectionFD','F / D'],
  ['commercial','sold','Vendidos'],['commercial','soldFD','F / D'],['commercial','entryNext','Entrada próx. semana'],
  ['forum','quotes','Cotizaciones'],['forum','approved','Aprobados'],['forum','precurse','Precursados'],['forum','curse','UFI ejecutadas'],['forum','penetration','Penetración'],
- ['crm','workedPct','% leads trabajados'],['crm','wins','Won'],['crm','showroom','Leads Showroom'],
+ ['crm','assigned','Leads asignados'],['crm','worked','Leads trabajados'],['crm','workedPct','% leads trabajados'],['crm','wins','Won'],['crm','showroom','Leads Showroom'],
  ['comparisonMom','momCut','Al corte'],['comparisonMom','momFull','Total mes'],['comparisonYoy','yoyCut','Al corte'],['comparisonYoy','yoyFull','Total mes']
 ];
 const matrixGroups=[['previous','Semana anterior'],['current','Semana actual'],['next','Semana siguiente'],['commercial','Comercial'],['forum','Forum'],['crm','CRM'],['comparisonMom','Mes anterior'],['comparisonYoy','Año anterior']];
@@ -240,7 +240,7 @@ function renderStoreFinanceTable(rows,sentRows){
     precurse:seller?forumSum(selected,'precurse'):row?.precurse??null,
     curse:t.forumFinanced??0,penetration:penetration(t.forumFinanced??0,t.sold??0)};
   };
- const crmMetrics=r=>({workedPct:r?.leads>0?100*r.worked/r.leads:null,wins:r?.wins??null,showroom:r?.showroom??null});
+ const crmMetrics=r=>({assigned:r?.leads??null,worked:r?.worked??null,workedPct:r?.leads>0?100*r.worked/r.leads:null,wins:r?.wins??null,showroom:r?.showroom??null});
  const crmMeasures=(store,seller)=>crmMetrics(seller?crmSellers.find(r=>String(r.sucursal_id)===store.id&&seller.personIds.has(String(r.persona_id))):comparisonData.get(store.id)?.crm);
  const metrics=t=>{
   const sold=t.sold||0,proj=t.projection||0,prev=t.prevSold||0,previousProjected=t.prevProjected||0;
