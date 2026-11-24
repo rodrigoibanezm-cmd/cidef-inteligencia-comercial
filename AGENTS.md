@@ -84,3 +84,9 @@ Si pasa el control, informar brevemente el resultado de esas cinco comprobacione
 ## Enviados no facturados vigentes del corte (2026-11-24)
 - En `staging`, `app/api/weekly-projections/results/route.js` conserva todos los registros PENDING de la semana seleccionada devueltos por el endpoint existente `not-invoiced`. No filtrar por día de ingreso: el cambio de medianoche no debe ocultar pendientes.
 - No modificar la lógica histórica de saldos semanales, ni el alcance por week_start, ni los datos. Validación de sintaxis y prueba mínima con registros de dos días: ambos se incluyen. Pendiente deploy staging y comprobación de datos reales.
+
+
+## Contrato P1 unificado — 2026-11-24
+- `app/api/weekly-projections/results/route.js`: el transporte usa exclusivamente `data_query`. FORUM usa request declarativo; SALES batch y detalle conservan sus contratos mediante `action=sales_observe_many` y `action=data_fetch`.
+- No reactivar herramientas legacy ni alterar P1. Azure es la única fuente oficial; nunca consultar Neon.
+- Sintaxis validada; consulta real FORUM PRECURSE por `data_query` devolvió evidencia COMPLETE, 13 miembros. SALES batch requiere confirmar ejecución integral; una llamada de verificación falló internamente. Pendiente deploy staging y regenerar snapshot. Producción intacta.
