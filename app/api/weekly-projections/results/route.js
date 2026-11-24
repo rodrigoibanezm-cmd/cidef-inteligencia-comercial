@@ -295,7 +295,7 @@ export async function GET(request) {
          payload->'admin'->'historical_context'->'periods' AS historical_periods,
          payload->'admin'->'historical_context'->'yoy'->>'yoy_full_month' AS yoy_full_month,
          payload->'admin'->>'previous_full_month_units' AS mom_full_month,
-         payload->'admin'->'previous_full_month_sales' AS mom_full_sales
+         payload->'admin'->'previous_full_month_sales' AS mom_full_sales, payload->'crm' AS crm
       FROM weekly_projection_results
       WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
         AND dimension='STORE' AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)
@@ -464,7 +464,8 @@ export async function GET(request) {
         mom: historicalSales(r.historical_periods, momPeriod, 'M-1'),
         yoy_full: r.yoy_full_month == null ? null : Number(r.yoy_full_month),
         mom_full_sales: Array.isArray(r.mom_full_sales) ? r.mom_full_sales : null,
-        mom_full: r.mom_full_month == null ? null : Number(r.mom_full_month) })),
+        mom_full: r.mom_full_month == null ? null : Number(r.mom_full_month), crm:r.crm })),
+      crmSellers: sellers.filter(r=>r.payload.crm).map(r=>({...r.payload.crm,sucursal_id:r.sucursal_id,persona_id:r.persona_id})),
       forumSellerData: {
         aliases: storeId ? cached.payload.aliases : [],
         forum: sellerPayloads,
@@ -485,6 +486,65 @@ async function readRefreshStatus(weekStart, cutoffDate, env) {
     if (error?.code === '42P01') return { status: 'idle' };
     throw error;
   }
+}
+
+
+async function getCrmSnapshot(cutoffDate, branches, sellerData, jobId) {
+  const endpoint = process.env.CRM_MCP_ENDPOINT || 'https://cidef-salesforce.calmforest-1c67ab46.chilecentral.azurecontainerapps.io/mcp';
+  let session, seq=0;
+  async function rpc(method, params, notification=false) {
+    const response=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json',accept:'application/json, text/event-stream',...(session?{'mcp-session-id':session}:{}),...(process.env.CRM_MCP_TOKEN?{authorization:'Bearer '+process.env.CRM_MCP_TOKEN}:{})},body:JSON.stringify({jsonrpc:'2.0',...(notification?{}:{id:++seq}),method,params}),signal:AbortSignal.timeout(120000),cache:'no-store'});
+    if(!response.ok) throw Error('CRM HTTP '+response.status);
+    session=response.headers.get('mcp-session-id')||session;
+    if(notification)return;
+    const body=await response.text();
+    const line=body.split(/\r?\n/).find(x=>x.startsWith('data:'));
+    const envelope=JSON.parse(line?line.slice(5):body);
+    if(envelope.error||envelope.result?.isError)throw Error('CRM RPC failed');
+    return envelope.result;
+  }
+  await rpc('initialize',{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'weekly-projections',version:'1'}});
+  await rpc('notifications/initialized',{},true);
+  const from=cutoffDate.slice(0,7)+'-01', next=shiftDate(cutoffDate,1);
+  const instant=day=>{
+    const utc=new Date(day+'T00:00:00Z');
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Santiago',timeZoneName:'longOffset'}).formatToParts(new Date(day+'T12:00:00Z'));
+    const offset=parts.find(p=>p.type==='timeZoneName').value.replace('GMT','');
+    return new Date(day+'T00:00:00'+(offset||'+00:00')).toISOString();
+  };
+  async function observe(query) {
+    const r=await rpc('tools/call',{name:'data_observe',arguments:{run_id:'weekly-crm-'+jobId,query,refresh:true}});
+    let data=r.structuredContent||JSON.parse(r.content.find(x=>x.type==='text').text);
+    if(data.text&&typeof data.text==='string')data=JSON.parse(data.text);
+    if(data.status!=='SUCCESS'||!data.complete||!Array.isArray(data.records))throw Error('Incomplete CRM '+query.object_name);
+    return data.records;
+  }
+  const leads=await observe({object_name:'Lead',field_map:{branch:'Sucursal_Propietario__c',owner:'OwnerId',status:'Status',origin:'LeadSource',created:'CreatedDate'},filters:[{field:'created',op:'gte',value:instant(from)},{field:'created',op:'lt',value:instant(next)}],group_by:['branch','owner','status','origin']});
+  const wins=await observe({object_name:'Opportunity',field_map:{owner:'OwnerId',won:'IsWon',close:'CloseDate'},filters:[{field:'won',op:'eq',value:true},{field:'close',op:'gte',value:from},{field:'close',op:'lte',value:cutoffDate}],group_by:['owner']});
+  const users=await observe({object_name:'User',field_map:{id:'Id',name:'Name'}});
+  const aliases=await db()`SELECT sucursal_id::text id,valor_raw alias FROM sucursal_aliases WHERE validated UNION SELECT sucursal_id::text,nombre_canonico FROM sucursales_master`;
+  const norm=x=>String(x??'').normalize('NFC').trim().replace(/\s+/g,' ').toUpperCase();
+  const unique=values=>{const ids=[...new Set(values)];return ids.length===1?ids[0]:null};
+  const stores=new Map(branches.map(b=>[String(b.sucursal_id),{leads:0,worked:0,wins:0,showroom:0}]));
+  const sellers=new Map(sellerData.sellers.map(x=>[String(x.sucursal_id)+':'+String(x.persona_id),{leads:0,worked:0,wins:0,showroom:0}]));
+  const names=new Map(users.map(x=>[x.id,x.name]));
+  const ownerMatches=owner=>sellerData.aliases.filter(a=>norm(a.alias)===norm(names.get(owner))&&names.get(owner));
+  const addLead=(t,row)=>{if(!t)return;t.leads+=row.count;if(row.status&&row.status!=='Nuevo')t.worked+=row.count;if(row.origin==='SHOWROOM')t.showroom+=row.count};
+  let unresolvedLeads=0,unresolvedWins=0;
+  for(const row of leads){
+    const sid=unique(aliases.filter(a=>norm(a.alias)===norm(row.branch)&&row.branch).map(a=>a.id));
+    if(!stores.has(sid)){unresolvedLeads+=row.count;continue;}
+    addLead(stores.get(sid),row);
+    const pid=unique(ownerMatches(row.owner).filter(a=>String(a.sucursal_id)===sid).map(a=>String(a.persona_id)));
+    addLead(sellers.get(sid+':'+pid),row);
+  }
+  for(const row of wins){
+    const key=unique(ownerMatches(row.owner).map(a=>String(a.sucursal_id)+':'+String(a.persona_id)));
+    if(!sellers.has(key)){unresolvedWins+=row.count;continue;}
+    sellers.get(key).wins+=row.count;
+    stores.get(key.split(':')[0]).wins+=row.count;
+  }
+  return {stores,sellers,unresolvedLeads,unresolvedWins};
 }
 
 async function performRefresh(weekStart, cutoffDate, origin, job, env) {
@@ -515,6 +575,8 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
     requireArray(sellerData.sellers, 'SELLER_ROSTER');
     if (!companyAdmin.scopes || !companyFinance.scopes || !previousFullMonthAdmin.scopes) throw new Error('Incomplete grouped store results');
 
+    let crm=null;
+    try { crm=await getCrmSnapshot(cutoffDate,branches.sucursales,sellerData,job.job_id); } catch(error) { console.error('CRM snapshot unavailable:',error.message); }
     const brandIndicators = await getP1BrandIndicators(period, cutoffDate, scopeIds, job.job_id);
     companyAdmin.brand_indicators = brandIndicators.company;
     companyFinance.brand_indicators = brandIndicators.company;
@@ -611,7 +673,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
       const previousMonthSales = previousMonthAdmin.scopes?.[storeId]?.sales_mtd?.details || [];
       const fullMonthSales = previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.details;
       const previousFullMonthSales = Array.isArray(fullMonthSales) && fullMonthSales.length === previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.total_units ? fullMonthSales.map(({persona_id,vendedor,vendedor_nombre})=>({persona_id,vendedor,vendedor_nombre})) : null;
-      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin: { ...admin, previous_month_sales: previousMonthSales.map(({ vin, persona_id, vendedor, vendedor_nombre }) => ({ vin, persona_id, vendedor, vendedor_nombre })), previous_full_month_sales: previousFullMonthSales, previous_full_month_units: previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.total_units ?? null }, companyFinance: finance, aliases } }));
+      rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'STORE', scopeKey: `STORE:${storeId}`, storeId, payload: { admin: { ...admin, previous_month_sales: previousMonthSales.map(({ vin, persona_id, vendedor, vendedor_nombre }) => ({ vin, persona_id, vendedor, vendedor_nombre })), previous_full_month_sales: previousFullMonthSales, previous_full_month_units: previousFullMonthAdmin.scopes?.[storeId]?.sales_mtd?.total_units ?? null }, companyFinance: finance, aliases, crm: crm?.stores.get(storeId)??null } }));
       const sellerIds = new Set([
         ...sellerData.sellers.filter(s => String(s.sucursal_id) === storeId).map(s => String(s.persona_id)),
         ...resolvedSellerGroups.map(member => String(member.member_id)),
@@ -627,7 +689,7 @@ async function performRefresh(weekStart, cutoffDate, origin, job, env) {
           precurse: Number(precurseMember?.value || 0),
           precurse_evidence_id: precurseSellerEvidence.evidence_id,
         };
-        rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`, storeId, personId: sellerId, payload: { forum } }));
+        rows.push(resultRow({ weekStart, cutoffDate, env, dimension: 'SELLER', scopeKey: `SELLER:${storeId}:${sellerId}`, storeId, personId: sellerId, payload: { forum, crm: crm?.sellers.get(storeId+':'+sellerId)??null } }));
       }
       completedStores += 1;
       job.completedStores = completedStores;
