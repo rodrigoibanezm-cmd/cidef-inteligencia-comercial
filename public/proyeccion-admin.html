@@ -132,7 +132,7 @@ let adjacentProjections=[];
 const matrixColumns=[
  ['previous','prevSold','Venta'],
  ['previous','prevProjected','Proyección'],['previous','gap','Brecha'],
- ['current','currentSold','Venta'],['current','projection','Proyección'],['current','sent','Enviado no fact.'],
+ ['current','currentSold','Venta'],['current','projection','Proyección'],['current','sent','Enviado no fact.'],['current','currentGap','Brecha'],
  ['next','nextProjection','Proyección'],['next','nextEntry','Cierre proyectado'],
  ['commercial','sold','Vendidos'],['commercial','soldFD','F / D'],['commercial','entryNext','Entrada próx. semana'],
  ['forum','quotes','Cotizaciones'],['forum','approved','Aprobados'],['forum','precurse','Precursados'],['forum','curse','UFI ejecutadas'],['forum','penetration','Penetración'],
@@ -264,7 +264,7 @@ function renderStoreFinanceTable(rows,sentRows){
  const crmMeasures=(store,seller)=>crmMetrics(seller?crmSellers.find(r=>String(r.sucursal_id)===store.id&&seller.personIds.has(String(r.persona_id))):comparisonData.get(store.id)?.crm);
  const metrics=t=>{
   const sold=t.sold||0,proj=t.projection||0,prev=t.prevSold||0,previousProjected=t.prevProjected||0;
-  return {...t,currentSold:currentSalesAvailable?(t.currentSold||0):null,prevSold:prevSalesAvailable?prev:null,prevSoldFoton:prevSalesAvailable?(t.prevSoldFoton||0):null,
+  return {...t,currentSold:currentSalesAvailable?(t.currentSold||0):null,currentGap:currentSalesAvailable?(t.currentSold||0)-proj:null,prevSold:prevSalesAvailable?prev:null,prevSoldFoton:prevSalesAvailable?(t.prevSoldFoton||0):null,
    prevSoldDfm:prevSalesAvailable?(t.prevSoldDfm||0):null,
    gap:prevSalesAvailable&&previousEnd!==firstCloseDate?prev-previousProjected:null,entryNext:sold+proj};
  };
@@ -281,7 +281,7 @@ function renderStoreFinanceTable(rows,sentRows){
   const splitTotal=key==='prevSoldFD'?values.prevSold:key==='soldFD'?values.sold:null;
   const splitMissing=(key==='prevSoldFD'&&!prevSalesAvailable)||(splitTotal!=null&&Number(splitTotal)!==Number(values[pair?.[0]]||0)+Number(values[pair?.[1]]||0));
   const display=(key==='penetration'||key==='workedPct')?(value==null?'—':Math.round(value)+'%'):pair?(splitMissing?'—':'<span class="matrix-fd-value">'+numeric(values[pair[0]]||0)+' / '+numeric(values[pair[1]]||0)+'</span>'):numeric(value);
-  const cls='num matrix-'+group+(key==='nextEntry'?' matrix-entry':'')+(pair?' matrix-fd':'')+(key==='gap'&&value<0?' weekly-gap-negative':'')+(index===0||['prevProjected','gap','sent','entryNext'].includes(key)?' matrix-divider':'');
+  const cls='num matrix-'+group+(key==='nextEntry'?' matrix-entry':'')+(pair?' matrix-fd':'')+(['gap','currentGap'].includes(key)&&value<0?' weekly-gap-negative':'')+(index===0||['prevProjected','gap','sent','entryNext'].includes(key)?' matrix-divider':'');
   const brandMetric=['prevSold','currentSold','prevProjected','projection','nextProjection','sold','sent'].includes(key);
   const f=Number(values[key+'Foton']||0),d=Number(values[key+'Dfm']||0);
   const tooltip=brandMetric&&value!=null&&Number(value)===f+d?' title="Foton: '+f+' | Dongfeng: '+d+'"':'';
@@ -345,7 +345,7 @@ function renderStoreFinanceTable(rows,sentRows){
  ];
  const overview='<div class="store-domain-overview">'+kpis.map(([key,label,description,value])=>
   '<button class="store-domain-kpi" type="button" data-domain-tab="'+key+'"><span>'+label+'</span><strong>'+value+'</strong><small>'+description+'</small></button>').join('')+'</div>';
- $('#byStore').innerHTML=overview+tabs+'<div class="store-finance-scroll"><table class="store-finance-table"><thead><tr class="store-finance-groups"><th rowspan="2">Tienda / vendedor</th><th rowspan="2" class="matrix-fixed matrix-fixed-current">Facturado /<br>enviado</th><th rowspan="2" class="matrix-fixed matrix-fixed-sold">Total<br>vendido</th><th rowspan="2" class="matrix-fixed matrix-fixed-prior">Mes anterior<br><span class="matrix-history-key">C / T</span></th><th rowspan="2" class="matrix-fixed matrix-fixed-yoy">Año anterior<br><span class="matrix-history-key">C / T</span></th>'+groupHeads+'</tr><tr>'+matrixColumns.map((c,i)=>'<th class="matrix-'+c[0]+(c[1].endsWith('FD')?' matrix-fd':'')+(i===0||['prevProjected','gap','sent','entryNext','nextProjection'].includes(c[1])?' matrix-divider':'')+'">'+c[2]+'</th>').join('')+'</tr></thead><tbody>'+lines.join('')+'</tbody></table></div><div class="muted seller-footnote">'+(prevSalesAvailable?'Brecha = venta semana anterior − proyección.':'Venta de semana anterior no disponible en el histórico del mes seleccionado.')+' Cierre proyectado = facturado + enviado no facturado + nueva proyección. Indicadores sin fuente disponible se muestran como —.</div><div class="muted matrix-history-legend">C = al corte · T = total mes</div>';
+ $('#byStore').innerHTML=overview+tabs+'<div class="store-finance-scroll"><table class="store-finance-table"><thead><tr class="store-finance-groups"><th rowspan="2">Tienda / vendedor</th><th rowspan="2" class="matrix-fixed matrix-fixed-current">Facturado /<br>enviado</th><th rowspan="2" class="matrix-fixed matrix-fixed-sold">Total<br>vendido</th><th rowspan="2" class="matrix-fixed matrix-fixed-prior">Mes anterior<br><span class="matrix-history-key">C / T</span></th><th rowspan="2" class="matrix-fixed matrix-fixed-yoy">Año anterior<br><span class="matrix-history-key">C / T</span></th>'+groupHeads+'</tr><tr>'+matrixColumns.map((c,i)=>'<th class="matrix-'+c[0]+(c[1].endsWith('FD')?' matrix-fd':'')+(i===0||['prevProjected','gap','sent','entryNext','nextProjection'].includes(c[1])?' matrix-divider':'')+'">'+c[2]+'</th>').join('')+'</tr></thead><tbody>'+lines.join('')+'</tbody></table></div><div class="muted seller-footnote">'+(prevSalesAvailable?'Brecha = venta del período − proyección.':'Venta de semana anterior no disponible en el histórico del mes seleccionado.')+' Cierre proyectado = facturado + enviado no facturado + nueva proyección. Indicadores sin fuente disponible se muestran como —.</div><div class="muted matrix-history-legend">C = al corte · T = total mes</div>';
  applyStoreDomain();
 }
 function sellerKey(value){return String(value||'Sin vendedor').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase()}
