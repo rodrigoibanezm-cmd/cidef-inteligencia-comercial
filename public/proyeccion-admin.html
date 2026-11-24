@@ -146,6 +146,7 @@ function matrixDateOffset(value,days){
 function applyStoreDomain(){
  const table=$('#byStore .store-finance-table');if(!table)return;
  const headers=[...table.tHead.rows[1].cells],rows=[...table.tBodies[0].rows];
+ const fixedCount=table.tHead.rows[0].querySelectorAll('th[rowspan="2"]').length;
  let first=1;
  for(const [key] of matrixGroups){
   const show=activeStoreDomain==='projection'?['previous','current','next'].includes(key):activeStoreDomain==='comparisons'?['comparisonMom','comparisonYoy'].includes(key):key===activeStoreDomain;
@@ -154,7 +155,7 @@ function applyStoreDomain(){
   for(const [index,col] of matrixColumns.entries()){
    if(col[0]!==key)continue;
    headers[index].hidden=!show;
-   for(const row of rows)row.cells[index+3].hidden=!show;
+   for(const row of rows)row.cells[index+fixedCount].hidden=!show;
   }
  }
  document.querySelectorAll('#byStore [data-domain-tab]').forEach(tab=>{
