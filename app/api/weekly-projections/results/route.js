@@ -28,7 +28,7 @@ function dates(params) {
 }
 
 function environment() {
-  // This server-side setting keeps staging and production results in separate scopes.
+  // The deployment environment controls who can refresh the shared staging snapshot.
   const value = String(process.env.PROJECTIONS_ENVIRONMENT || 'staging').trim().toLowerCase();
   if (value !== 'staging' && value !== 'production') {
     throw new Error('PROJECTIONS_ENVIRONMENT must be staging or production');
@@ -278,17 +278,17 @@ function historicalSales(periods, reference, label) {
 export async function GET(request) {
   try {
     const url = new URL(request.url), { weekStart, cutoffDate } = dates(url.searchParams);
-    const env = environment(), storeId = url.searchParams.get('sucursal_id') || null;
-    if (url.searchParams.get('status') === '1') return NextResponse.json({ ok: true, environment: env, ...(await readRefreshStatus(weekStart, cutoffDate, env)) });
+    const env = environment(), snapshotEnv = 'staging', storeId = url.searchParams.get('sucursal_id') || null;
+    if (url.searchParams.get('status') === '1') return NextResponse.json({ ok: true, environment: env, ...(await readRefreshStatus(weekStart, cutoffDate, snapshotEnv)) });
     if (storeId && !/^\d+$/.test(storeId)) return bad('Invalid sucursal_id');
     const sql = db();
     const rows = await sql`
       SELECT dimension, scope_key, sucursal_id::text, persona_id::text, payload, updated_at::text
       FROM weekly_projection_results
-      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${snapshotEnv}
         AND scope_key=${storeId ? `STORE:${storeId}` : 'COMPANY'}
     `;
-    if (!rows.length) return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
+    if (!rows.length) return bad('No hay resultados guardados para este corte.', 404);
     const cached = rows[0];
     const storeSales = await sql`
       SELECT sucursal_id::text AS sucursal_id, payload->'admin'->'sales_mtd'->>'total_units' AS total_units,
@@ -297,7 +297,7 @@ export async function GET(request) {
          payload->'admin'->>'previous_full_month_units' AS mom_full_month,
          payload->'admin'->'previous_full_month_sales' AS mom_full_sales, payload->'crm' AS crm
       FROM weekly_projection_results
-      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${snapshotEnv}
         AND dimension='STORE' AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)
     `;
     const branches = await call(getBranches, `${url.origin}/api/weekly-projections/sucursales`);
@@ -450,7 +450,7 @@ export async function GET(request) {
     const sellers = await sql`
       SELECT payload, sucursal_id::text AS sucursal_id, persona_id::text AS persona_id
       FROM weekly_projection_results
-      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${env}
+      WHERE week_start=${weekStart}::date AND cutoff_date=${cutoffDate}::date AND environment=${snapshotEnv}
         AND dimension='SELLER' AND (${storeId}::bigint IS NULL OR sucursal_id=${storeId}::bigint)
       ORDER BY sucursal_id, persona_id
     `;
@@ -474,7 +474,7 @@ export async function GET(request) {
     });
   } catch (error) {
     console.error(error);
-    if (error?.code === '42P01') return bad('No hay resultados guardados para este corte. Pulsa Actualizar.', 404);
+    if (error?.code === '42P01') return bad('No hay resultados guardados para este corte.', 404);
     return bad(error?.message || 'Internal server error', 500);
   }
 }
@@ -728,8 +728,8 @@ export async function POST(request) {
   let weekStart, cutoffDate, job, env, heartbeat;
   try {
     env = environment();
+    if (env !== 'staging') return bad('La actualización solo está disponible en staging.', 403);
     const body = await request.json();
-    if (env === 'production' && body.refresh_code !== '24680') return bad('Código de actualización incorrecto.', 403);
     if (body.automatic) return bad('La actualización se inicia manualmente desde el botón Actualizar.', 400);
     ({ weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' })));
     const sources = await snapshots.sources();
