@@ -729,6 +729,7 @@ export async function POST(request) {
   try {
     env = environment();
     const body = await request.json();
+    if (env === 'production' && body.refresh_code !== '24680') return bad('Código de actualización incorrecto.', 403);
     if (body.automatic) return bad('La actualización se inicia manualmente desde el botón Actualizar.', 400);
     ({ weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' })));
     const sources = await snapshots.sources();
