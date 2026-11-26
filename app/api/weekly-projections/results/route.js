@@ -728,7 +728,6 @@ export async function POST(request) {
   let weekStart, cutoffDate, job, env, heartbeat;
   try {
     env = environment();
-    if (env !== 'staging') return bad('STAGING_ONLY', 403);
     const body = await request.json();
     if (body.automatic) return bad('La actualización se inicia manualmente desde el botón Actualizar.', 400);
     ({ weekStart, cutoffDate } = dates(new URLSearchParams({ week_start: body.week_start || '', cutoff_date: body.cutoff_date || '' })));
