@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db.js';
+import { withP1Mcp, callP1 } from '../../../../lib/p1-client.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,7 +127,24 @@ export async function GET(request) {
     const monthlySales=salesRaw.map(r=>({...r,fecha_venta:normalizeDate(r.fecha_venta)}));
     const latestByVin=new Map();
     for(const row of monthlySales)latestByVin.set(row.vin,row);
-    const all=[...latestByVin.values()];
+    // Current-month sales recognition belongs to P1; RAW only supplies display metadata.
+    const from=monthStart(cutoffDate);
+    const work=await withP1Mcp(client=>callP1(client,'data_query',{
+      run_id:'projection-admin-'+crypto.randomUUID(),source:'SALES',action:'data_fetch',
+      arguments:{filters:{commercial_universe:'OWN_STORES',date_from:from,date_to:cutoffDate}}
+    }));
+    if(work?.dataset!=='SALES_WORK'||work?.grain!=='RECOGNIZED_SALE'||work?.quality?.validation?.valid!==true||
+       !Array.isArray(work.rows)||work.rows.length!==work.size?.filtered_n)throw Error('INCOMPLETE_CERTIFIED_SALES');
+    const rawByVin=new Map(monthlySales.filter(row=>row.fecha_venta>=from).map(row=>[row.vin,row]));
+    const certified=work.rows.map(row=>{
+      const raw=rawByVin.get(row.vin);
+      if(!raw||raw.fecha_venta!==row.sale_date||String(raw.sucursal_id)!==String(row.store_id)||
+         row.quantity!==1||row.sale_date<from||row.sale_date>cutoffDate)throw Error('CERTIFIED_SALES_METADATA_MISMATCH');
+      return {...raw,fecha_venta:row.sale_date,entidad_financiera:row.financial_entity,
+        marca: String(row.brand_id)==='89'?'FOTON':String(row.brand_id)==='71'?'DONGFENG':raw.marca};
+    });
+    if(new Set(certified.map(row=>row.vin)).size!==certified.length)throw Error('DUPLICATE_CERTIFIED_SALES');
+    const all=[...latestByVin.values()].filter(row=>row.fecha_venta<from).concat(certified);
     const cuts=[['M-4',shiftMonth(cutoffDate,-4)],['M-3',shiftMonth(cutoffDate,-3)],['M-2',shiftMonth(cutoffDate,-2)],['M-1',shiftMonth(cutoffDate,-1)],['CURRENT',cutoffDate],['YOY',shiftYear(cutoffDate,-1)]];
     const periods=cuts.map(([label,date])=>{
       const period=periodSnapshot(all,date,label,storeId,label==='YOY');
